@@ -13,8 +13,8 @@ Goals
 - Horizontal scalability to match Datomic's peer based architecture
 - A custom Datomic driver class for Doctrine that can integrate into existing PHP projects
 
-So What Is Datomic And Why SHould I Care?
-=========================================
+So What Is Datomic And Why Should I Care?
+-----------------------------------------
 - [Datomic Homepage](https://github.com/igorw/edn)
 - [Datomic for Five Year Olds](http://www.flyingmachinestudios.com/programming/datomic-for-five-year-olds/)
 - [Rich Hickey Introduces Datomic](http://www.youtube.com/watch?v=RKcqYZZ9RDY)
