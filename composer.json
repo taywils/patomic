@@ -1,0 +1,18 @@
+{
+        "name": "taywils/patomic",
+        "description": "Datomic REST API for PHP",
+        "keywords": ["datomic", "api"],
+        "license": "MIT",
+        "authors": [
+                {
+                        "name": "Taywils"
+                }
+        ],
+        "require": {
+                "php": ">=5.4.0",
+                "igorw/edn": "1.0.x-dev",
+                "nikic/phlexy": "~1.0-dev",
+                "rhumsaa/uuid": "2.4.x-dev",
+                "doctrine/dbal": "2.3.x-dev"
+        }
+}

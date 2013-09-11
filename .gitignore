@@ -1,0 +1,6 @@
+phpunit.xml
+composer.lock
+vendor
+*.phar
+todo.txt
+
