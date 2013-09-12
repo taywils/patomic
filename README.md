@@ -1,17 +1,26 @@
 Patomic - Datomic REST API for PHP
 ==================================
 
+Requiements
+-----------
+1. The full Java dev environment [java.com](http://www.java.com) both JDK and JRE
+2. Download Datomic free edition [datomic.com/free](http://downloads.datomic.com/free.html)
+
+Quickstart (Incomplete)
+-----------------------
+```
+$ cd [datomic_directory]
+$ ./bin/rest -p 9998 demo datomic:mem://
+```
+
+At this point you may browse to [http://localhost:9998/](http://localhost:9998/) and use the offical HTTP REST service
+
+
 About
 -----
 - Patomic provides PHP developers with a RESTful API to communicate with a Datomic database.
 - Built upon igorw's wonderful EDN parser for PHP [github.com/igorw/edn](https://github.com/igorw/edn)
 - Uses composer for easy dependency management
-
-Goals
------
-- Full Unit testing
-- Horizontal scalability to match Datomic's peer based architecture
-- A custom Datomic driver class for Doctrine that can integrate into existing PHP projects
 
 So What Is Datomic And Why Should I Care?
 -----------------------------------------
