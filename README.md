@@ -1,19 +1,20 @@
 Patomic - Datomic REST API for PHP
 ==================================
 
-Requiements
+Requirements
 -----------
 1. The full Java dev environment [java.com](http://www.java.com) both JDK and JRE
-2. Download Datomic free edition [datomic.com/free](http://downloads.datomic.com/free.html)
+2. Datomic free edition [datomic.com/free](http://downloads.datomic.com/free.html)
 
 Quickstart (Incomplete)
 -----------------------
+
 ```
 $ cd [datomic_directory]
 $ ./bin/rest -p 9998 demo datomic:mem://
 ```
 
-At this point you may browse to [http://localhost:9998/](http://localhost:9998/) and use the offical HTTP REST service
+At this point you may browse to [http://localhost:9998/](http://localhost:9998/) and use the offical Datomic REST Service
 
 
 About
