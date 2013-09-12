@@ -21,6 +21,7 @@ About
 -----
 - Patomic provides PHP developers with a RESTful API to communicate with a Datomic database.
 - Built upon igorw's wonderful EDN parser for PHP [github.com/igorw/edn](https://github.com/igorw/edn)
+- [Guzzle](http://guzzlephp.org/) based web service client
 - Uses composer for easy dependency management
 
 So What Is Datomic And Why Should I Care?
