@@ -1,6 +1,15 @@
+# Testing
 phpunit.xml
+
+# Composer
 composer.lock
 vendor
 *.phar
+
+# Project
 todo.txt
 
+# IDEA 
+.idea/
+*.iml
+*.iws
