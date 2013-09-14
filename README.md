@@ -11,7 +11,7 @@ Quickstart (Incomplete)
 
 ```
 $ cd [datomic_directory]
-$ ./bin/rest -p 9998 demo datomic:mem://
+$ ./bin/rest -p 9998 [alias_name] datomic:[datomic_storage_type]://
 ```
 
 At this point you may browse to [http://localhost:9998/](http://localhost:9998/) and use the offical Datomic REST Service

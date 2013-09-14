@@ -2,8 +2,6 @@
 require "temploader.php";
 require "PatomicException.php";
 
-use Guzzle\Http\Client;
-
 /**
  * Main class for Patomic
  * Every instance of this class represents a connection to the Datomic REST service
@@ -17,8 +15,9 @@ class Patomic
         );
         private $storageTypes   = array("mem", "dev", "sql", "inf", "ddb");
         private $statusQueue    = null;
+        private $restClient     = null;
 
-        public function __construct($port = 9998, $storage = "mem", $alias = null, $url = null) {
+        public function __construct($port = 9998, $storage = "mem", $alias = null) {
                 try {
                         if(!isset($alias)) {
                                 throw new PatomicException("\$alias argument must be set");
@@ -29,13 +28,25 @@ class Patomic
                         $this->config["alias"]         = $alias;
 
                         $this->statusQueue = new SplQueue();
+
+                        $this->restClient = new \Guzzle\Http\Client("http://localhost:$port/");
                 } catch(PatomicException $e) {
                         echo $e.PHP_EOL;
                 }
         }
 
-        public function ping() {
-                
+        public function connect() {
+                //curl -H "Accept: application/edn, Content-Type: application/edn" -X GET http://localhost:9998/data/ 
+                $request = $this->restClient->get('/');
+                $this->statusQueue->enqueue($request);
+                $this->printStatus();
+                $response = $request->send();
+                $this->statusQueue->enqueue($response);
+                $this->printStatus();
+        }
+
+        public function createDatabas() {
+                //curl -H "Content-Type: application/x-www-form-urlencoded" -X POST http://localhost:9998/data/demo/?db-name=apple
         }
 
         private function printStatus() {
@@ -46,3 +57,4 @@ class Patomic
 }
 
 $patomic = new Patomic(9998, "mem", "patomic");
+$patomic->connect();
