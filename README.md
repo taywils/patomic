@@ -5,6 +5,7 @@ Requirements
 -----------
 1. The full Java dev environment [java.com](http://www.java.com) both JDK and JRE
 2. Datomic free edition [datomic.com/free](http://downloads.datomic.com/free.html)
+3. [Composer](http://getcomposer.org/)
 
 Quickstart (Incomplete)
 -----------------------
@@ -13,9 +14,30 @@ Quickstart (Incomplete)
 $ cd [datomic_directory]
 $ ./bin/rest -p 9998 [alias_name] datomic:[datomic_storage_type]://
 ```
+Now create a new project to use Patomic
 
-At this point you may browse to [http://localhost:9998/](http://localhost:9998/) and use the offical Datomic REST Service
+```
+$ cd [project_directory]
+$ touch composer.json
+```
 
+Add Patomic to your composer.json
+Run composer update 
+
+```
+$ touch testPatomic.php
+```
+
+Use your favorite editor/IDE and open testPatomic.php
+
+```
+<?php
+require __DIR__.'/../vendor/autoload.php';
+
+$patomic = new Patomic(9998, "mem", "myAliasName");
+$patomic->connect();
+$patomic->createDatabase("squid");
+```
 
 About
 -----
