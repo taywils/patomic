@@ -16,6 +16,8 @@ class Patomic
         private $storageTypes   = array("mem", "dev", "sql", "inf", "ddb");
         private $statusQueue    = null;
         private $restClient     = null;
+        private $dataRequest    = null;
+        private $apiRequest     = null;
 
         public function __construct($port = 9998, $storage = "mem", $alias = null) {
                 try {
@@ -36,22 +38,28 @@ class Patomic
         }
 
         public function connect() {
-                //curl -H "Accept: application/edn, Content-Type: application/edn" -X GET http://localhost:9998/data/ 
-                $request = $this->restClient->get('/');
-                $this->statusQueue->enqueue($request);
-                $this->printStatus();
-                $response = $request->send();
-                $this->statusQueue->enqueue($response);
-                $this->printStatus();
+                $this->dataRequest = $this->restClient->get('/data/');
+                $this->apiRequest  = $this->restClient->get('/api/');
+
+                $this->statusQueue->enqueue($this->dataRequest);
+                $this->statusQueue->enqueue($this->apiRequest);
+
+                $this->printStatus(true);
         }
 
-        public function createDatabas() {
+        public function createDatabase() {
                 //curl -H "Content-Type: application/x-www-form-urlencoded" -X POST http://localhost:9998/data/demo/?db-name=apple
         }
 
-        private function printStatus() {
+        private function printStatus($printAll = false) {
                 if(!$this->statusQueue->isEmpty()) {
-                        echo $this->statusQueue->dequeue().PHP_EOL;
+                        if($printAll) {
+                                while(!$this->statusQueue->isEmpty()) {
+                                        echo $this->statusQueue->dequeue().PHP_EOL;
+                                }
+                        } else {
+                                echo $this->statusQueue->dequeue().PHP_EOL;
+                        }
                 }
         }
 }
