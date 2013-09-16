@@ -32,7 +32,7 @@ Use your favorite editor/IDE and open testPatomic.php
 
 ```
 <?php
-require __DIR__.'/../vendor/autoload.php';
+require __DIR__.'/vendor/autoload.php';
 
 $patomic = new Patomic(9998, "mem", "myAliasName");
 $patomic->connect();
