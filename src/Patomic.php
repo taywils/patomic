@@ -12,12 +12,13 @@ class Patomic
                 "port"          => 0,
                 "storage"       => "",
                 "alias"         => "",
+                "dataUrl"       => "",
+                "apiUrl"        => "",
         );
         private $storageTypes   = array("mem", "dev", "sql", "inf", "ddb");
         private $statusQueue    = null;
-        private $restClient     = null;
-        private $dataRequest    = null;
-        private $apiRequest     = null;
+        private $dataClient     = null;
+        private $apiClient      = null;
 
         public function __construct($port = 9998, $storage = "mem", $alias = null) {
                 try {
@@ -25,24 +26,34 @@ class Patomic
                                 throw new PatomicException("\$alias argument must be set");
                         }
 
+                        if(!array_search($storage, $this->storageTypes, true)) {
+                                $msg = "\$storage argument must be the correct string".PHP_EOL;
+                                $msg .= "Valid storage strings are \"".implode($this->storageTypes, " ")."\"";
+                                throw new PatomicException($msg);
+                        }
+
                         $this->config["port"]          = $port;
                         $this->config["storage"]       = $storage;
                         $this->config["alias"]         = $alias;
+                        $this->config["dataUrl"]       = "http://localhost:$port/data/";
+                        $this->config["apiUrl"]        = "http://localhost:$port/api/";
 
                         $this->statusQueue = new SplQueue();
 
-                        $this->restClient = new \Guzzle\Http\Client("http://localhost:$port/");
-                } catch(PatomicException $e) {
+                        $this->dataClient = new \Guzzle\Http\Client($this->config["dataUrl"]);
+                        $this->apiClient  = new \Guzzle\Http\Client($this->config["apiUrl"]);
+                } catch(Exception $e) {
                         echo $e.PHP_EOL;
+                        exit();
                 }
         }
 
         public function connect() {
-                $this->dataRequest = $this->restClient->get('/data/');
-                $this->apiRequest  = $this->restClient->get('/api/');
+                $req = $this->dataClient->get('/');
+                $this->statusQueue->enqueue($req->send());
 
-                $this->statusQueue->enqueue($this->dataRequest);
-                $this->statusQueue->enqueue($this->apiRequest);
+                $req = $this->apiClient->get('/');
+                $this->statusQueue->enqueue($req->send());
 
                 $this->printStatus(true);
         }
