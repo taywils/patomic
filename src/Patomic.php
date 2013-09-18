@@ -14,6 +14,7 @@ class Patomic
                 "alias"         => "",
                 "dataUrl"       => "",
                 "apiUrl"        => "",
+                "serverUrl"     => "http://localhost:",
         );
         private $storageTypes   = array("mem", "dev", "sql", "inf", "ddb");
         private $statusQueue    = null;
@@ -26,7 +27,7 @@ class Patomic
                                 throw new PatomicException("\$alias argument must be set");
                         }
 
-                        if(!array_search($storage, $this->storageTypes, true)) {
+                        if(!in_array($storage, $this->storageTypes)) {
                                 $msg = "\$storage argument must be the correct string".PHP_EOL;
                                 $msg .= "Valid storage strings are \"".implode($this->storageTypes, " ")."\"";
                                 throw new PatomicException($msg);
@@ -35,13 +36,15 @@ class Patomic
                         $this->config["port"]          = $port;
                         $this->config["storage"]       = $storage;
                         $this->config["alias"]         = $alias;
-                        $this->config["dataUrl"]       = "http://localhost:$port/data/";
-                        $this->config["apiUrl"]        = "http://localhost:$port/api/";
+                        $this->config["dataUrl"]       = $this->config["serverUrl"]."$port/data/";
+                        $this->config["apiUrl"]        = $this->config["serverUrl"]."$port/api/";
 
                         $this->statusQueue = new SplQueue();
 
                         $this->dataClient = new \Guzzle\Http\Client($this->config["dataUrl"]);
                         $this->apiClient  = new \Guzzle\Http\Client($this->config["apiUrl"]);
+
+                        $this->connect();
                 } catch(Exception $e) {
                         echo $e.PHP_EOL;
                         exit();
@@ -49,17 +52,48 @@ class Patomic
         }
 
         public function connect() {
-                $req = $this->dataClient->get('/');
-                $this->statusQueue->enqueue($req->send());
+                try {
+                        $dataRes = $this->dataClient->get('/')->send();
+                        $apiRes  = $this->apiClient->get('/')->send();
 
-                $req = $this->apiClient->get('/');
-                $this->statusQueue->enqueue($req->send());
+                        if(!($dataRes->isSuccessful() && $apiRes->isSuccessful())) {
+                                throw new PatomicException("Patomic::connect failure, is the Datomic server running?");
+                        } else {
+                                $this->addStatus("Patomic connection sucessful on ".$this->config["dataUrl"]." and ".$this->config["apiUrl"]);
+                        }
+                } catch(Exception $e) {
+                        echo $e.PHP_EOL;
+                }
 
                 $this->printStatus(true);
         }
 
-        public function createDatabase() {
-                //curl -H "Content-Type: application/x-www-form-urlencoded" -X POST http://localhost:9998/data/demo/?db-name=apple
+        public function createDatabase($dbName = null) {
+                try {
+                        //curl -H "Content-Type: application/x-www-form-urlencoded" -X POST http://localhost:9998/data/demo/?db-name=apple
+                        if(!isset($dbName)) {
+                               throw new PatomicException("Patomic::createDatabase called without a valid \$dbName argument"); 
+                        } else {
+                                $req = $this->dataClient->post($this->config["alias"]."/");
+
+                                $query = $req->getQuery();
+                                $query->add('db-name', $dbName);
+
+                                $res = $req->send();
+
+                                print_r($res);
+
+                                $this->addStatus($req->getUrl());
+                                $this->addStatus($res);
+                        }
+                } catch(Exception $e) {
+                        echo $e.PHP_EOL;
+                }
+                $this->printStatus(true);
+        }
+
+        private function addStatus($msg) {
+                $this->statusQueue->enqueue($msg);
         }
 
         private function printStatus($printAll = false) {
@@ -75,5 +109,5 @@ class Patomic
         }
 }
 
-$patomic = new Patomic(9998, "mem", "patomic");
-$patomic->connect();
+$patomic = new Patomic(9998, "mem", "demo");
+$patomic->createDatabase("squid");
