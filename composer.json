@@ -12,6 +12,6 @@
                 "php": ">=5.4.0",
                 "igorw/edn": "1.0.x-dev",
                 "nikic/phlexy": "~1.0-dev",
-                "rhumsaa/uuid": "2.4.x-dev",
+                "rhumsaa/uuid": "2.4.x-dev"
         }
 }
