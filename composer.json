@@ -13,6 +13,5 @@
                 "igorw/edn": "1.0.x-dev",
                 "nikic/phlexy": "~1.0-dev",
                 "rhumsaa/uuid": "2.4.x-dev",
-                "guzzle/guzzle": "3.7.x-dev"
         }
 }

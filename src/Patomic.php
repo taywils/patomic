@@ -18,8 +18,6 @@ class Patomic
         );
         private $storageTypes   = array("mem", "dev", "sql", "inf", "ddb");
         private $statusQueue    = null;
-        private $dataClient     = null;
-        private $apiClient      = null;
 
         public function __construct($port = 9998, $storage = "mem", $alias = null) {
                 try {
@@ -41,9 +39,6 @@ class Patomic
 
                         $this->statusQueue = new SplQueue();
 
-                        $this->dataClient = new \Guzzle\Http\Client($this->config["dataUrl"]);
-                        $this->apiClient  = new \Guzzle\Http\Client($this->config["apiUrl"]);
-
                         $this->connect();
                 } catch(Exception $e) {
                         echo $e.PHP_EOL;
@@ -53,14 +48,6 @@ class Patomic
 
         public function connect() {
                 try {
-                        $dataRes = $this->dataClient->get('/')->send();
-                        $apiRes  = $this->apiClient->get('/')->send();
-
-                        if(!($dataRes->isSuccessful() && $apiRes->isSuccessful())) {
-                                throw new PatomicException("Patomic::connect failure, is the Datomic server running?");
-                        } else {
-                                $this->addStatus("Patomic connection sucessful on ".$this->config["dataUrl"]." and ".$this->config["apiUrl"]);
-                        }
                 } catch(Exception $e) {
                         echo $e.PHP_EOL;
                 }
@@ -68,28 +55,17 @@ class Patomic
                 $this->printStatus(true);
         }
 
+        // I ran into too many issues with Guzzle
+        //curl -H "Content-Type: application/x-www-form-urlencoded" -X POST http://localhost:9998/data/demo/?db-name=apple
         public function createDatabase($dbName = null) {
-                try {
-                        //curl -H "Content-Type: application/x-www-form-urlencoded" -X POST http://localhost:9998/data/demo/?db-name=apple
-                        if(!isset($dbName)) {
-                               throw new PatomicException("Patomic::createDatabase called without a valid \$dbName argument"); 
-                        } else {
-                                $req = $this->dataClient->post($this->config["alias"]."/");
+                $ch = curl_init();
 
-                                $query = $req->getQuery();
-                                $query->add('db-name', $dbName);
+                curl_setopt($ch, CURLOPT_URL, $this->config["dataUrl"].$this->config["alias"]."/");
+                curl_setopt($ch, CURLOPT_POST, 1);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, "db-name=$dbName");
 
-                                $res = $req->send();
-
-                                print_r($res);
-
-                                $this->addStatus($req->getUrl());
-                                $this->addStatus($res);
-                        }
-                } catch(Exception $e) {
-                        echo $e.PHP_EOL;
-                }
-                $this->printStatus(true);
+                curl_exec($ch);
+                curl_close($ch);
         }
 
         private function addStatus($msg) {
