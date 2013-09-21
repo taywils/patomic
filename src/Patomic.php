@@ -38,33 +38,23 @@ class Patomic
                         $this->config["apiUrl"]        = $this->config["serverUrl"]."$port/api/";
 
                         $this->statusQueue = new SplQueue();
-
-                        $this->connect();
                 } catch(Exception $e) {
                         echo $e.PHP_EOL;
                         exit();
                 }
         }
 
-        public function connect() {
-                try {
-                } catch(Exception $e) {
-                        echo $e.PHP_EOL;
-                }
-
-                $this->printStatus(true);
-        }
-
-        // I ran into too many issues with Guzzle
-        //curl -H "Content-Type: application/x-www-form-urlencoded" -X POST http://localhost:9998/data/demo/?db-name=apple
         public function createDatabase($dbName = null) {
+        //curl -H "Content-Type: application/x-www-form-urlencoded" -X POST http://localhost:9998/data/demo/?db-name=apple
                 $ch = curl_init();
 
                 curl_setopt($ch, CURLOPT_URL, $this->config["dataUrl"].$this->config["alias"]."/");
                 curl_setopt($ch, CURLOPT_POST, 1);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, "db-name=$dbName");
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
-                curl_exec($ch);
+                $status = curl_exec($ch);
+
                 curl_close($ch);
         }
 

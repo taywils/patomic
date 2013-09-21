@@ -23,12 +23,13 @@ $ touch composer.json
 
 Add Patomic to your composer.json
 Run composer update 
+Create a new file to for Patomic
 
 ```
-$ touch testPatomic.php
+$ touch app.php
 ```
 
-Use your favorite editor/IDE and open testPatomic.php
+Use your favorite editor/IDE and open app.php and add the following
 
 ```
 <?php
@@ -39,11 +40,12 @@ $patomic->connect();
 $patomic->createDatabase("squid");
 ```
 
+Run it and you should have a new Datomic database using in memory storage
+
 About
 -----
 - Patomic provides PHP developers with a RESTful API to communicate with a Datomic database.
 - Built upon igorw's wonderful EDN parser for PHP [github.com/igorw/edn](https://github.com/igorw/edn)
-- [Guzzle](http://guzzlephp.org/) based web service client
 - Uses composer for easy dependency management
 
 So What Is Datomic And Why Should I Care?
