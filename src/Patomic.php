@@ -69,10 +69,12 @@ class Patomic
     public function createDatabase($dbName = null) {
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL, $this->config["dataUrl"].$this->config["alias"]."/");
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, "db-name=$dbName");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt_array($ch, array(
+            CURLOPT_URL => $this->config["dataUrl"].$this->config["alias"]."/",
+            CURLOPT_POST => 1,
+            CURLOPT_POSTFIELDS => "db-name=$dbName"
+            CURLOPT_RETURNTRANSFER => 1
+        ));
 
         curl_exec($ch);
 
