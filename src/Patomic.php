@@ -18,6 +18,33 @@ class Patomic
     );
     private $storageTypes   = array("mem", "dev", "sql", "inf", "ddb");
     private $statusQueue    = null;
+    private $schema         = array(
+            "db" => array(
+                    "ident",
+                    "cardinality" => array("one", "many"),
+                    "valueType" => array(
+                            "keyword",
+                            "string",
+                            "boolean",
+                            "long",
+                            "bigint",
+                            "float",
+                            "double",
+                            "bigdec",
+                            "ref",
+                            "instant",
+                            "uuid",
+                            "uri",
+                            "bytes",
+                    ),
+                    "doc",
+                    "unique" => array("value", "identity"),
+                    "index",
+                    "fulltext",
+                    "isComponent",
+                    "noHistory",
+           )
+    );
 
     const SUCCESS = true;
     const FAILURE = false;
@@ -72,7 +99,7 @@ class Patomic
         curl_setopt_array($ch, array(
             CURLOPT_URL => $this->config["dataUrl"].$this->config["alias"]."/",
             CURLOPT_POST => 1,
-            CURLOPT_POSTFIELDS => "db-name=$dbName"
+            CURLOPT_POSTFIELDS => "db-name=$dbName",
             CURLOPT_RETURNTRANSFER => 1
         ));
 
@@ -164,4 +191,4 @@ class Patomic
 
 $patomic = new Patomic(9998, "mem", "demo");
 $patomic->createDatabase("food");
-$patomic->getDatabaseNames();
+var_dump($patomic->getDatabaseNames());
