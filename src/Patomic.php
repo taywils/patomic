@@ -18,33 +18,6 @@ class Patomic
     );
     private $storageTypes   = array("mem", "dev", "sql", "inf", "ddb");
     private $statusQueue    = null;
-    private $schema         = array(
-            "db" => array(
-                    "ident",
-                    "cardinality" => array("one", "many"),
-                    "valueType" => array(
-                            "keyword",
-                            "string",
-                            "boolean",
-                            "long",
-                            "bigint",
-                            "float",
-                            "double",
-                            "bigdec",
-                            "ref",
-                            "instant",
-                            "uuid",
-                            "uri",
-                            "bytes",
-                    ),
-                    "doc",
-                    "unique" => array("value", "identity"),
-                    "index",
-                    "fulltext",
-                    "isComponent",
-                    "noHistory",
-           )
-    );
 
     const SUCCESS = true;
     const FAILURE = false;
@@ -84,6 +57,22 @@ class Patomic
             echo $e.PHP_EOL;
             exit();
         }
+    }
+
+    /**
+     * Creates a new PatomicSchema object
+     *
+     * @param string $schemaName
+     *
+     * @return PatomicSchema object
+     */
+    public function createSchema($schemaName) {
+            try {
+                    return new PatomicSchema($schemaName);
+            } catch(PatomicException $e) {
+                    echo $e.PHP_EOL;
+                    exit();
+            }
     }
 
     /**
