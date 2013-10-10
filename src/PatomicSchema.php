@@ -36,7 +36,7 @@ class PatomicSchema
         );
 
         public function __construct($name, $valueType) {
-                if(!array_searchRecursive($valueType, $this->schemaDef)) { 
+                if(!in_array($valueType, $this->schemaDef['db']['valueType'])) { 
                         throw new PatomicException("Invalid schema valueType, the valueType must be " 
                                 . print_r($this->schemaDef["db"]["valueType"], true));
                 }
@@ -46,23 +46,11 @@ class PatomicSchema
         }
 
         public function field() {
-        }
-
-        private function array_searchRecursive( $needle, $haystack, $strict=false, $path=array() )
-        {
-                if( !is_array($haystack) ) {
-                        return false;
+                $argc = func_num_args();
+                if($argc < 2) {
+                        throw new PatomicException(__METHOD__ . " requires at least two arguments");
                 }
-
-                foreach( $haystack as $key => $val ) {
-                        if( is_array($val) && $subPath = array_searchRecursive($needle, $val, $strict, $path) ) {
-                                $path = array_merge($path, array($key), $subPath);
-                                return $path;
-                        } elseif( (!$strict && $val == $needle) || ($strict && $val === $needle) ) {
-                                $path[] = $key;
-                                return $path;
-                        }
-                }
-                return false;
+                $argv = func_get_args();
+                $symbol = $argv[0];
         }
 }
