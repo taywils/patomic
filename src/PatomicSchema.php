@@ -2,6 +2,9 @@
 require_once("temploader.php");
 require_once("PatomicException.php");
 
+/**
+ * PatomicSchema is a PHP object representation of a Datomic schema.
+ */
 class PatomicSchema
 {
         private $name;
@@ -39,6 +42,9 @@ class PatomicSchema
                 if(!in_array($valueType, $this->schemaDef['db']['valueType'])) { 
                         throw new PatomicException("Invalid schema valueType, the valueType must be " 
                                 . print_r($this->schemaDef["db"]["valueType"], true));
+                }
+                if(!is_string($name)) {
+                        throw new PatomicException(__METHOD__ . " expects \$name to be a string");
                 }
                 $this->name = $name;
                 $this->valueType = $valueType;
