@@ -60,3 +60,11 @@ class PatomicSchema
                 $symbol = $argv[0];
         }
 }
+/*
+$map = new \igorw\edn\Map();
+$map[\igorw\edn\keyword('fName')] = 'Demetrious';
+$map[\igorw\edn\keyword('lName')] = 'Wilson';
+$map[\igorw\edn\keyword('db/cardinality')] = \igorw\edn\keyword('db.cardinality/one');
+print_r($map);
+echo \igorw\edn\encode($map).PHP_EOL;
+ */
