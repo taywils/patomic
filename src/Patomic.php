@@ -1,6 +1,4 @@
 <?php
-require_once("temploader.php");
-require_once("PatomicException.php");
 
 /**
  * Main class for Patomic

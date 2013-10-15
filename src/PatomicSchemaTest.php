@@ -1,5 +1,4 @@
 <?php
-require_once "PatomicSchema.php";
 
 class PatomicSchemaTest extends PHPUnit_Framework_TestCase
 {

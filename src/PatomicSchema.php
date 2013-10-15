@@ -1,6 +1,4 @@
 <?php
-require_once("temploader.php");
-require_once("PatomicException.php");
 
 /**
  * PatomicSchema is a PHP object representation of a Datomic schema.
@@ -60,8 +58,8 @@ class PatomicSchema
                 $symbol = $argv[0];
         }
 }
-/*
 $map = new \igorw\edn\Map();
+/*
 $map[\igorw\edn\keyword('fName')] = 'Demetrious';
 $map[\igorw\edn\keyword('lName')] = 'Wilson';
 $map[\igorw\edn\keyword('db/cardinality')] = \igorw\edn\keyword('db.cardinality/one');
