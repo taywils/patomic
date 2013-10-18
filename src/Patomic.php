@@ -1,5 +1,8 @@
 <?php
 
+require_once "../vendor/autoload.php";
+require_once "PatomicException.php";
+
 /**
  * Main class for Patomic
  * Every instance of this class represents a connection to the Datomic REST service
@@ -176,6 +179,6 @@ class Patomic
     }
 }
 
-$patomic = new Patomic(9998, "mem", "demo");
+$patomic = new Patomic(9998, "mem", "food");
 $patomic->createDatabase("food");
 var_dump($patomic->getDatabaseNames());
