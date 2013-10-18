@@ -4,7 +4,7 @@ require_once "../vendor/autoload.php";
 require_once "PatomicException.php";
 
 /**
- * Datomic transaction abstraction
+ * PHP object representation of a Datomic transaction
  */
 class PatomicTransaction 
 {
