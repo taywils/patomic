@@ -63,7 +63,6 @@ class PatomicSchema
         $idTag = $this->_tag("db/id");
         $dbPart = $this->_vector(array($this->_keyword("db.part/db")));
         $idTagged = $this->_tagged($idTag, $dbPart);
-        echo $this->_encode($dbPart).PHP_EOL;
         $this->schema[$this->_keyword("db/id")] = $idTagged;
 
         $ident = (is_null($namespace) || '' == $namespace) ? $name : $namespace . "." . $name;
@@ -81,9 +80,10 @@ class PatomicSchema
         return $this->_encode($this->schema);
     }
 
-
     /**
-     * Appends a new datom into the current attribute
+     * Appends a new datom into the current attribute, this is a generalized method
+     * <br />
+     * when possible please use the explicit setter methods for adding datoms
      * <br />
      * Require at minimum two arguments; the attribute and the value(s)
      * @throws PatomicException
@@ -96,7 +96,23 @@ class PatomicSchema
         $argv = func_get_args();
         $attribute = $argv[0];
         $value = $argv[1];
-        $this->schema[$this->_keyword($attribute)] = $this->_keyword($value);
+        $this->schema[$this->_keyword($attribute)] = $value;
+
+        return $this;
+    }
+
+    public function ident($name, $namespace = null, $identity = null) {
+            $ident = (is_null($namespace) || !is_string($namespace)) ? $name : $namespace . "." . $name;
+
+            if(is_null($identity) || !is_string($identity)) {
+                    $ident .= "/" . $this->identity;
+            } else {
+                    $ident .= "/" . $identity;
+            }
+
+            $this->schema[$this->_keyword("db/ident")] = $this->_keyword($ident);
+
+            return $this;
     }
 
     private function _keyword($k) {
@@ -128,5 +144,14 @@ class PatomicSchema
     }
 }
 
+/*
 $test = new PatomicSchema("league", "ffl", "name", "string");
 echo $test.PHP_EOL;
+$test->datom("db/cardinality", "cardinality/one");
+echo $test.PHP_EOL;
+ */
+
+$test2 = new PatomicSchema("team", "nfl", "points", "integer");
+echo $test2.PHP_EOL;
+$test2->ident("Team", "nfl", "Points")->ident("T34M", "Nfl");
+echo $test2.PHP_EOL;
