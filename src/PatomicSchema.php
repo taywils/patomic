@@ -42,34 +42,17 @@ class PatomicSchema
     );
 
     /**
-     * Creates the :db/id, :db/ident and :db/valueType for a new Datomic attribute
-     * as a part of a schema
-     *
-     * @param string $name
-     * @param string identity
-     * @param string $namespace
-     * @param string $valuetype
+     * Creates the :db/id for a new Datomic attribute as a part of a schema
      *
      * @return PatomicSchema A new Datomic attribute with the id, ident and valueType datoms defined
      */
-    public function __construct($name, $namespace, $identity, $valueType) {
-        $this->name = $name;
-        $this->namespace = $namespace;
-        $this->identity = $identity;
-        $this->valueType = $valueType;
-
+    public function __construct() {
         $this->schema = $this->_map();
 
         $idTag = $this->_tag("db/id");
         $dbPart = $this->_vector(array($this->_keyword("db.part/db")));
         $idTagged = $this->_tagged($idTag, $dbPart);
         $this->schema[$this->_keyword("db/id")] = $idTagged;
-
-        $ident = (is_null($namespace) || '' == $namespace) ? $name : $namespace . "." . $name;
-        $ident .= "/" . $identity;
-        $this->schema[$this->_keyword("db/ident")] = $this->_keyword($ident);
-
-        $this->schema[$this->_keyword("db/valueType")] = $this->_keyword("db.type/" . $valueType);
     }
 
     /**
@@ -115,6 +98,57 @@ class PatomicSchema
             return $this;
     }
 
+    public function cardinality($cardinal) {
+            $cardinal = strtolower($cardinal);
+            if(!array_search($cardinal, $this->schemaDef['db']['cardinality'])) {
+                    throw new PatomicException("Cardinality must be \"one\" or \"many\"");
+            } else {
+                    $this->schema[$this->_keyword("db/cardinality")] = $this->_keyword("db/cardinality/" . $cardinal);
+
+                    return $this;
+            }
+    }
+
+    public function valueType($valueType) {
+            if(!array_search($valueType, $this->schemaDef['db']['valueType'])) {
+                    throw new PatomicException("ValueType unknown");
+            } else {
+                    $this->schema[$this->_keyword("db/valueType")] = $this->_keyword("db.type/" . $valueType);
+
+                    return $this;
+            }
+    }
+
+    public function doc($doc) {
+            if(!is_string($doc)) {
+                    throw new PatomicException("Doc must be a string");
+            } else {
+                    $this->schema[$this->_keyword("db/doc")] = $doc;
+
+                    return $this;
+            }
+    }
+
+    public function prettyPrint() {
+            $iter = $this->schema->getIterator();
+            $idx = 0;
+            $max = count($iter);
+            
+            echo "{"; 
+            foreach($iter as $vals) {
+                    //print_r($vals);
+                    if($idx == 0) {
+                            echo $vals[0]->value . PHP_EOL;
+                    } elseif($max - 1 == $idx) {
+                            echo " " . $vals[0]->value . "}";
+                    } else {
+                            echo " " . $vals[0]->value . " :" . $vals[1]->value . PHP_EOL;
+                    }
+                    $idx++;
+            }
+            echo PHP_EOL;
+    }
+
     private function _keyword($k) {
             return \igorw\edn\keyword($k);
     }
@@ -144,14 +178,9 @@ class PatomicSchema
     }
 }
 
-/*
-$test = new PatomicSchema("league", "ffl", "name", "string");
-echo $test.PHP_EOL;
-$test->datom("db/cardinality", "cardinality/one");
-echo $test.PHP_EOL;
- */
-
-$test2 = new PatomicSchema("team", "nfl", "points", "integer");
-echo $test2.PHP_EOL;
-$test2->ident("Team", "nfl", "Points")->ident("T34M", "Nfl");
-echo $test2.PHP_EOL;
+$test2 = new PatomicSchema();
+$test2->ident("ffl", null, "statistics")
+        ->valueType("ref")
+        ->cardinality("many")
+        ->doc("The player's collection of game statistics");
+$test2->prettyPrint();
