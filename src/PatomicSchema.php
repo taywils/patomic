@@ -63,27 +63,6 @@ class PatomicSchema
         return $this->_encode($this->schema);
     }
 
-    /**
-     * Appends a new datom into the current attribute, this is a generalized method
-     * <br />
-     * when possible please use the explicit setter methods for adding datoms
-     * <br />
-     * Require at minimum two arguments; the attribute and the value(s)
-     * @throws PatomicException
-     */
-    public function datom() {
-        $argc = func_num_args();
-        if($argc < 2) {
-            throw new PatomicException(__METHOD__ . " requires at least two arguments");
-        }
-        $argv = func_get_args();
-        $attribute = $argv[0];
-        $value = $argv[1];
-        $this->schema[$this->_keyword($attribute)] = $value;
-
-        return $this;
-    }
-
     public function ident($name, $namespace = null, $identity = null) {
             $ident = (is_null($namespace) || !is_string($namespace)) ? $name : $namespace . "." . $name;
 
@@ -133,16 +112,23 @@ class PatomicSchema
             $iter = $this->schema->getIterator();
             $idx = 0;
             $max = count($iter);
+
+            $printHandler = function(&$vals) {
+                    if(is_string($vals[1]) && gettype($vals[1]) != "object") {
+                            return $vals[1];
+                    } else {
+                            return " :" . $vals[1]->value;
+                    }
+            };
             
             echo "{"; 
             foreach($iter as $vals) {
-                    //print_r($vals);
                     if($idx == 0) {
                             echo $vals[0]->value . PHP_EOL;
                     } elseif($max - 1 == $idx) {
-                            echo " " . $vals[0]->value . "}";
+                            echo " " . $vals[0]->value . " " . $printHandler($vals) . "}";
                     } else {
-                            echo " " . $vals[0]->value . " :" . $vals[1]->value . PHP_EOL;
+                            echo " " . $vals[0]->value . $printHandler($vals) . PHP_EOL;
                     }
                     $idx++;
             }
