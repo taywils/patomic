@@ -44,7 +44,7 @@ class PatomicSchema
     /**
      * Creates the :db/id for a new Datomic attribute as a part of a schema
      *
-     * @return PatomicSchema A new Datomic attribute with the id, ident and valueType datoms defined
+     * @return PatomicSchema A new Datomic attribute with the id set
      */
     public function __construct() {
         $this->schema = $this->_map();
