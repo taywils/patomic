@@ -2,6 +2,7 @@
 
 require_once "../vendor/autoload.php";
 require_once "PatomicException.php";
+require_once "TraitEdn.php";
 
 /**
  * PatomicSchema is a PHP object representation of a Datomic schema.
@@ -41,6 +42,8 @@ class PatomicSchema
         )
     );
 
+    use TraitEdn;
+
     /**
      * Creates the :db/id for a new Datomic attribute as a part of a schema
      *
@@ -63,110 +66,84 @@ class PatomicSchema
         return $this->_encode($this->schema);
     }
 
-    public function ident($name, $namespace = null, $identity = null) {
-            $ident = (is_null($namespace) || !is_string($namespace)) ? $name : $namespace . "." . $name;
+    public function ident($name, $namespace, $identity) {
+        $this->name         = $name;
+        $this->namespace    = $namespace;
+        $this->identity     = $identity;
 
-            if(is_null($identity) || !is_string($identity)) {
-                    $ident .= "/" . $this->identity;
-            } else {
-                    $ident .= "/" . $identity;
-            }
+        $ident = $namespace . $name . "/" . $identity;
 
-            $this->schema[$this->_keyword("db/ident")] = $this->_keyword($ident);
+        $this->schema[$this->_keyword("db/ident")] = $this->_keyword($ident);
 
-            return $this;
+        return $this;
     }
 
     public function cardinality($cardinal) {
-            $cardinal = strtolower($cardinal);
-            if(!array_search($cardinal, $this->schemaDef['db']['cardinality'])) {
-                    throw new PatomicException("Cardinality must be \"one\" or \"many\"");
-            } else {
-                    $this->schema[$this->_keyword("db/cardinality")] = $this->_keyword("db/cardinality/" . $cardinal);
+        $cardinal = strtolower($cardinal);
+        if(!array_search($cardinal, $this->schemaDef['db']['cardinality'])) {
+            throw new PatomicException("Cardinality must be \"one\" or \"many\"");
+        } else {
+            $this->schema[$this->_keyword("db/cardinality")] = $this->_keyword("db/cardinality/" . $cardinal);
 
-                    return $this;
-            }
+            return $this;
+        }
     }
 
     public function valueType($valueType) {
-            if(!array_search($valueType, $this->schemaDef['db']['valueType'])) {
-                    throw new PatomicException("ValueType unknown");
-            } else {
-                    $this->schema[$this->_keyword("db/valueType")] = $this->_keyword("db.type/" . $valueType);
+        if(!array_search($valueType, $this->schemaDef['db']['valueType'])) {
+            throw new PatomicException("ValueType unknown");
+        } else {
+            $this->valueType = $valueType;
+            $this->schema[$this->_keyword("db/valueType")] = $this->_keyword("db.type/" . $valueType);
 
-                    return $this;
-            }
+            return $this;
+        }
     }
 
     public function doc($doc) {
-            if(!is_string($doc)) {
-                    throw new PatomicException("Doc must be a string");
-            } else {
-                    $this->schema[$this->_keyword("db/doc")] = $doc;
+        if(!is_string($doc)) {
+            throw new PatomicException("Doc must be a string");
+        } else {
+            $this->schema[$this->_keyword("db/doc")] = $doc;
 
-                    return $this;
-            }
+            return $this;
+        }
     }
 
     public function prettyPrint() {
-            $iter = $this->schema->getIterator();
-            $idx = 0;
-            $max = count($iter);
+        $iter = $this->schema->getIterator();
+        $idx = 0;
+        $max = count($iter);
 
-            $printHandler = function(&$vals) {
-                    if(is_string($vals[1]) && gettype($vals[1]) != "object") {
-                            return $vals[1];
-                    } else {
-                            return " :" . $vals[1]->value;
-                    }
-            };
-            
-            echo "{"; 
-            foreach($iter as $vals) {
-                    if($idx == 0) {
-                            echo $vals[0]->value . PHP_EOL;
-                    } elseif($max - 1 == $idx) {
-                            echo " " . $vals[0]->value . " " . $printHandler($vals) . "}";
-                    } else {
-                            echo " " . $vals[0]->value . $printHandler($vals) . PHP_EOL;
-                    }
-                    $idx++;
+        echo "{";
+        foreach($iter as $vals) {
+            if($idx == 0) {
+                echo $vals[0]->value . PHP_EOL;
+            } elseif($max - 1 == $idx) {
+                echo " " . $vals[0]->value . " " . $this->printHandler($vals) . "}";
+            } else {
+                echo " " . $vals[0]->value . $this->printHandler($vals) . PHP_EOL;
             }
-            echo PHP_EOL;
+            $idx++;
+        }
+        echo PHP_EOL;
     }
 
-    private function _keyword($k) {
-            return \igorw\edn\keyword($k);
-    }
-    private function _symbol($s) {
-            return \igorw\edn\symbol($s);
-    }
-    private function _map($a = null) {
-            $map = new \igorw\edn\Map();
+    public function printHandler(&$vals) {
+        if(is_string($vals[1]) && gettype($vals[1]) != "object") {
+            return $vals[1];
+        }
 
-            if(isset($a) && is_array($a)) {
-                    $map->init($a);
-            }
-
-            return $map;
-    }
-    private function _vector($a) {
-            return new \igorw\edn\Vector($a);
-    }
-    private function _tag($t) {
-            return new \igorw\edn\tag($t);
-    }
-    private function _tagged($t, $v) {
-            return new \igorw\edn\Tagged($t, $v);
-    }
-    private function _encode($edn) {
-            return \igorw\edn\encode($edn);
+        switch(gettype($vals[1])) {
+            default:
+                return " :" . $vals[1]->value;
+        }
     }
 }
 
 $test2 = new PatomicSchema();
 $test2->ident("ffl", null, "statistics")
-        ->valueType("ref")
-        ->cardinality("many")
-        ->doc("The player's collection of game statistics");
+    ->valueType("ref")
+    ->cardinality("many")
+    ->doc("The player's collection of game statistics");
 $test2->prettyPrint();
