@@ -5,6 +5,7 @@ require_once "../vendor/autoload.php";
 /**
  * TraitEdn provides a common interface to EDN functions
  * such that independent EDN classes/libraries can be mixed together
+ * or an existing implementation swapped out
  */
 trait TraitEdn
 {
