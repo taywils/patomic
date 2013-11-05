@@ -19,19 +19,19 @@ class PatomicSchema
             "ident",
             "cardinality" => array("one", "many"),
             "valueType" => array(
-                "keyword",
-                "string",
-                "boolean",
-                "long",
-                "bigint",
-                "float",
-                "double",
                 "bigdec",
-                "ref",
-                "instant",
-                "uuid",
-                "uri",
+                "bigint",
+                "boolean",
                 "bytes",
+                "double",
+                "float",
+                "instant",
+                "keyword",
+                "long",
+                "ref",
+                "string",
+                "uuid",
+                "uri"
             ),
             "doc",
             "unique" => array("value", "identity"),
@@ -69,12 +69,12 @@ class PatomicSchema
     /**
      * Set the required "ident" Datom
      *
-     * @param string $name
      * @param string $namespace
+     * @param string $name
      * @param string $identity
      * @return $this
      */
-    public function ident($name, $namespace, $identity) {
+    public function ident($namespace, $name, $identity) {
         $this->name         = $name;
         $this->namespace    = $namespace;
         $this->identity     = $identity;
@@ -96,10 +96,10 @@ class PatomicSchema
     public function cardinality($cardinal) {
         $cardinal = strtolower($cardinal);
 
-        if(!array_search($cardinal, $this->schemaDef['db']['cardinality'])) {
+        if(array_search($cardinal, $this->schemaDef['db']['cardinality']) < 0) {
             throw new PatomicException("Cardinality must be \"one\" or \"many\"");
         } else {
-            $this->schema[$this->_keyword("db/cardinality")] = $this->_keyword("db/cardinality/" . $cardinal);
+            $this->schema[$this->_keyword("db/cardinality")] = $this->_keyword("db.cardinality/" . $cardinal);
 
             return $this;
         }
@@ -115,7 +115,7 @@ class PatomicSchema
     public function valueType($valueType) {
         $valueType = strtolower($valueType);
 
-        if(!array_search($valueType, $this->schemaDef['db']['valueType'])) {
+        if(array_search($valueType, $this->schemaDef['db']['valueType']) < 0) {
             $debugInfo = PHP_EOL . "[" . implode(", ", $this->schemaDef['db']['valueType']) . "]";
             throw new PatomicException("Invalid ValueType assigned try one of the following instead" . $debugInfo);
         } else {
@@ -153,14 +153,38 @@ class PatomicSchema
     public function unique($unique) {
         $unique = strtolower($unique);
 
-        if(!array_search($unique, $this->schemaDef['db']['unique'])) {
+        if(array_search($unique, $this->schemaDef['db']['unique']) < 0) {
             $debugInfo = implode(", ", $this->schemaDef['db']['unique']);
-            throw new PatomicException("unique must be one of the following [" . $debugInfo . "]");
+            throw new PatomicException("unique must be xdone of the following [" . $debugInfo . "]");
         } else {
             $this->schema[$this->_keyword("db/unique")] = $this->_keyword("db.unique/" . $unique);
 
             return $this;
         }
+    }
+
+    /**
+     * Set the optional "index" Datom
+     *
+     * @param boolean $index
+     * @return $this
+     */
+    public function index($index) {
+        $index = !is_bool($index) ? false : $index;
+        $this->schema[$this->_keyword("db/index")] = $index;
+        return $this;
+    }
+
+    /**
+     * Set the optional "fulltext" Datom
+     *
+     * @param boolean $fullText
+     * @return $this
+     */
+    public function fullText($fullText) {
+        $fullText = !is_bool($fullText) ? false : $fullText;
+        $this->schema[$this->_keyword("db/fulltext")] = $fullText;
+        return $this;
     }
 
     /**
@@ -174,12 +198,12 @@ class PatomicSchema
 
         echo "{";
         foreach($iter as $vals) {
-            if($idx == 0) { // First line of printed Schema
-                echo $vals[0]->value . $this->printHandler($vals). PHP_EOL;
+            if($idx == 0) { // First line of printed Schema, will always be set to the :db/id
+                echo ":" . $vals[0]->value . $this->printHandler($vals). PHP_EOL;
             } elseif($max - 1 == $idx) { // Last line of printed Schema
-                echo " " . $vals[0]->value . " " . $this->printHandler($vals) . "}";
+                echo " :" . $vals[0]->value . $this->printHandler($vals) . "}";
             } else {
-                echo " " . $vals[0]->value . $this->printHandler($vals) . PHP_EOL;
+                echo " :" . $vals[0]->value . $this->printHandler($vals) . PHP_EOL;
             }
             $idx++;
         }
@@ -193,9 +217,12 @@ class PatomicSchema
      * @return string Output of pretty print
      */
     protected function printHandler(&$vals) {
-        // Handle the case when the attribute value is a regular PHP string
+        // Handle PHP primitives
         if(gettype($vals[1]) != "object" && is_string($vals[1])) {
             return $vals[1];
+        }
+        if(is_bool($vals[1])) {
+            return " " . var_export($vals[1], true);
         }
 
         $output = " "; // Whitespace for aesthetic purposes
@@ -222,9 +249,10 @@ class PatomicSchema
 }
 
 $test2 = new PatomicSchema();
-$test2->ident("league", "ffl", "statistics")
-    ->valueType("ref")
-    ->cardinality("many")
-    ->unique("identity")
-    ->doc("The player's collection of game statistics");
+
+$test2->ident("taywils", "script", "name")
+    ->valueType("uUid")
+    ->cardinality("one")
+    ->unique("value");
+
 $test2->prettyPrint();
