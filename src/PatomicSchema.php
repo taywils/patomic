@@ -188,6 +188,29 @@ class PatomicSchema
     }
 
     /**
+     * Set the optional "isComponent" Datom
+     *
+     * @param boolean $component
+     * @return $this
+     */
+    public function isComponent($component) {
+        $component = !is_bool($component) ? false : $component;
+        $this->schema[$this->_keyword("db/isComponent")] = $component;
+        return $this;
+    }
+
+    /**
+     * Set the optional "noHistory" Datom
+     * @param boolean $history
+     * @return $this
+     */
+    public function noHistory($history) {
+        $history = !is_bool($history) ? false : $history;
+        $this->schema[$this->_keyword("db/noHistory")] = $history;
+        return $this;
+    }
+
+    /**
      * Prints out a line by line dump of the current Schema
      * The style for displaying Datomic schemas was borrowed from the official documentation
      */
@@ -233,7 +256,7 @@ class PatomicSchema
                 $output .= "#" . $vals[1]->tag->name . "[";
 
                 if(get_class($vals[1]->value) == 'igorw\edn\Vector') {
-                    foreach($vals[1]->value->data as $vectorIdx => $vectorElem) {
+                    foreach($vals[1]->value->data as $vectorElem) {
                         $output .= ":" . $vectorElem->value;
                     }
 
@@ -253,6 +276,8 @@ $test2 = new PatomicSchema();
 $test2->ident("taywils", "script", "name")
     ->valueType("uUid")
     ->cardinality("one")
-    ->unique("value");
+    ->unique("value")
+    ->isComponent(false)
+    ->noHistory(true);
 
 $test2->prettyPrint();
