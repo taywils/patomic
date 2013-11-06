@@ -241,11 +241,17 @@ class PatomicSchema
      */
     protected function printHandler(&$vals) {
         // Handle PHP primitives
-        if(gettype($vals[1]) != "object" && is_string($vals[1])) {
-            return $vals[1];
-        }
-        if(is_bool($vals[1])) {
-            return " " . var_export($vals[1], true);
+        if("object" != gettype($vals[1])) {
+            switch(gettype($vals[1])) {
+                case 'boolean':
+                    return " " . var_export($vals[1], true);
+
+                case 'string':
+                    return " " . $vals[1];
+
+                default:
+                    break;
+            }
         }
 
         $output = " "; // Whitespace for aesthetic purposes
@@ -278,6 +284,7 @@ $test2->ident("taywils", "script", "name")
     ->cardinality("one")
     ->unique("value")
     ->isComponent(false)
-    ->noHistory(true);
+    ->noHistory(true)
+    ->doc("The name of the script");
 
 $test2->prettyPrint();
