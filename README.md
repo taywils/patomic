@@ -22,14 +22,14 @@ $ touch composer.json
 ```
 
 Add Patomic to your composer.json
-Run composer update 
-Create a new file to for Patomic
+Run composer install if a new project or composer update for an existing one
+Now create a new file lets call it app.php
 
 ```
 $ touch app.php
 ```
 
-Use your favorite editor/IDE and open app.php and add the following
+Use your favorite editor/IDE open app.php and add the following
 
 ```
 <?php
