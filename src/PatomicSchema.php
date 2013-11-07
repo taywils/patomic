@@ -6,6 +6,7 @@ require_once "TraitEdn.php";
 
 /**
  * PatomicSchema is a PHP object representation of a Datomic schema.
+ * @see http://docs.datomic.com/schema.html
  */
 class PatomicSchema
 {
@@ -145,6 +146,7 @@ class PatomicSchema
 
     /**
      * Set the optional "unique" Datom
+     * Implies :db/index
      *
      * @param string $unique
      * @return $this
@@ -158,6 +160,10 @@ class PatomicSchema
             throw new PatomicException("unique must be xdone of the following [" . $debugInfo . "]");
         } else {
             $this->schema[$this->_keyword("db/unique")] = $this->_keyword("db.unique/" . $unique);
+
+            if(!$this->schema->offsetExists($this->_keyword("db/index"))) {
+                $this->index(true);
+            }
 
             return $this;
         }
