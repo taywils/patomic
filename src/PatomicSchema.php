@@ -216,6 +216,19 @@ class PatomicSchema
         return $this;
     }
 
+
+    /**
+     * Set the optional "install" Datom
+     *
+     * @return $this
+     */
+    public function install() {
+        if(!$this->schema->offsetExists($this->_keyword("db.install/_attribute"))) {
+            $this->schema[$this->_keyword("db.install/_attribute")] = $this->_keyword("db.part/db");
+        }
+        return $this;
+    }
+
     /**
      * Prints out a line by line dump of the current Schema
      * The style for displaying Datomic schemas was borrowed from the official documentation
@@ -291,6 +304,7 @@ $test2->ident("taywils", "script", "name")
     ->unique("value")
     ->isComponent(false)
     ->noHistory(true)
-    ->doc("The name of the script");
+    ->doc("The name of the script")
+    ->install();
 
 $test2->prettyPrint();
