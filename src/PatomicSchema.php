@@ -157,7 +157,7 @@ class PatomicSchema
 
         if(array_search($unique, $this->schemaDef['db']['unique']) < 0) {
             $debugInfo = implode(", ", $this->schemaDef['db']['unique']);
-            throw new PatomicException("unique must be xdone of the following [" . $debugInfo . "]");
+            throw new PatomicException("unique must be one of the following [" . $debugInfo . "]");
         } else {
             $this->schema[$this->_keyword("db/unique")] = $this->_keyword("db.unique/" . $unique);
 
@@ -295,16 +295,3 @@ class PatomicSchema
         return $output;
     }
 }
-
-$test2 = new PatomicSchema();
-
-$test2->ident("taywils", "script", "name")
-    ->valueType("uUid")
-    ->cardinality("one")
-    ->unique("value")
-    ->isComponent(false)
-    ->noHistory(true)
-    ->doc("The name of the script")
-    ->install();
-
-$test2->prettyPrint();
