@@ -1,11 +1,14 @@
 <?php
 
 require_once "../vendor/autoload.php";
+
 require_once "PatomicException.php";
 require_once "TraitEdn.php";
 
 /**
  * PatomicSchema is a PHP object representation of a Datomic schema.
+ *
+ * @see http://docs.datomic.com/schema.html
  */
 class PatomicSchema
 {
@@ -46,6 +49,7 @@ class PatomicSchema
 
     /**
      * Creates the :db/id for a new Datomic attribute as a part of a schema
+     * else will use the provided partition type specified
      *
      * @return PatomicSchema A new Datomic attribute with the id set
      */
@@ -54,7 +58,9 @@ class PatomicSchema
 
         $idTag = $this->_tag("db/id");
         $dbPart = $this->_vector(array($this->_keyword("db.part/db")));
+
         $idTagged = $this->_tagged($idTag, $dbPart);
+
         $this->schema[$this->_keyword("db/id")] = $idTagged;
     }
 
@@ -240,12 +246,21 @@ class PatomicSchema
      * @return string Output of pretty print
      */
     protected function printHandler(&$vals) {
-        // Handle PHP primitives
-        if(gettype($vals[1]) != "object" && is_string($vals[1])) {
-            return $vals[1];
-        }
-        if(is_bool($vals[1])) {
-            return " " . var_export($vals[1], true);
+        // Handle printing for PHP primitives
+        switch(gettype($vals[1])) {
+            case "object":
+                break;
+
+            case "string":
+                return " " . $vals[1];
+                break;
+
+            case "boolean":
+                return " " . var_export($vals[1], true);
+                break;
+
+            default:
+                break;
         }
 
         $output = " "; // Whitespace for aesthetic purposes
@@ -271,13 +286,14 @@ class PatomicSchema
     }
 }
 
-$test2 = new PatomicSchema();
+/*$test2 = new PatomicSchema();
 
 $test2->ident("taywils", "script", "name")
-    ->valueType("uUid")
+    ->doc("This is the doc for my datom")
+    ->valueType("string")
     ->cardinality("one")
     ->unique("value")
     ->isComponent(false)
     ->noHistory(true);
 
-$test2->prettyPrint();
+$test2->prettyPrint();*/

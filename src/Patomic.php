@@ -1,6 +1,7 @@
 <?php
 
 require_once "../vendor/autoload.php";
+
 require_once "PatomicException.php";
 
 /**
@@ -32,6 +33,8 @@ class Patomic
      * @param int $port
      * @param string $storage
      * @param string $alias
+     *
+     * @throws PatomicException
      *
      * @return Patomic object
      */
@@ -180,6 +183,6 @@ class Patomic
     }
 }
 
-$patomic = new Patomic(9998, "mem", "food");
+$patomic = new Patomic(9998, "mem", "taywils");
 $patomic->createDatabase("food");
 var_dump($patomic->getDatabaseNames());
