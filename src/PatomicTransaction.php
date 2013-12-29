@@ -69,7 +69,7 @@ class PatomicTransaction
             throw new PatomicException("value cannot be null");
         }
 
-        if(is_null($tempIdNum) || !is_int($tempIdNum)) {
+        if(!is_null($tempIdNum) && !is_int($tempIdNum)) {
             throw new PatomicException("tempIdNum must be an int");
         }
 
