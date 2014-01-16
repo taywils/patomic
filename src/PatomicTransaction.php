@@ -4,7 +4,7 @@ require_once "../vendor/autoload.php";
 
 require_once "PatomicException.php";
 require_once "TraitEdn.php";
-require_once "PatomicSchema.php";
+require_once "PatomicEntity.php";
 
 /**
  * PHP object representation of a Datomic transaction
@@ -43,8 +43,6 @@ class PatomicTransaction
     /**
      * Add a single new data(a.k.a fact) to a transaction for an existing entity within your schema
      *
-     * <b>If you wish to add multiple facts at once create an entity instead</b>
-     *
      * The entityName must be a valid name of an entity found within your schema
      *
      * @see http://docs.datomic.com/tutorial.html
@@ -76,7 +74,11 @@ class PatomicTransaction
         $vec = $this->_vector(array());
 
         $idTag = $this->_tag("db/id");
+
         $dbUser = $this->_vector(array($this->_keyword("db.part/user")));
+        if(!is_null($tempIdNum) && is_int($tempIdNum)) {
+            $dbUser->data[] = $tempIdNum;
+        }
 
         $idTagged = $this->_tagged($idTag, $dbUser);
 
@@ -94,7 +96,7 @@ class PatomicTransaction
 
     }
 
-    public function  retract() {
+    public function retract() {
 
     }
 
@@ -106,7 +108,7 @@ class PatomicTransaction
 
         foreach($this->body->data as $elem) {
             switch(get_class($elem)) {
-                case "PatomicSchema":
+                case "PatomicEntity":
                     echo $elem->prettyPrint();
                     break;
 
@@ -125,7 +127,7 @@ class PatomicTransaction
     }
 }
 
-$test2 = new PatomicSchema();
+$test2 = new PatomicEntity();
 
 $test2->ident("taywils", "script", "name")
     ->doc("This is the doc for my datom")
@@ -137,7 +139,6 @@ $test2->ident("taywils", "script", "name")
 
 $trans = new PatomicTransaction();
 $trans->append($test2)
-    ->add("script", "name", "Hamlet");
+    ->add("script", "name", "Hamlet", -1001);
 
 $trans->prettyPrint();
-//echo $test2;

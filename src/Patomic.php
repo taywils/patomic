@@ -64,16 +64,16 @@ class Patomic
     }
 
     /**
-     * Creates a new PatomicSchema object
+     * Creates a new PatomicEntity object
      *
      * @param string $schemaName
      * @param string $valueType
      *
-     * @return PatomicSchema object
+     * @return PatomicEntity object
      */
     public function createSchema($schemaName, $valueType) {
         try {
-            return new PatomicSchema($schemaName, $valueType);
+            return new PatomicEntity($schemaName, $valueType);
         } catch(PatomicException $e) {
             echo $e.PHP_EOL;
             exit();

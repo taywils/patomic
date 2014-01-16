@@ -6,11 +6,11 @@ require_once "PatomicException.php";
 require_once "TraitEdn.php";
 
 /**
- * PatomicSchema is a PHP object representation of a Datomic schema.
+ * PatomicEntity is a PHP object representation of a Datomic schema.
  *
  * @see http://docs.datomic.com/schema.html
  */
-class PatomicSchema
+class PatomicEntity
 {
     private $name;
     private $namespace;
@@ -51,7 +51,7 @@ class PatomicSchema
      * Creates the :db/id for a new Datomic attribute as a part of a schema
      * else will use the provided partition type specified
      *
-     * @return PatomicSchema A new Datomic attribute with the id set
+     * @return PatomicEntity A new Datomic attribute with the id set
      */
     public function __construct() {
         $this->schema = $this->_map();
@@ -286,7 +286,7 @@ class PatomicSchema
     }
 }
 
-/*$test2 = new PatomicSchema();
+/*$test2 = new PatomicEntity();
 
 $test2->ident("taywils", "script", "name")
     ->doc("This is the doc for my datom")
