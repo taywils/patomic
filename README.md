@@ -1,4 +1,4 @@
-Patomic - Datomic REST API for PHP
+Patomic - Datomic API for PHP
 ==================================
 
 Requirements
@@ -44,7 +44,7 @@ Run it and you should have a new Datomic database using in memory storage
 
 About
 -----
-- Patomic provides PHP developers with a RESTful API to communicate with a Datomic database.
+- Patomic provides PHP developers with a API to communicate with a Datomic database.
 - Built upon igorw's wonderful EDN parser for PHP [github.com/igorw/edn](https://github.com/igorw/edn)
 - Uses composer for easy dependency management
 
