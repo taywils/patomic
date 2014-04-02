@@ -2,8 +2,6 @@
 
 require_once "../vendor/autoload.php";
 
-require_once "PatomicException.php";
-
 /**
  * Main class for Patomic
  * Every instance of this class represents a connection to the Datomic REST service

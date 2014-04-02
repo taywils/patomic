@@ -2,10 +2,6 @@
 
 require_once "../vendor/autoload.php";
 
-require_once "PatomicException.php";
-require_once "TraitEdn.php";
-require_once "PatomicEntity.php";
-
 /**
  * PHP object representation of a Datomic transaction
  *

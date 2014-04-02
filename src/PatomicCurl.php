@@ -1,14 +1,21 @@
 <?php
-require_once("PatomicException.php");
+
+require_once __DIR__ . "/../vendor/autoload.php";
 
 /**
  * cURL abstraction class for Patomic
- * Uses php-curl-class but adds Patomic Exceptions when needed
+ * A wrapper class built around php-curl-class
  *
  * @see http://www.php.net/manual/en/book.curl.php
  * @see https://github.com/php-curl-class/php-curl-class
  */
 class PatomicCurl
 {
+        private $curl;
 
+        public function __construct() {
+                $this->curl = new Curl();
+        }
 }
+
+$pcurl = new PatomicCurl();

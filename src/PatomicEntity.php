@@ -2,9 +2,6 @@
 
 require_once "../vendor/autoload.php";
 
-require_once "PatomicException.php";
-require_once "TraitEdn.php";
-
 /**
  * PatomicEntity is a PHP object representation of a Datomic schema.
  *
