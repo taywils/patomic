@@ -14,6 +14,8 @@ require_once "PatomicEntity.php";
 class PatomicTransaction 
 {
     private $body;
+    private static $addKeyword           = "add";
+    private static $retractKeyword       = "retract";
 
     use TraitEdn;
 
@@ -40,64 +42,12 @@ class PatomicTransaction
         return $this;
     }
 
-    /**
-     * Add a single new data(a.k.a fact) to a transaction for an existing entity within your schema
-     *
-     * The entityName must be a valid name of an entity found within your schema
-     *
-     * @see http://docs.datomic.com/tutorial.html
-     *
-     * @param string $entityName
-     * @param string $attributeName
-     * @param $value
-     * @param int $tempIdNum
-     * @return $this
-     * @throws PatomicException
-     */
     public function add($entityName, $attributeName, $value, $tempIdNum = null) {
-        if(is_null($entityName) || !is_string($entityName)) {
-            throw new PatomicException("entityName must be a string");
-        }
-
-        if(is_null($attributeName) || !is_string($attributeName)) {
-            throw new PatomicException("attributeName must be a string");
-        }
-
-        if(is_null($value)) {
-            throw new PatomicException("value cannot be null");
-        }
-
-        if(!is_null($tempIdNum) && !is_int($tempIdNum)) {
-            throw new PatomicException("tempIdNum must be an int");
-        }
-
-        $vec = $this->_vector(array());
-
-        $idTag = $this->_tag("db/id");
-
-        $dbUser = $this->_vector(array($this->_keyword("db.part/user")));
-        if(!is_null($tempIdNum) && is_int($tempIdNum)) {
-            $dbUser->data[] = $tempIdNum;
-        }
-
-        $idTagged = $this->_tagged($idTag, $dbUser);
-
-        $vec->data[] = $this->_keyword("db/add");
-        $vec->data[] = $idTagged;
-        $vec->data[] = $this->_keyword($entityName . "/" . $attributeName);
-        $vec->data[] = $value;
-
-        $this->body->data[] = $vec;
-
-        return $this;
+        return $this->addOrRetract($entityName, $attributeName, $value, $tempIdNum = null, self::$addKeyword);
     }
 
-    public function modify() {
-
-    }
-
-    public function retract() {
-
+    public function retract($entityName, $attributeName, $value, $tempIdNum = null) {
+        return $this->addOrRetract($entityName, $attributeName, $value, $tempIdNum = null, self::$retractKeyword);
     }
 
     /**
@@ -125,6 +75,61 @@ class PatomicTransaction
 
         echo PHP_EOL . "]" . PHP_EOL;
     }
+
+    /**
+     * Add or retract a single new data(a.k.a fact) to a transaction for an existing entity within your schema
+     *
+     * The entityName must be a valid name of an entity found within your schema
+     *
+     * According to the docs the only difference between adding and retracting is first keyword in the EDN vector
+     *
+     * @see http://docs.datomic.com/tutorial.html
+     *
+     * @param string $entityName
+     * @param string $attributeName
+     * @param $value
+     * @param int $tempIdNum
+     * @param string $methodKeyword Determines whether to add or retract
+     * @return $this
+     * @throws PatomicException
+     */
+    private function addOrRetract($entityName, $attributeName, $value, $tempIdNum = null, $methodKeyword) {
+            if(is_null($entityName) || !is_string($entityName)) {
+                    throw new PatomicException("entityName must be a string");
+            }
+
+            if(is_null($attributeName) || !is_string($attributeName)) {
+                    throw new PatomicException("attributeName must be a string");
+            }
+
+            if(is_null($value)) {
+                    throw new PatomicException("value cannot be null");
+            }
+
+            if(!is_null($tempIdNum) && !is_int($tempIdNum)) {
+                    throw new PatomicException("tempIdNum must be an int");
+            }
+
+            $vec = $this->_vector(array());
+
+            $idTag = $this->_tag("db/id");
+
+            $dbUser = $this->_vector(array($this->_keyword("db.part/user")));
+            if(!is_null($tempIdNum) && is_int($tempIdNum)) {
+                    $dbUser->data[] = $tempIdNum;
+            }
+
+            $idTagged = $this->_tagged($idTag, $dbUser);
+
+            $vec->data[] = $this->_keyword("db/" . $methodKeyword);
+            $vec->data[] = $idTagged;
+            $vec->data[] = $this->_keyword($entityName . "/" . $attributeName);
+            $vec->data[] = $value;
+
+            $this->body->data[] = $vec;
+
+            return $this;
+    }
 }
 
 $test2 = new PatomicEntity();
@@ -139,6 +144,7 @@ $test2->ident("taywils", "script", "name")
 
 $trans = new PatomicTransaction();
 $trans->append($test2)
-    ->add("script", "name", "Hamlet", -1001);
+    ->add("script", "name", "Hamlet", -1001)
+    ->retract("script", "name", "Hamlet", -1001);
 
 $trans->prettyPrint();
