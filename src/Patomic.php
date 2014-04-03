@@ -83,13 +83,12 @@ class Patomic
             $this->config["port"]       = $port;
             $this->config["storage"]    = $storage;
             $this->config["alias"]      = $alias;
-            $this->config["dataUrl"]    = $this->config["serverUrl"]."$port/data/";
-            $this->config["apiUrl"]     = $this->config["serverUrl"]."$port/api/";
+            $this->config["dataUrl"]    = $this->config["serverUrl"] . "$port/data/";
+            $this->config["apiUrl"]     = $this->config["serverUrl"] . "$port/api/";
 
             $this->statusQueue = new SplQueue();
         } catch(Exception $e) {
-            echo $e.PHP_EOL;
-            exit();
+            echo $e . PHP_EOL;
         }
     }
 

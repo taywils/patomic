@@ -14,6 +14,7 @@ class PatomicEntity
     private $identity;
     private $valueType;
     private $schema;
+    private $partitionTypes = array("db", "tx", "user");
     private $schemaDef = array(
         "db" => array(
             "ident",
@@ -46,15 +47,23 @@ class PatomicEntity
 
     /**
      * Creates the :db/id for a new Datomic attribute as a part of a entity
-     * else will use the provided partition type specified
+     * The desired partition type will determine both performance and how the entity will be queried
+     *
+     * @param string $partitionType Describes how the new entity will be grouped
      *
      * @return PatomicEntity A new Datomic attribute with the id set
+     *
+     * @see http://docs.datomic.com/schema.html
      */
-    public function __construct() {
+    public function __construct($partitionType = null) {
         $this->schema = $this->_map();
 
+        if(!isset($partitionType) || empty($partitionType) || !in_array($partitionType, $this->partitionTypes)) {
+           $partitionType = "db";
+        }
+
         $idTag = $this->_tag("db/id");
-        $dbPart = $this->_vector(array($this->_keyword("db.part/db")));
+        $dbPart = $this->_vector(array($this->_keyword("db.part/" . $partitionType)));
 
         $idTagged = $this->_tagged($idTag, $dbPart);
 
@@ -249,7 +258,7 @@ class PatomicEntity
                 break;
 
             case "string":
-                return " " . $vals[1];
+                return " " . "\"" . $vals[1] . "\"";
                 break;
 
             case "boolean":
@@ -283,7 +292,7 @@ class PatomicEntity
     }
 }
 
-/*$test2 = new PatomicEntity();
+$test2 = new PatomicEntity();
 
 $test2->ident("taywils", "script", "name")
     ->doc("This is the doc for my datom")
@@ -293,4 +302,4 @@ $test2->ident("taywils", "script", "name")
     ->isComponent(false)
     ->noHistory(true);
 
-$test2->prettyPrint();*/
+$test2->prettyPrint();
