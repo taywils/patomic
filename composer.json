@@ -13,8 +13,7 @@
                 "php": ">=5.4.0",
                 "igorw/edn": "1.0.x-dev",
                 "nikic/phlexy": "~1.0-dev",
-                "rhumsaa/uuid": "2.8.x-dev",
-                "php-curl-class/php-curl-class": "dev-master"
+                "rhumsaa/uuid": "2.8.x-dev"
         },
         "require-dev": {
                 "phpunit/phpunit": "3.7.*"

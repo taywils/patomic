@@ -1,6 +1,6 @@
 <?php
 
-require_once "../vendor/autoload.php";
+require_once __DIR__ . "/../vendor/autoload.php";
 
 /**
  * PHP object representation of a Datomic transaction
@@ -90,41 +90,41 @@ class PatomicTransaction
      * @throws PatomicException
      */
     private function addOrRetract($entityName, $attributeName, $value, $tempIdNum = null, $methodKeyword) {
-            if(is_null($entityName) || !is_string($entityName)) {
-                    throw new PatomicException("entityName must be a string");
-            }
+        if(is_null($entityName) || !is_string($entityName)) {
+            throw new PatomicException("entityName must be a string");
+        }
 
-            if(is_null($attributeName) || !is_string($attributeName)) {
-                    throw new PatomicException("attributeName must be a string");
-            }
+        if(is_null($attributeName) || !is_string($attributeName)) {
+            throw new PatomicException("attributeName must be a string");
+        }
 
-            if(is_null($value)) {
-                    throw new PatomicException("value cannot be null");
-            }
+        if(is_null($value)) {
+            throw new PatomicException("value cannot be null");
+        }
 
-            if(!is_null($tempIdNum) && !is_int($tempIdNum)) {
-                    throw new PatomicException("tempIdNum must be an int");
-            }
+        if(!is_null($tempIdNum) && !is_int($tempIdNum)) {
+            throw new PatomicException("tempIdNum must be an int");
+        }
 
-            $vec = $this->_vector(array());
+        $vec = $this->_vector(array());
 
-            $idTag = $this->_tag("db/id");
+        $idTag = $this->_tag("db/id");
 
-            $dbUser = $this->_vector(array($this->_keyword("db.part/user")));
-            if(!is_null($tempIdNum) && is_int($tempIdNum)) {
-                    $dbUser->data[] = $tempIdNum;
-            }
+        $dbUser = $this->_vector(array($this->_keyword("db.part/user")));
+        if(!is_null($tempIdNum) && is_int($tempIdNum)) {
+                $dbUser->data[] = $tempIdNum;
+        }
 
-            $idTagged = $this->_tagged($idTag, $dbUser);
+        $idTagged = $this->_tagged($idTag, $dbUser);
 
-            $vec->data[] = $this->_keyword("db/" . $methodKeyword);
-            $vec->data[] = $idTagged;
-            $vec->data[] = $this->_keyword($entityName . "/" . $attributeName);
-            $vec->data[] = $value;
+        $vec->data[] = $this->_keyword("db/" . $methodKeyword);
+        $vec->data[] = $idTagged;
+        $vec->data[] = $this->_keyword($entityName . "/" . $attributeName);
+        $vec->data[] = $value;
 
-            $this->body->data[] = $vec;
+        $this->body->data[] = $vec;
 
-            return $this;
+        return $this;
     }
 }
 

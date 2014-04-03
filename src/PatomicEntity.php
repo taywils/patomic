@@ -1,6 +1,6 @@
 <?php
 
-require_once "../vendor/autoload.php";
+require_once __DIR__ . "/../vendor/autoload.php";
 
 /**
  * PatomicEntity is a PHP object representation of a Datomic schema.
@@ -45,7 +45,7 @@ class PatomicEntity
     use TraitEdn;
 
     /**
-     * Creates the :db/id for a new Datomic attribute as a part of a schema
+     * Creates the :db/id for a new Datomic attribute as a part of a entity
      * else will use the provided partition type specified
      *
      * @return PatomicEntity A new Datomic attribute with the id set
