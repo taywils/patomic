@@ -25,6 +25,8 @@ class Patomic
     const ST_FATL = "FATAL: ";
     const ST_INFO = "INFO: ";
 
+    use TraitEdn;
+
     /**
      * Creates a new Patomic object
      *
@@ -44,7 +46,7 @@ class Patomic
 
             if(!in_array($storage, $this->storageTypes)) {
                 $msg = "\$storage argument must be the correct string".PHP_EOL;
-                $msg .= "Valid storage strings are \"".implode($this->storageTypes, " ")."\"";
+                $msg .= "Valid storage strings are \"" . implode($this->storageTypes, " ") . "\"";
                 throw new PatomicException($msg);
             }
 
@@ -73,8 +75,7 @@ class Patomic
         try {
             return new PatomicEntity($schemaName, $valueType);
         } catch(PatomicException $e) {
-            echo $e.PHP_EOL;
-            exit();
+            echo $e . PHP_EOL;
         }
     }
 
@@ -89,7 +90,7 @@ class Patomic
         $ch = curl_init();
 
         curl_setopt_array($ch, array(
-            CURLOPT_URL => $this->config["dataUrl"].$this->config["alias"]."/",
+            CURLOPT_URL => $this->config["dataUrl"] . $this->config["alias"] . "/",
             CURLOPT_POST => 1,
             CURLOPT_POSTFIELDS => "db-name=$dbName",
             CURLOPT_RETURNTRANSFER => 1
@@ -98,32 +99,37 @@ class Patomic
         curl_exec($ch);
 
         if(curl_error($ch)) {
+            $this->addStatus(self::ST_WARN, "Non HTTP error, something is wrong with the request");
             return self::FAILURE;
         } else {
             $info = curl_getinfo($ch);
             switch($info["http_code"]) {
                 case "200":
-                    $this->addStatus(self::ST_WARN, "Database $dbName already exists");
+                    $this->addStatus(self::ST_WARN, "Database \"$dbName\" already exists");
                     $retCode = self::FAILURE;
                     break;
 
                 case "201":
-                    $this->addStatus(self::ST_INFO, "Database $dbName created");
+                    $this->addStatus(self::ST_INFO, "Database \"$dbName\" created");
                     $retCode = self::SUCCESS;
                     break;
 
                 default:
-                    $this->addStatus(self::ST_WARN, "HTTP Status code ".$info["http_code"]." returned");
+                    $this->addStatus(self::ST_WARN, "HTTP Status code " . $info["http_code"] . " returned");
                     $retCode = self::FAILURE;
             }
             curl_close($ch);
         }
+
+        $this->printStatus();        
 
         return $retCode;
     }
 
     /**
      * Get the names of each database created
+     * Datomic will return the database names as a string representation 
+     * of an EDN vector
      *
      * @return array An array of database names
      */
@@ -131,10 +137,10 @@ class Patomic
         $dbVector = null;
         $dbNames = array();
 
-        $uri = $this->config["dataUrl"].$this->config["alias"]."/";
-        $ch = curl_init($uri);
+        $ch = curl_init();
 
         curl_setopt_array($ch, array(
+            CURLOPT_URL => $this->config["dataUrl"] . $this->config["alias"] . "/",
             CURLOPT_HTTPHEADER => array('Accept: application/edn'),
             CURLOPT_RETURNTRANSFER => 1
         ));
@@ -144,8 +150,10 @@ class Patomic
         if(curl_error($ch)) {
             return $dbNames;
         } else {
-            $parsedOut = igorw\edn\parse($out);
+            // Parse the Datomic string response into a EDN vector
+            $parsedOut = $this->_parse($out);
             if(!empty($parsedOut)) {
+                // Transform EDN vector into PHP array
                 $dbVector = $parsedOut[0];
                 $dbNames = $dbVector->data;
             }
@@ -172,15 +180,17 @@ class Patomic
         if(!$this->statusQueue->isEmpty()) {
             if($printAll) {
                 while(!$this->statusQueue->isEmpty()) {
-                    echo $this->statusQueue->dequeue().PHP_EOL;
+                    echo $this->statusQueue->dequeue() . PHP_EOL;
                 }
             } else {
-                echo $this->statusQueue->dequeue().PHP_EOL;
+                echo $this->statusQueue->dequeue() . PHP_EOL;
             }
         }
     }
 }
 
 $patomic = new Patomic(9998, "mem", "taywils");
-$patomic->createDatabase("food");
-var_dump($patomic->getDatabaseNames());
+if($patomic->createDatabase("donkey")) {
+    $names = $patomic->getDatabaseNames();
+    var_dump($names);
+}

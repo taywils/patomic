@@ -42,4 +42,8 @@ trait TraitEdn
     public function _encode($edn) {
         return \igorw\edn\encode($edn);
     }
+
+    public function _parse($edn) {
+        return \igorw\edn\parse($edn);
+    }
 }
