@@ -184,6 +184,10 @@ class Patomic
         return $dbNames;
     }
 
+    public function commitTransaction(PatomicTransaction $transaction) {
+
+    }
+
     /**
      * Adds a message to the status queue
      * @param $statusCode
@@ -208,12 +212,4 @@ class Patomic
             }
         }
     }
-}
-
-$patomic = new Patomic("http://localhost", 9998, "mem", "taywils");
-if($patomic->createDatabase("donkey")) {
-    $names = $patomic->getDatabaseNames();
-    var_dump($names);
-} else {
-    echo "Create database failed";
 }

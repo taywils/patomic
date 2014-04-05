@@ -31,6 +31,10 @@ trait TraitEdn
         return new \igorw\edn\Vector($a);
     }
 
+    public function _list($a) {
+        return new \igorw\edn\LinkedList($a);
+    }
+
     public function _tag($t) {
         return new \igorw\edn\tag($t);
     }

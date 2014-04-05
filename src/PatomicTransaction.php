@@ -47,7 +47,7 @@ class PatomicTransaction
     }
 
     /**
-     * Displays the transaction as according to the Datomic Documentation
+     * Displays the transaction as according to the style shown throughout the Datomic Documentation
      */
     public function prettyPrint() {
         echo "[" . PHP_EOL . PHP_EOL;
@@ -55,11 +55,11 @@ class PatomicTransaction
         foreach($this->body->data as $elem) {
             switch(get_class($elem)) {
                 case "PatomicEntity":
-                    echo $elem->prettyPrint();
+                    echo PHP_EOL . $elem->prettyPrint();
                     break;
 
                 case 'igorw\edn\Vector':
-                    echo $this->_encode($elem);
+                    echo PHP_EOL . $this->_encode($elem);
                     break;
 
                 default:
@@ -69,7 +69,35 @@ class PatomicTransaction
             echo PHP_EOL;
         }
 
-        echo PHP_EOL . "]" . PHP_EOL;
+        echo "]" . PHP_EOL;
+    }
+
+    /**
+     * Essentially prettyPrint with excess newlines stripped
+     *
+     * @return string
+     */
+    public function __toString() {
+        $out = "[";
+
+        foreach($this->body->data as $elem) {
+            switch(get_class($elem)) {
+                case "PatomicEntity":
+                    $out .= $elem;
+                    break;
+
+                case 'igorw\edn\Vector':
+                    $out .= $this->_encode($elem);
+                    break;
+
+                default:
+                    $out .= $elem;
+            }
+        }
+
+        $out .= "]";
+
+        return $out;
     }
 
     /**
@@ -112,7 +140,7 @@ class PatomicTransaction
 
         $dbUser = $this->_vector(array($this->_keyword("db.part/user")));
         if(!is_null($tempIdNum) && is_int($tempIdNum)) {
-                $dbUser->data[] = $tempIdNum;
+            $dbUser->data[] = $tempIdNum;
         }
 
         $idTagged = $this->_tagged($idTag, $dbUser);
@@ -128,19 +156,35 @@ class PatomicTransaction
     }
 }
 
-$test2 = new PatomicEntity();
+try {
+    $test2 = new PatomicEntity("db");
 
-$test2->ident("taywils", "script", "name")
-    ->doc("This is the doc for my datom")
-    ->valueType("string")
-    ->cardinality("one")
-    ->unique("value")
-    ->isComponent(false)
-    ->noHistory(true);
+    $test2->ident("country", "name")
+        ->valueType("string")
+        ->cardinality("one")
+        ->unique("value")
+        ->doc("The name of the country")
+        ->install("attribute");
 
-$trans = new PatomicTransaction();
-$trans->append($test2)
-    ->add("script", "name", "Hamlet", -1001)
-    ->retract("script", "name", "Hamlet", -1001);
+    $trans = new PatomicTransaction();
+    $trans->append($test2);
 
-$trans->prettyPrint();
+    $trans->prettyPrint();
+
+    $test2 = new PatomicEntity("db");
+
+    $test2->ident("language", "name")
+        ->valueType("string")
+        ->cardinality("one")
+        ->unique("value")
+        ->doc("The name of the written and spoken language")
+        ->install("attribute");
+
+    $trans->append($test2);
+
+    $trans->prettyPrint();
+
+    //echo $trans . PHP_EOL;
+} catch(PatomicException $e) {
+    echo $e;
+}

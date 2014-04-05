@@ -39,7 +39,8 @@ class PatomicEntity
             "index",
             "fulltext",
             "isComponent",
-            "noHistory"
+            "noHistory",
+            "install" => array("attribute", "partition")
         )
     );
 
@@ -81,17 +82,21 @@ class PatomicEntity
     /**
      * Set the required "ident" Datom
      *
-     * @param string $namespace
      * @param string $name
      * @param string $identity
+     * @param string $namespace
+     *
      * @return $this
      */
-    public function ident($namespace, $name, $identity) {
+    public function ident($name, $identity, $namespace = null) {
         $this->name         = $name;
-        $this->namespace    = $namespace;
         $this->identity     = $identity;
 
-        $ident = $namespace . "." . $name . "/" . $identity;
+        if(isset($namespace) && is_string($namespace)) {
+            $ident = $namespace . "." . $name . "/" . $identity;
+        } else {
+            $ident = $name . "/" . $identity;
+        }
 
         $this->schema[$this->_keyword("db/ident")] = $this->_keyword($ident);
 
@@ -167,7 +172,7 @@ class PatomicEntity
 
         if(array_search($unique, $this->schemaDef['db']['unique']) < 0) {
             $debugInfo = implode(", ", $this->schemaDef['db']['unique']);
-            throw new PatomicException("unique must be xdone of the following [" . $debugInfo . "]");
+            throw new PatomicException("unique must be one of the following [" . $debugInfo . "]");
         } else {
             $this->schema[$this->_keyword("db/unique")] = $this->_keyword("db.unique/" . $unique);
 
@@ -223,6 +228,28 @@ class PatomicEntity
     }
 
     /**
+     * @param string $installType
+     * @return $this
+     * @throws PatomicException
+     */
+    public function install($installType = null) {
+        if(!isset($installType) || !is_string($installType)) {
+            throw new PatomicException("\$installType must be string");
+        }
+
+        $installType = strtolower($installType);
+
+        if(!in_array($installType, $this->schemaDef["db"]["install"])) {
+            $debugInfo = "[" . implode(", ", $this->schemaDef['db']['install']) . "]";
+            throw new PatomicException("Invalid installType assigned try one of the following instead " . $debugInfo);
+        } else {
+            $this->schema[$this->_keyword("db.install/_" . $installType)] = $this->_keyword("db.part/db");
+        }
+
+        return $this;
+    }
+
+    /**
      * Prints out a line by line dump of the current Schema
      * The style for displaying Datomic schemas was borrowed from the official documentation
      */
@@ -242,7 +269,6 @@ class PatomicEntity
             }
             $idx++;
         }
-        echo PHP_EOL;
     }
 
     /**
@@ -291,15 +317,3 @@ class PatomicEntity
         return $output;
     }
 }
-
-$test2 = new PatomicEntity();
-
-$test2->ident("taywils", "script", "name")
-    ->doc("This is the doc for my datom")
-    ->valueType("string")
-    ->cardinality("one")
-    ->unique("value")
-    ->isComponent(false)
-    ->noHistory(true);
-
-$test2->prettyPrint();
