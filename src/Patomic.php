@@ -15,6 +15,7 @@ class Patomic
         "dataUrl"       => null,
         "apiUrl"        => null,
         "serverUrl"     => null,
+        "dbName"        => null
     );
     private $storageTypes   = array("mem", "dev", "sql", "inf", "ddb");
     private $statusQueue    = null;
@@ -113,7 +114,7 @@ class Patomic
         curl_setopt_array($ch, array(
             CURLOPT_URL => $this->config["dataUrl"] . $this->config["alias"] . "/",
             CURLOPT_POST => 1,
-            CURLOPT_POSTFIELDS => "db-name=$dbName",
+            CURLOPT_POSTFIELDS => "db-name=" . strtolower($dbName),
             CURLOPT_RETURNTRANSFER => 1
         ));
 
@@ -121,7 +122,7 @@ class Patomic
 
         if(curl_error($ch)) {
             $this->addStatus(self::ST_WARN, "Non HTTP error, something else caused database creation to fail");
-            return self::FAILURE;
+            $retCode = self::FAILURE;
         } else {
             $info = curl_getinfo($ch);
             switch($info["http_code"]) {
@@ -139,11 +140,10 @@ class Patomic
                     $this->addStatus(self::ST_WARN, "HTTP Status code " . $info["http_code"] . " returned");
                     $retCode = self::FAILURE;
             }
-            curl_close($ch);
         }
 
-        $this->printStatus();        
-
+        $this->printStatus();
+        curl_close($ch);
         return $retCode;
     }
 
@@ -168,24 +168,93 @@ class Patomic
 
         $out = curl_exec($ch);
 
-        if(curl_error($ch)) {
-            return $dbNames;
-        } else {
+        if(!curl_error($ch)) {
             // Parse the Datomic string response into a EDN vector
             $parsedOut = $this->_parse($out);
             if(!empty($parsedOut)) {
                 // Transform EDN vector into PHP array
-                $dbVector = $parsedOut[0];
+                $dbVector = array_values($parsedOut)[0];
                 $dbNames = $dbVector->data;
             }
-            curl_close($ch);
         }
 
+        curl_close($ch);
         return $dbNames;
     }
 
-    public function commitTransaction(PatomicTransaction $transaction) {
+    /**
+     * Assigns the current Patomic object to a specific database.
+     * The database currently set will be where all transactions and queries take place.
+     *
+     * @param string $dbName Name of database
+     * @return string The current database name
+     * @throws PatomicException
+     */
+    public function setDatabase($dbName = null) {
+        if(!isset($dbName) || !is_string($dbName)) {
+            throw new PatomicException("No \$dbName was given cannot assign Database");
+        }
 
+        $dbName = strtolower($dbName);
+
+        $dbNames = $this->getDatabaseNames();
+
+        if(empty($dbNames)) {
+            throw new PatomicException("Cannot assign Database because none have been created");
+        } else {
+            $this->config["dbName"] = (in_array($dbName, $dbNames)) ? $dbName : array_values($dbNames)[0];
+            $this->addStatus(self::ST_INFO, "A Patomic object set database to " . $this->config["dbName"]);
+        }
+
+        $this->printStatus();
+        return $this->config["dbName"];
+    }
+
+    /**
+     * Adds data to the database via a transaction.
+     * All data to be added must be apart of an existing PatomicTransaction object
+     *
+     * @param PatomicTransaction $patomicTransaction
+     * @return bool
+     */
+    public function commitTransaction(PatomicTransaction $patomicTransaction) {
+        $ch = curl_init();
+
+        // Uses the __toString method of the PatomicTransaction class
+        $transaction = sprintf($patomicTransaction);
+
+        curl_setopt_array($ch, array(
+            CURLOPT_URL => $this->config["dataUrl"] . $this->config["alias"] . "/" . $this->config["dbName"] . "/",
+            CURLOPT_HTTPHEADER => array('Accept: application/edn'),
+            CURLOPT_POST => 1,
+            CURLOPT_POSTFIELDS => "tx-data=" . $transaction,
+            CURLOPT_RETURNTRANSFER => 1
+        ));
+
+        // To obtain the Datomic response use $this->_parse($rawResponse);
+        $rawResponse = curl_exec($ch);
+
+        if(curl_error($ch)) {
+            $this->addStatus(self::ST_WARN, "Non HTTP error, something else caused database creation to fail");
+            $retCode = self::FAILURE;
+        } else {
+            $info = curl_getinfo($ch);
+
+            switch($info["http_code"]) {
+                case "201":
+                    $this->addStatus(self::ST_INFO, __FUNCTION__ . " success");
+                    $retCode = self::SUCCESS;
+                    break;
+
+                default:
+                    $this->addStatus(self::ST_WARN, __FUNCTION__ .  " HTTP Status code " . $info["http_code"] . " returned");
+                    $retCode = self::FAILURE;
+            }
+        }
+
+        $this->printStatus();
+        curl_close($ch);
+        return $retCode;
     }
 
     /**
@@ -212,4 +281,25 @@ class Patomic
             }
         }
     }
+}
+
+try {
+    $p = new Patomic("http://localhost", 9998, "mem", "taywils");
+    $p->setDatabase("demetrious");
+
+    $pe = new PatomicEntity("db");
+
+    $pe->ident("country", "population")
+        ->valueType("string")
+        ->cardinality("one")
+        ->unique("value")
+        ->doc("The population of the country")
+        ->install("attribute");
+
+    $pt = new PatomicTransaction();
+    $pt->append($pe);
+
+    $p->commitTransaction($pt);
+} catch(PatomicException $e) {
+    echo $e;
 }

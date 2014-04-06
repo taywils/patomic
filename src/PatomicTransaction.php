@@ -155,36 +155,3 @@ class PatomicTransaction
         return $this;
     }
 }
-
-try {
-    $test2 = new PatomicEntity("db");
-
-    $test2->ident("country", "name")
-        ->valueType("string")
-        ->cardinality("one")
-        ->unique("value")
-        ->doc("The name of the country")
-        ->install("attribute");
-
-    $trans = new PatomicTransaction();
-    $trans->append($test2);
-
-    $trans->prettyPrint();
-
-    $test2 = new PatomicEntity("db");
-
-    $test2->ident("language", "name")
-        ->valueType("string")
-        ->cardinality("one")
-        ->unique("value")
-        ->doc("The name of the written and spoken language")
-        ->install("attribute");
-
-    $trans->append($test2);
-
-    $trans->prettyPrint();
-
-    //echo $trans . PHP_EOL;
-} catch(PatomicException $e) {
-    echo $e;
-}
