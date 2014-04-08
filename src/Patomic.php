@@ -85,7 +85,7 @@ class Patomic
             $this->config["storage"]    = $storage;
             $this->config["alias"]      = $alias;
             $this->config["dataUrl"]    = $this->config["serverUrl"] . "$port/data/";
-            $this->config["apiUrl"]     = $this->config["serverUrl"] . "$port/api/";
+            $this->config["apiUrl"]     = $this->config["serverUrl"] . "$port/api/query";
 
             $this->statusQueue = new SplQueue();
         } catch(Exception $e) {
@@ -202,6 +202,7 @@ class Patomic
         if(empty($dbNames)) {
             throw new PatomicException("Cannot assign Database because none have been created");
         } else {
+            // If the user gives an incorrect dbName just assign the first one found
             $this->config["dbName"] = (in_array($dbName, $dbNames)) ? $dbName : array_values($dbNames)[0];
             $this->addStatus(self::ST_INFO, "A Patomic object set database to " . $this->config["dbName"]);
         }
@@ -285,7 +286,7 @@ class Patomic
 
 try {
     $p = new Patomic("http://localhost", 9998, "mem", "taywils");
-    $p->setDatabase("demetrious");
+    $p->setDatabase("energy");
 
     $pe = new PatomicEntity("db");
 
@@ -298,8 +299,7 @@ try {
 
     $pt = new PatomicTransaction();
     $pt->append($pe);
-
-    $p->commitTransaction($pt);
+    //$p->commitTransaction($pt);
 } catch(PatomicException $e) {
     echo $e;
 }

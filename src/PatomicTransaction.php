@@ -47,6 +47,14 @@ class PatomicTransaction
     }
 
     /**
+     * Removes all existing data from the current transaction
+     */
+    public function clearData() {
+        unset($this->body);
+        $this->body = $this->_vector(array());
+    }
+
+    /**
      * Displays the transaction as according to the style shown throughout the Datomic Documentation
      */
     public function prettyPrint() {
