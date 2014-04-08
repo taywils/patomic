@@ -1,14 +1,15 @@
-Patomic - Datomic API for PHP
-==================================
+Patomic - A PHP Datomic Thingy
+==============================
 
 Requirements
 -----------
 1. The full Java dev environment [java.com](http://www.java.com) both JDK and JRE
 2. Datomic free edition [datomic.com/free](http://downloads.datomic.com/free.html)
 3. [Composer](http://getcomposer.org/)
+4. PHP >= 5.4 (It uses traits)
 
-Quickstart (Incomplete)
------------------------
+Quickstart (Incomplete Don't read this its not ready)
+-----------------------------------------------------
 
 ```
 $ cd [datomic_directory]
