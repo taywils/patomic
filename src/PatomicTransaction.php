@@ -10,8 +10,8 @@ require_once __DIR__ . "/../vendor/autoload.php";
 class PatomicTransaction 
 {
     private $body;
-    private static $addKeyword           = "add";
-    private static $retractKeyword       = "retract";
+    private static $addKeyword      = "add";
+    private static $retractKeyword  = "retract";
 
     use TraitEdn;
 

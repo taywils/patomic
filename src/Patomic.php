@@ -233,7 +233,7 @@ class Patomic
         ));
 
         // To obtain the Datomic response use $this->_parse($rawResponse);
-        $rawResponse = curl_exec($ch);
+        $transactionResponse = curl_exec($ch);
 
         if(curl_error($ch)) {
             $this->addStatus(self::ST_WARN, "Non HTTP error, something else caused database creation to fail");
@@ -256,6 +256,44 @@ class Patomic
         $this->printStatus();
         curl_close($ch);
         return $retCode;
+    }
+
+    public function commitQuery(PatomicQuery $patomicQuery) {
+        $ch = curl_init();
+
+        curl_setopt_array($ch, array(
+            CURLOPT_URL => $this->config["apiUrl"] . "?q=" . $patomicQuery->getQuery() . "&args=" . $patomicQuery->getQueryArgs(),
+            CURLOPT_HTTPHEADER => array('Accept: application/edn'),
+            CURLOPT_CONNECTTIMEOUT => 5,
+            CURLOPT_RETURNTRANSFER => 1
+        ));
+
+        $result = curl_exec($ch);
+
+        if(curl_error($ch)) {
+            $this->addStatus(self::ST_WARN, "Non HTTP error, something else caused database creation to fail");
+            $retCode = self::FAILURE;
+        } else {
+            $info = curl_getinfo($ch);
+
+            switch($info["http_code"]) {
+                case "200":
+                    $this->addStatus(self::ST_INFO, __FUNCTION__ . " success");
+                    $retCode = self::SUCCESS;
+                    break;
+
+                default:
+                    $this->addStatus(self::ST_WARN, __FUNCTION__ .  " HTTP Status code " . $info["http_code"] . " returned");
+                    $retCode = self::FAILURE;
+            }
+        }
+
+        if(self::SUCCESS == $retCode) {
+            print_r($result);
+        }
+
+        $this->printStatus();
+        curl_close($ch);
     }
 
     /**
@@ -284,12 +322,12 @@ class Patomic
     }
 }
 
-try {
+/*try {
     $p = new Patomic("http://localhost", 9998, "mem", "taywils");
+    $p->createDatabase("energy");
     $p->setDatabase("energy");
 
     $pe = new PatomicEntity("db");
-
     $pe->ident("country", "population")
         ->valueType("string")
         ->cardinality("one")
@@ -302,4 +340,18 @@ try {
     //$p->commitTransaction($pt);
 } catch(PatomicException $e) {
     echo $e;
+}*/
+
+try {
+    $p = new Patomic("http://localhost", 9998, "mem", "taywils");
+    $p->createDatabase("energy");
+    $p->setDatabase("energy");
+
+    $pq = new PatomicQuery();
+    $pq->newRawQuery("[:find ?e ?v :in $ :where [?e :db/doc ?v]]");
+    $pq->addRawQueryArgs("[{:db/alias taywils/energy}]");
+
+    $p->commitQuery($pq);
+} catch(Exception $e) {
+    echo $e . PHP_EOL;
 }
