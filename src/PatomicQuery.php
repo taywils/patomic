@@ -34,7 +34,9 @@ class PatomicQuery
     }
 
     public function addRawQueryArgs($datalogString) {
-        if("" == $this->rawQueryBody) {
+        $this->rawQueryArgs = "";
+
+        if(!isset($this->rawQueryBody) || "" == $this->rawQueryBody) {
             throw new PatomicException("Create a newRawQuery before adding raw query arguments");
         }
 

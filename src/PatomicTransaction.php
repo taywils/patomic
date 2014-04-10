@@ -55,7 +55,7 @@ class PatomicTransaction
     }
 
     /**
-     * Displays the transaction as according to the style shown throughout the Datomic Documentation
+     * Displays the transaction according to the style shown throughout the Datomic Documentation
      */
     public function prettyPrint() {
         echo "[" . PHP_EOL . PHP_EOL;
