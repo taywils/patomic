@@ -258,11 +258,14 @@ class Patomic
         return $retCode;
     }
 
-    public function commitQuery(PatomicQuery $patomicQuery) {
+    public function commitRawQuery(PatomicQuery $patomicQuery) {
+        $queryStr       = urlencode($patomicQuery->getQuery());
+        $queryArgStr    = urlencode($patomicQuery->getQueryArgs());
         $ch = curl_init();
+        $retData = array();
 
         curl_setopt_array($ch, array(
-            CURLOPT_URL => $this->config["apiUrl"] . "?q=" . $patomicQuery->getQuery() . "&args=" . $patomicQuery->getQueryArgs(),
+            CURLOPT_URL => $this->config["apiUrl"] . "?q=" . $queryStr . "&args=" . $queryArgStr,
             CURLOPT_HTTPHEADER => array('Accept: application/edn'),
             CURLOPT_CONNECTTIMEOUT => 5,
             CURLOPT_RETURNTRANSFER => 1
@@ -288,12 +291,18 @@ class Patomic
             }
         }
 
+        // Datomic query results are returned as a EDN vector where each result row is another vector
         if(self::SUCCESS == $retCode) {
-            print_r($result);
+            // Transforms the results Vector of Vectors into a multi-dimensional PHP array
+            $result = array_values($this->_parse($result))[0];
+            foreach($result->data as $rowVector) {
+                $retData[] = array_values($rowVector->data);
+            }
         }
 
         $this->printStatus();
         curl_close($ch);
+        return $retData;
     }
 
     /**
@@ -351,7 +360,7 @@ try {
     $pq->newRawQuery("[:find ?e ?v :in $ :where [?e :db/doc ?v]]");
     $pq->addRawQueryArgs("[{:db/alias taywils/energy}]");
 
-    $p->commitQuery($pq);
+    $p->commitRawQuery($pq);
 } catch(Exception $e) {
     echo $e . PHP_EOL;
 }
