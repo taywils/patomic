@@ -187,7 +187,9 @@ class Patomic
      * The database currently set will be where all transactions and queries take place.
      *
      * @param string $dbName Name of database
+     *
      * @return string The current database name
+     *
      * @throws PatomicException
      */
     public function setDatabase($dbName = null) {
@@ -216,6 +218,7 @@ class Patomic
      * All data to be added must be apart of an existing PatomicTransaction object
      *
      * @param PatomicTransaction $patomicTransaction
+     *
      * @return bool
      */
     public function commitTransaction(PatomicTransaction $patomicTransaction) {
@@ -258,9 +261,16 @@ class Patomic
         return $retCode;
     }
 
+    /**
+     * Extracts the raw query data members of a PatomicQuery object and sends it off to the Datomic database
+     *
+     * @param PatomicQuery $patomicQuery
+     *
+     * @return array
+     */
     public function commitRawQuery(PatomicQuery $patomicQuery) {
-        $queryStr       = urlencode($patomicQuery->getQuery());
-        $queryArgStr    = urlencode($patomicQuery->getQueryArgs());
+        $queryStr       = urlencode($patomicQuery->getRawQuery());
+        $queryArgStr    = urlencode($patomicQuery->getRawQueryArgs());
         $ch = curl_init();
         $retData = array();
 
@@ -307,6 +317,7 @@ class Patomic
 
     /**
      * Adds a message to the status queue
+     *
      * @param $statusCode
      * @param $msg
      */
@@ -316,6 +327,7 @@ class Patomic
 
     /**
      * Prints a single message from the status queue
+     *
      * @param bool $printAll When true will dump the status queue
      */
     private function printStatus($printAll = false) {
@@ -351,6 +363,7 @@ class Patomic
     echo $e;
 }*/
 
+/*
 try {
     $p = new Patomic("http://localhost", 9998, "mem", "taywils");
     $p->createDatabase("energy");
@@ -360,7 +373,8 @@ try {
     $pq->newRawQuery("[:find ?e ?v :in $ :where [?e :db/doc ?v]]");
     $pq->addRawQueryArgs("[{:db/alias taywils/energy}]");
 
-    $p->commitRawQuery($pq);
+    $test = $p->commitRawQuery($pq);
+    print_r($test);
 } catch(Exception $e) {
     echo $e . PHP_EOL;
-}
+}*/
