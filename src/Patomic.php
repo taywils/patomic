@@ -94,14 +94,6 @@ class Patomic
     }
 
     /**
-     * Creates a new PatomicEntity object
-     * @return PatomicEntity object
-     */
-    public function createEntity() {
-        return new PatomicEntity();
-    }
-
-    /**
      * Creates a new database
      *
      * @param string $dbName

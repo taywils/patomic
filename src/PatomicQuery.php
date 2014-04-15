@@ -192,6 +192,22 @@ class PatomicQuery
     }
 
     /**
+     * Deletes all query related data
+     * Useful when you want to re-use the same PatomicQuery object
+     */
+    private function clear() {
+        $this->findEdn  = array();
+        $this->inEdn    = array();
+        $this->whereEdn = array();
+        $this->argsEdn  = array();
+
+        $rawQueryBody   = null;
+        $rawQueryArgs   = null;
+        $queryBody      = null;
+        $queryArgs      = null;
+    }
+
+    /**
      * Validates the arguments passed to the find function
      *
      * @param array $findArgsArray
@@ -228,29 +244,4 @@ class PatomicQuery
                 return false;
         }
     }
-
-    /**
-     * Deletes all query related data
-     * Useful when you want to re-use the same PatomicQuery object
-     */
-    private function clear() {
-        $this->findEdn  = array();
-        $this->inEdn    = array();
-        $this->whereEdn = array();
-        $this->argsEdn  = array();
-
-        $rawQueryBody   = null;
-        $rawQueryArgs   = null;
-        $queryBody      = null;
-        $queryArgs      = null;
-    }
-}
-
-try {
-    $pq = new PatomicQuery();
-    $pq->find("communityName")
-        ->where(array("communityName" => "community/name", "c_name" => ""))
-        ->where(array("communityPopulation" => ""));
-} catch(PatomicException $e) {
-    echo $e . PHP_EOL;
 }
