@@ -108,14 +108,19 @@ class PatomicQuery
     public function in() {
         $numargs = func_num_args();
 
-        if($numargs != 2) {
-            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__  . " expects at one \"string\" and one \"array\" as arguments");
+        if($numargs > 2 || $numargs < 1) {
+            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__  . " expects at least one \"string\" and an optional \"array\" as arguments");
         }
 
         $argsArray = func_get_args();
 
-        if(false == $this->validateInArgs($argsArray)) {
-            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__  . " invalid arguments. Expecting \"string\", \"array\"");
+        if(1 == $numargs) { // Handle the case where the only argument is a string
+            $parts = preg_split("/[\s,]+/", $argsArray[0]);
+            foreach($parts as $part) {
+                
+            }
+        } else { // Handle the case where a binding collection is passed as an array
+
         }
     }
 
@@ -151,7 +156,7 @@ class PatomicQuery
         $this->limitOrOffset($offset, false);
     }
 
-    public function limitOrOffset($value, $useLimit) {
+    private function limitOrOffset($value, $useLimit) {
         if(!isset($value) || !is_int($value) || ($value < 1)) {
             throw new PatomicException(__CLASS__ . "::" . __FUNCTION__  . " expects a positive integer as an argument");
         }
@@ -207,10 +212,6 @@ class PatomicQuery
         }
 
         return $areAllArgumentsStrings;
-    }
-
-    private function validateInArgs($inArgsArray) {
-        $areTheArgumentsValid = true;
     }
 
     /**
