@@ -114,14 +114,19 @@ class PatomicQuery
 
         $argsArray = func_get_args();
 
-        if(1 == $numargs) { // Handle the case where the only argument is a string
-            $parts = preg_split("/[\s,]+/", $argsArray[0]);
-            foreach($parts as $part) {
-                
-            }
-        } else { // Handle the case where a binding collection is passed as an array
-
+        if(false == $this->validateInArgs($numargs, $argsArray)) {
+            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__  . " encountered a non string argument");
         }
+
+        $parts = preg_split("/[\s,]+/", $argsArray[0]);
+        foreach($parts as $part) {
+            $this->inEdn[] = $part;           
+        }
+
+        if(2 == $numargs) { // Handle the case where a binding collection is passed as an array argument
+        }
+
+        return $this;
     }
 
     /**
@@ -214,14 +219,24 @@ class PatomicQuery
         return $areAllArgumentsStrings;
     }
 
+    private function validateInArgs($numArgs, $argsArray) {
+        if(1 == $numArgs && is_string($argsArray[0])) {
+                return true;
+        } elseif(is_string($argsArray[0]) && is_array($argsArray[1])) {
+                return true;
+        } else {
+                return false;
+        }
+    }
+
     /**
      * Deletes all query related data
      * Useful when you want to re-use the same PatomicQuery object
      */
     private function clear() {
         $this->findEdn  = array();
-        $this->whereEdn = array();
         $this->inEdn    = array();
+        $this->whereEdn = array();
         $this->argsEdn  = array();
 
         $rawQueryBody   = null;
