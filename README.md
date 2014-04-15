@@ -54,3 +54,4 @@ So What Is Datomic And Why Should I Care?
 - [Datomic Homepage](http://www.datomic.com)
 - [Datomic for Five Year Olds](http://www.flyingmachinestudios.com/programming/datomic-for-five-year-olds/)
 - [Rich Hickey Introduces Datomic](http://www.youtube.com/watch?v=RKcqYZZ9RDY)
+- [Datomic Blog](http://blog.datomic.com/)
