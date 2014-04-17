@@ -3,19 +3,6 @@
 require_once __DIR__ . "/../vendor/autoload.php";
 
 /**
- * NOTES TAKEN FROM docs.datomic.com
- *
- * Queries consist of three sections: :find, :in and :where.
- * The :find section specifies what the query should return.
- * The :in section specifies data sources. It is not necessary when querying a single data source, we'll talk about it later.
- * The :where section specifies one or more data, expression or rule clauses.
- *
- * The :in section always comes between the :find and :where sections. It specifies an ordered list of input sources
- *
- * @see http://docs.datomic.com/tutorial.html
- */
-
-/**
  * Class designed to assist building Datomic Queries
  * Supports both the writing of raw Datalog style queries and more PHP friendly style queries
  *
@@ -263,7 +250,12 @@ class PatomicQuery
     }
 
     private function createFindEdn() {
-        $this->queryBody = $this->_vector(array());
+        $this->queryBody = $this->_vector(array($this->_keyword("find")));
+
+        foreach($this->findEdn as $findPart) {
+        }
+
+        echo $this->_encode($this->queryBody) . PHP_EOL;
     }
 
     private function createInEdn() {
