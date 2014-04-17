@@ -69,7 +69,7 @@ class PatomicQuery
     public function addRawQueryArgs($datalogString) {
         $this->rawQueryArgs = "";
 
-        if(!isset($this->rawQueryBody) || "" == $this->rawQueryBody) {
+        if(!isset($this->rawQueryBody) || empty($this->rawQueryBody)) {
             throw new PatomicException("Create a newRawQuery before adding raw query arguments");
         }
 
@@ -99,7 +99,7 @@ class PatomicQuery
         }
 
         foreach($argsArray as $arg) {
-            $this->findEdn[] = $arg;
+            $this->findEdn[] = trim($arg);
         }
 
         return $this;
@@ -148,7 +148,15 @@ class PatomicQuery
 
         $this->whereEdn[] = $argArray;
 
-        print_r($this->whereEdn);
+        return $this;
+    }
+
+    public function arg($argArray) {
+        if(!isset($argArray) || !is_array($argArray)) {
+            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__  . " expects an array as an argument");
+        }
+
+        $this->argsEdn[] = $argArray;
 
         return $this;
     }
@@ -184,10 +192,19 @@ class PatomicQuery
     }
 
     public function getQuery() {
+        print_r($this->findEdn);
+        print_r($this->inEdn);
+        print_r($this->whereEdn);
+        print_r($this->argsEdn);
+
+        $this->createQueryBody();
+
         return $this->queryBody;
     }
 
     public function getQueryArgs() {
+        $this->createQueryArgs();
+
         return $this->queryArgs;
     }
 
@@ -195,7 +212,7 @@ class PatomicQuery
      * Deletes all query related data
      * Useful when you want to re-use the same PatomicQuery object
      */
-    private function clear() {
+    public function clear() {
         $this->findEdn  = array();
         $this->inEdn    = array();
         $this->whereEdn = array();
@@ -237,11 +254,43 @@ class PatomicQuery
 
     private function validateInArgs($numArgs, $argsArray) {
         if(1 == $numArgs && is_string($argsArray[0])) {
-                return true;
+            return true;
         } elseif(is_string($argsArray[0]) && is_array($argsArray[1])) {
-                return true;
+            return true;
         } else {
-                return false;
+            return false;
         }
     }
+
+    private function createFindEdn() {
+        $this->queryBody = $this->_vector(array());
+    }
+
+    private function createInEdn() {
+
+    }
+
+    private function createWhereEdn() {
+
+    }
+
+    private function createQueryBody() {
+        $this->createFindEdn();
+        $this->createInEdn();
+        $this->createWhereEdn();
+    }
+
+    private function createQueryArgs() {
+
+    }
+}
+
+try {
+    $pq = new PatomicQuery();
+    $pq->find("e", "v")
+        ->where(array("e" => "db/doc", "v"));
+
+    $pq->getQuery();
+} catch (PatomicException $e) {
+    echo $e . PHP_EOL;
 }
