@@ -362,8 +362,8 @@ try {
     $p->setDatabase("energy");
 
     $pq = new PatomicQuery();
-    $pq->newRawQuery("[:find ?e ?v :in $ :where [?e :db/doc ?v]]");
-    $pq->addRawQueryArgs("[{:db/alias taywils/energy}]");
+    $pq->newRawQuery("[:find ?e ?v :in $ :where [?e :db/doc ?v]]")
+        ->addRawQueryArgs("[{:db/alias taywils/energy}]");
 
     $test = $p->commitRawQuery($pq);
     print_r($test);

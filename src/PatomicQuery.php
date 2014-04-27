@@ -63,6 +63,8 @@ class PatomicQuery
         foreach($this->_parse($datalogString) as $argumentPart) {
             $this->rawQueryArgs .= $this->_encode($argumentPart);
         }
+
+        return $this;
     }
 
     /**
@@ -156,18 +158,12 @@ class PatomicQuery
         $this->limitOrOffset($offset, false);
     }
 
-    private function limitOrOffset($value, $useLimit) {
-        if(!isset($value) || !is_int($value) || ($value < 1)) {
-            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__  . " expects a positive integer as an argument");
-        }
+    public function getOffset() {
+        return $this->queryOffset;
+    }
 
-        if($useLimit) {
-            $this->queryLimit = $value;
-        } else {
-            $this->queryOffset = $value;
-        }
-
-        return $this;
+    public function getLimit() {
+        return $this->queryLimit;
     }
 
     public function getRawQuery() {
@@ -205,10 +201,26 @@ class PatomicQuery
         $this->whereEdn = array();
         $this->argsEdn  = array();
 
-        $rawQueryBody   = null;
-        $rawQueryArgs   = null;
-        $queryBody      = null;
-        $queryArgs      = null;
+        $this->rawQueryBody   = null;
+        $this->rawQueryArgs   = null;
+        $this->queryBody      = null;
+        $this->queryArgs      = null;
+        $this->queryLimit     = 0;
+        $this->queryOffset    = 0;
+    }
+
+    private function limitOrOffset($value, $useLimit) {
+        if(!isset($value) || !is_int($value) || ($value < 1)) {
+            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__  . " expects a positive integer as an argument");
+        }
+
+        if($useLimit) {
+            $this->queryLimit = $value;
+        } else {
+            $this->queryOffset = $value;
+        }
+
+        return $this;
     }
 
     /**
@@ -250,20 +262,45 @@ class PatomicQuery
     }
 
     private function createFindEdn() {
-        $this->queryBody = $this->_vector(array($this->_keyword("find")));
+        $findDatalog = "[:find ";
 
         foreach($this->findEdn as $findPart) {
+            $findDatalog .= "?" . $findPart . " ";
         }
 
-        echo $this->_encode($this->queryBody) . PHP_EOL;
+        $this->queryBody .= $findDatalog;
+
+        //echo $this->queryBody . PHP_EOL;
     }
 
     private function createInEdn() {
+        $inDatalog = ":in $ ";
 
+        $this->queryBody .= $inDatalog;
     }
 
     private function createWhereEdn() {
+        $whereDatalog = ":where ";
 
+        foreach($this->whereEdn as $whereArray) {
+            $whereDatalog .= "[";
+
+            foreach($whereArray as $key => $value) {
+
+                if(is_int($key) && !is_string($key)) {
+                    $whereDatalog .=  "?" . $value . " ";
+                } else {
+                    $whereDatalog .= "?" . $key . " :" . $value . " ";
+                }
+
+            }
+
+            $whereDatalog .= "]";
+        }
+
+        $this->queryBody .= $whereDatalog . "]";
+
+        echo $this->queryBody . PHP_EOL;
     }
 
     private function createQueryBody() {
@@ -273,16 +310,33 @@ class PatomicQuery
     }
 
     private function createQueryArgs() {
+        $argDatalog = "[";
 
+        foreach($this->argsEdn as $argArray) {
+            $argDatalog .= "{";
+
+            foreach($argArray as $key => $value) {
+                $argDatalog .= ":" . $key . " \"" . $value . "\"";
+            }
+
+            $argDatalog .= "}";
+        }
+
+        $argDatalog .= "]";
+
+        echo $argDatalog . PHP_EOL;
+        $this->queryArgs = $argDatalog;
     }
 }
 
 try {
     $pq = new PatomicQuery();
     $pq->find("e", "v")
-        ->where(array("e" => "db/doc", "v"));
+        ->where(array("e" => "db/doc", "v"))
+        ->arg(array("db/alias" => "demo/energy"));
 
     $pq->getQuery();
+    $pq->getQueryArgs();
 } catch (PatomicException $e) {
     echo $e . PHP_EOL;
 }
