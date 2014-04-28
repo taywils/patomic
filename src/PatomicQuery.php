@@ -47,10 +47,10 @@ class PatomicQuery
     }
 
     /**
-     * Allows one to add arguments to a newRawQuery
+     * Add a datalog string to the current rawQuery
      *
-     * @param string $datalogString A string consisting of valid Datalog
-     *
+     * @param string $datalogString A string consisting of valid datalog
+     * @return $this
      * @throws PatomicException
      */
     public function addRawQueryArgs($datalogString) {
@@ -103,16 +103,29 @@ class PatomicQuery
 
         $argsArray = func_get_args();
 
-        if(false == $this->validateInArgs($numargs, $argsArray)) {
-            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__  . " encountered a non string argument");
+        if(1 == $numargs && !is_string($argsArray[0])) {
+            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__  . " first argument was not a string");
+        }
+
+        if(2 == $numargs && !is_array($argsArray[1])) {
+            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__  . " second argument was not an array");
+        }
+
+        if(is_string($this->validateInArgs($numargs, $argsArray))) {
+            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__  . $this->validateInArgs($numargs, $argsArray));
         }
 
         $parts = preg_split("/[\s,]+/", $argsArray[0]);
         foreach($parts as $part) {
-            $this->inEdn[] = $part;           
+            if(strlen($part) > 0) {
+                $this->inEdn[] = $part;
+            } else {
+                continue;
+            }
         }
 
         if(2 == $numargs) { // Handle the case where a binding collection is passed as an array argument
+            $this->inEdn[] = $argsArray[1];
         }
 
         return $this;
@@ -175,11 +188,6 @@ class PatomicQuery
     }
 
     public function getQuery() {
-        print_r($this->findEdn);
-        print_r($this->inEdn);
-        print_r($this->whereEdn);
-        print_r($this->argsEdn);
-
         $this->createQueryBody();
 
         return $this->queryBody;
@@ -252,12 +260,46 @@ class PatomicQuery
     }
 
     private function validateInArgs($numArgs, $argsArray) {
-        if(1 == $numArgs && is_string($argsArray[0])) {
-            return true;
-        } elseif(is_string($argsArray[0]) && is_array($argsArray[1])) {
-            return true;
-        } else {
-            return false;
+        $validateString = function() use($numArgs, $argsArray) {
+            $stringIsJustWhitespace = (strlen(trim($argsArray[0]))) == 0;
+
+            if(1 == $numArgs && $stringIsJustWhitespace) {
+                return " expects a non-empty string when no array is given";
+            } else if(2 == $numArgs) {
+                return true;
+            } else {
+                return " expects a non-empty string when no array is given";
+            }
+        };
+
+        $validateArray = function() use($numArgs, $argsArray) {
+            $allElementsAreString = true;
+
+            foreach($argsArray[1] as $elem) {
+                $allElementsAreString = is_string($elem);
+                if(false == $allElementsAreString) {
+                    break;
+                }
+            }
+
+            if($allElementsAreString) {
+                return true;
+            } else {
+                return " expects an array containing only string elements";
+            }
+        };
+
+        switch($numArgs) {
+            case 1:
+                return $validateString;
+                break;
+
+            case 2:
+                return $validateString && $validateArray;
+                break;
+
+            default:
+                return false;
         }
     }
 
@@ -276,6 +318,22 @@ class PatomicQuery
     private function createInEdn() {
         $inDatalog = ":in $ ";
 
+        foreach($this->inEdn as $stringOrArray) {
+            if(is_string($stringOrArray)) {
+                $inDatalog .= "?" . $stringOrArray . " ";
+                continue;
+            } else {
+                $inDatalog .= "[[";
+
+                for($index = 0, $size = count($stringOrArray); $index < $size; $index++ ) {
+                    $whitespace = ($index == $size - 1) ? "" : " ";
+                    $inDatalog .= "?" . $stringOrArray[$index] . $whitespace;
+                }
+
+                $inDatalog .= "]] ";
+            }
+
+        }
         $this->queryBody .= $inDatalog;
     }
 
@@ -332,6 +390,7 @@ class PatomicQuery
 try {
     $pq = new PatomicQuery();
     $pq->find("e", "v")
+        ->in("communityName, communityType")
         ->where(array("e" => "db/doc", "v"))
         ->arg(array("db/alias" => "demo/energy"));
 
