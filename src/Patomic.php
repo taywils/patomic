@@ -20,11 +20,20 @@ class Patomic
     private $storageTypes   = array("mem", "dev", "sql", "inf", "ddb");
     private $statusQueue    = null;
 
-    const SUCCESS = true;
-    const FAILURE = false;
-    const ST_WARN = "WARN: ";
-    const ST_FATL = "FATAL: ";
-    const ST_INFO = "INFO: ";
+    public $queryResult             = array();
+    private $queryResponse          = null;
+
+    public $transactionResult       = array();
+    private $transactionResponse    = null;
+
+    private static $RAW_QUERY       = "rawquery";
+    private static $REGULAR_QUERY   = "regularquery";
+
+    private static $SUCCESS = true;
+    private static $FAILURE = false;
+    private static $ST_WARN = "WARN: ";
+    private static $ST_FATL = "FATAL: ";
+    private static $ST_INFO = "INFO: ";
 
     use TraitEdn;
 
@@ -113,24 +122,24 @@ class Patomic
         curl_exec($ch);
 
         if(curl_error($ch)) {
-            $this->addStatus(self::ST_WARN, "Non HTTP error, something else caused database creation to fail");
-            $retCode = self::FAILURE;
+            $this->addStatus(self::$ST_WARN, "Non HTTP error, something else caused database creation to fail");
+            $retCode = self::$FAILURE;
         } else {
             $info = curl_getinfo($ch);
             switch($info["http_code"]) {
                 case "200":
-                    $this->addStatus(self::ST_WARN, "Database \"$dbName\" already exists");
-                    $retCode = self::FAILURE;
+                    $this->addStatus(self::$ST_WARN, "Database \"$dbName\" already exists");
+                    $retCode = self::$FAILURE;
                     break;
 
                 case "201":
-                    $this->addStatus(self::ST_INFO, "Database \"$dbName\" created");
-                    $retCode = self::SUCCESS;
+                    $this->addStatus(self::$ST_INFO, "Database \"$dbName\" created");
+                    $retCode = self::$SUCCESS;
                     break;
 
                 default:
-                    $this->addStatus(self::ST_WARN, "HTTP Status code " . $info["http_code"] . " returned");
-                    $retCode = self::FAILURE;
+                    $this->addStatus(self::$ST_FATL, "HTTP Status code " . $info["http_code"] . " returned");
+                    $retCode = self::$FAILURE;
             }
         }
 
@@ -198,7 +207,7 @@ class Patomic
         } else {
             // If the user gives an incorrect dbName just assign the first one found
             $this->config["dbName"] = (in_array($dbName, $dbNames)) ? $dbName : array_values($dbNames)[0];
-            $this->addStatus(self::ST_INFO, "A Patomic object set database to " . $this->config["dbName"]);
+            $this->addStatus(self::$ST_INFO, "A Patomic object set database to " . $this->config["dbName"]);
         }
 
         $this->printStatus();
@@ -228,23 +237,23 @@ class Patomic
         ));
 
         // To obtain the Datomic response use $this->_parse($rawResponse);
-        $transactionResponse = curl_exec($ch);
+        $this->transactionResponse = curl_exec($ch);
 
         if(curl_error($ch)) {
-            $this->addStatus(self::ST_WARN, "Non HTTP error, something else caused database creation to fail");
-            $retCode = self::FAILURE;
+            $this->addStatus(self::$ST_WARN, "Non HTTP error, something else caused database creation to fail");
+            $retCode = self::$FAILURE;
         } else {
             $info = curl_getinfo($ch);
 
             switch($info["http_code"]) {
                 case "201":
-                    $this->addStatus(self::ST_INFO, __FUNCTION__ . " success");
-                    $retCode = self::SUCCESS;
+                    $this->addStatus(self::$ST_INFO, __FUNCTION__ . " success");
+                    $retCode = self::$SUCCESS;
                     break;
 
                 default:
-                    $this->addStatus(self::ST_WARN, __FUNCTION__ .  " HTTP Status code " . $info["http_code"] . " returned");
-                    $retCode = self::FAILURE;
+                    $this->addStatus(self::$ST_WARN, __FUNCTION__ .  " HTTP Status code " . $info["http_code"] . " returned");
+                    $retCode = self::$FAILURE;
             }
         }
 
@@ -253,16 +262,23 @@ class Patomic
         return $retCode;
     }
 
-    /**
-     * Extracts the raw query data members of a PatomicQuery object and sends it off to the Datomic database
-     *
-     * @param PatomicQuery $patomicQuery
-     *
-     * @return array
-     */
     public function commitRawQuery(PatomicQuery $patomicQuery) {
-        $queryStr       = urlencode($patomicQuery->getRawQuery());
-        $queryArgStr    = urlencode($patomicQuery->getRawQueryArgs());
+        $this->commitQuery($patomicQuery, self::$RAW_QUERY);
+    }
+
+    public function commitRegularQuery(PatomicQuery $patomicQuery) {
+        $this->commitQuery($patomicQuery, self::$REGULAR_QUERY);
+    }
+
+    private function commitQuery(PatomicQuery $patomicQuery, $queryType) {
+        if(self::$RAW_QUERY == $queryType) {
+            $queryStr       = urlencode($patomicQuery->getRawQuery());
+            $queryArgStr    = urlencode($patomicQuery->getRawQueryArgs());
+        } else {
+            $queryStr       = urlencode($patomicQuery->getQuery());
+            $queryArgStr    = urlencode($patomicQuery->getQueryArgs());
+        }
+
         $ch = curl_init();
         $retData = array();
 
@@ -273,38 +289,42 @@ class Patomic
             CURLOPT_RETURNTRANSFER => 1
         ));
 
-        $result = curl_exec($ch);
+        $this->queryResponse = curl_exec($ch);
 
         if(curl_error($ch)) {
-            $this->addStatus(self::ST_WARN, "Non HTTP error, something else caused database creation to fail");
-            $retCode = self::FAILURE;
+            $this->addStatus(self::$ST_WARN, "Non HTTP error, something else caused database creation to fail");
+            $retCode = self::$FAILURE;
         } else {
             $info = curl_getinfo($ch);
 
             switch($info["http_code"]) {
                 case "200":
-                    $this->addStatus(self::ST_INFO, __FUNCTION__ . " success");
-                    $retCode = self::SUCCESS;
+                    $this->addStatus(self::$ST_INFO, __FUNCTION__ . " success");
+                    $retCode = self::$SUCCESS;
                     break;
 
                 default:
-                    $this->addStatus(self::ST_WARN, __FUNCTION__ .  " HTTP Status code " . $info["http_code"] . " returned");
-                    $retCode = self::FAILURE;
+                    $this->addStatus(self::$ST_WARN, __FUNCTION__ .  " HTTP Status code " . $info["http_code"] . " returned");
+                    $retCode = self::$FAILURE;
             }
         }
 
         // Datomic query results are returned as a EDN vector where each result row is another vector
-        if(self::SUCCESS == $retCode) {
+        if(self::$FAILURE == $retCode) {
+            //Handle failure
+        } else if(self::$RAW_QUERY == $queryType) {
             // Transforms the results Vector of Vectors into a multi-dimensional PHP array
-            $result = array_values($this->_parse($result))[0];
-            foreach($result->data as $rowVector) {
+            $this->queryResponse = array_values($this->_parse($this->queryResponse))[0];
+            foreach($this->queryResponse->data as $rowVector) {
                 $retData[] = array_values($rowVector->data);
             }
+        } else {
+            // Handle regular query results based on the PatomicQuery object's in() data and such
         }
 
         $this->printStatus();
         curl_close($ch);
-        return $retData;
+        return $retCode;
     }
 
     /**

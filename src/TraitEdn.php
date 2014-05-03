@@ -9,15 +9,15 @@ require_once __DIR__ . "/../vendor/autoload.php";
  */
 trait TraitEdn
 {
-    public function _keyword($k) {
+    protected function _keyword($k) {
         return \igorw\edn\keyword($k);
     }
 
-    public function _symbol($s) {
+    protected function _symbol($s) {
         return \igorw\edn\symbol($s);
     }
 
-    public function _map($a = null) {
+    protected function _map($a = null) {
         $map = new \igorw\edn\Map();
 
         if(isset($a) && is_array($a)) {
@@ -27,27 +27,27 @@ trait TraitEdn
         return $map;
     }
 
-    public function _vector($a) {
+    protected function _vector($a) {
         return new \igorw\edn\Vector($a);
     }
 
-    public function _list($a) {
+    protected function _list($a) {
         return new \igorw\edn\LinkedList($a);
     }
 
-    public function _tag($t) {
+    protected function _tag($t) {
         return new \igorw\edn\tag($t);
     }
 
-    public function _tagged($t, $v) {
+    protected function _tagged($t, $v) {
         return new \igorw\edn\Tagged($t, $v);
     }
 
-    public function _encode($edn) {
+    protected function _encode($edn) {
         return \igorw\edn\encode($edn);
     }
 
-    public function _parse($edn) {
+    protected function _parse($edn) {
         return \igorw\edn\parse($edn);
     }
 }

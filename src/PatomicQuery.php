@@ -6,7 +6,7 @@ require_once __DIR__ . "/../vendor/autoload.php";
  * Class designed to assist building Datomic Queries
  * Supports both the writing of raw Datalog style queries and more PHP friendly style queries
  *
- * Many thanks to the authors of Diametric the Datomic Active Record wrapper for the Ruby programming language
+ * Many thanks to the authors of Diametric the Datomic Active Record wrapper for the Ruby programming language for
  * additional documentation on how to design a Query wrapper for Datomic's REST API
  *
  * @see https://github.com/relevance/diametric
@@ -35,9 +35,15 @@ class PatomicQuery
      * @param string $datalogString A string consisting of valid Datalog
      *
      * @return $this
+     *
+     * @throws PatomicException
      */
     public function newRawQuery($datalogString) {
         $this->rawQueryBody = "";
+
+        if(!isset($datalogString) || !is_string($datalogString)) {
+            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__  . " expects a non-empty string input");
+        }
 
         foreach($this->_parse($datalogString) as $queryPart) {
             $this->rawQueryBody .= $this->_encode($queryPart);
@@ -190,7 +196,10 @@ class PatomicQuery
     public function getQuery() {
         $this->createQueryBody();
 
-        return $this->queryBody;
+        $parsedQueryBody = $this->_parse($this->queryBody);
+        $encodedQueryBody = $this->_encode($parsedQueryBody);
+
+        return $encodedQueryBody;
     }
 
     public function getQueryArgs() {
@@ -311,8 +320,6 @@ class PatomicQuery
         }
 
         $this->queryBody .= $findDatalog;
-
-        //echo $this->queryBody . PHP_EOL;
     }
 
     private function createInEdn() {
@@ -357,8 +364,6 @@ class PatomicQuery
         }
 
         $this->queryBody .= $whereDatalog . "]";
-
-        echo $this->queryBody . PHP_EOL;
     }
 
     private function createQueryBody() {
@@ -382,20 +387,19 @@ class PatomicQuery
 
         $argDatalog .= "]";
 
-        echo $argDatalog . PHP_EOL;
         $this->queryArgs = $argDatalog;
     }
 }
 
-try {
-    $pq = new PatomicQuery();
-    $pq->find("e", "v")
-        ->in("communityName, communityType")
-        ->where(array("e" => "db/doc", "v"))
-        ->arg(array("db/alias" => "demo/energy"));
-
-    $pq->getQuery();
-    $pq->getQueryArgs();
-} catch (PatomicException $e) {
-    echo $e . PHP_EOL;
-}
+//try {
+//    $pq = new PatomicQuery();
+//    $pq->find("e", "v")
+//        ->in("communityName, communityType")
+//        ->where(array("e" => "db/doc", "v"))
+//        ->arg(array("db/alias" => "demo/energy"));
+//
+//    echo $pq->getQuery() . PHP_EOL;
+//    echo $pq->getQueryArgs() . PHP_EOL;
+//} catch (PatomicException $e) {
+//    echo $e . PHP_EOL;
+//}
