@@ -12,6 +12,7 @@ class PatomicException extends Exception
     }
 
     public function __toString() {
-        return __CLASS__ . " [{$this->code}]: {$this->message}" . PHP_EOL;
+        $errorCodeStr = (0 != $this->code) ? "[" . $this->code . "] " : "";
+        return $errorCodeStr . $this->message . PHP_EOL;
     }
 }

@@ -87,8 +87,17 @@ class PatomicEntity
      * @param string $namespace
      *
      * @return $this
+     * @throws PatomicException
      */
     public function ident($name, $identity, $namespace = null) {
+        if(!isset($name) || !is_string($name)) {
+            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__ . " \$name argument should be a non-empty string");
+        }
+
+        if(!isset($identity) || !is_string($identity)) {
+            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__ . " \$identity argument should be a non-empty string");
+        }
+
         $this->name         = $name;
         $this->identity     = $identity;
 

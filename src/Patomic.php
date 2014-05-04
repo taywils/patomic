@@ -22,8 +22,6 @@ class Patomic
 
     public $queryResult             = array();
     private $queryResponse          = null;
-
-    public $transactionResult       = array();
     private $transactionResponse    = null;
 
     private static $RAW_QUERY       = "rawquery";
@@ -262,6 +260,10 @@ class Patomic
         return $retCode;
     }
 
+    public function getTransactionResponse() {
+        return $this->transactionResponse;
+    }
+
     public function commitRawQuery(PatomicQuery $patomicQuery) {
         $this->commitQuery($patomicQuery, self::$RAW_QUERY);
     }
@@ -280,7 +282,7 @@ class Patomic
         }
 
         $ch = curl_init();
-        $retData = array();
+        $this->queryResult = array();
 
         curl_setopt_array($ch, array(
             CURLOPT_URL => $this->config["apiUrl"] . "?q=" . $queryStr . "&args=" . $queryArgStr,
@@ -316,7 +318,7 @@ class Patomic
             // Transforms the results Vector of Vectors into a multi-dimensional PHP array
             $this->queryResponse = array_values($this->_parse($this->queryResponse))[0];
             foreach($this->queryResponse->data as $rowVector) {
-                $retData[] = array_values($rowVector->data);
+                $this->queryResult[] = array_values($rowVector->data);
             }
         } else {
             // Handle regular query results based on the PatomicQuery object's in() data and such
@@ -325,6 +327,14 @@ class Patomic
         $this->printStatus();
         curl_close($ch);
         return $retCode;
+    }
+
+    public function getQueryResult() {
+        return $this->queryResult;
+    }
+
+    public function getQueryResponse() {
+        return $this->queryResponse;
     }
 
     /**
