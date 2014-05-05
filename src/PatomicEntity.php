@@ -119,7 +119,10 @@ class PatomicEntity
      * @return $this
      * @throws PatomicException
      */
-    public function cardinality($cardinal) {
+    public function cardinality($cardinal = null) {
+        if(!isset($cardinal) || !is_string($cardinal)) {
+            throw new PatomicException("argument must be a non-empty string");
+        }
         $cardinal = strtolower($cardinal);
 
         if(array_search($cardinal, $this->schemaDef['db']['cardinality']) < 0) {
@@ -138,12 +141,15 @@ class PatomicEntity
      * @return $this
      * @throws PatomicException
      */
-    public function valueType($valueType) {
+    public function valueType($valueType = null) {
+        if(!isset($valueType) || !is_string($valueType)) {
+            throw new PatomicException(__METHOD__ . " expects a non-empty string argument");
+        }
         $valueType = strtolower($valueType);
 
         if(array_search($valueType, $this->schemaDef['db']['valueType']) < 0) {
             $debugInfo = PHP_EOL . "[" . implode(", ", $this->schemaDef['db']['valueType']) . "]";
-            throw new PatomicException("Invalid ValueType assigned try one of the following instead" . $debugInfo);
+            throw new PatomicException(__METHOD__ . " invalid ValueType assigned try one of the following instead" . $debugInfo);
         } else {
             $this->valueType = $valueType;
             $this->schema[$this->_keyword("db/valueType")] = $this->_keyword("db.type/" . $valueType);
@@ -159,9 +165,9 @@ class PatomicEntity
      * @return $this
      * @throws PatomicException
      */
-    public function doc($doc) {
-        if(!is_string($doc)) {
-            throw new PatomicException("Doc must be a string");
+    public function doc($doc = null) {
+        if(!isset($doc) || !is_string($doc)) {
+            throw new PatomicException(__METHOD__ . " argument must be a string");
         } else {
             $this->schema[$this->_keyword("db/doc")] = $doc;
 
