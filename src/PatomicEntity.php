@@ -125,7 +125,7 @@ class PatomicEntity
         }
         $cardinal = strtolower($cardinal);
 
-        if(array_search($cardinal, $this->schemaDef['db']['cardinality']) < 0) {
+        if(array_search($cardinal, $this->schemaDef['db']['cardinality']) === false) {
             throw new PatomicException("Cardinality must be \"one\" or \"many\"");
         } else {
             $this->schema[$this->_keyword("db/cardinality")] = $this->_keyword("db.cardinality/" . $cardinal);
@@ -147,7 +147,7 @@ class PatomicEntity
         }
         $valueType = strtolower($valueType);
 
-        if(array_search($valueType, $this->schemaDef['db']['valueType']) < 0) {
+        if(array_search($valueType, $this->schemaDef['db']['valueType']) === false) {
             $debugInfo = PHP_EOL . "[" . implode(", ", $this->schemaDef['db']['valueType']) . "]";
             throw new PatomicException(__METHOD__ . " invalid ValueType assigned try one of the following instead" . $debugInfo);
         } else {
@@ -182,12 +182,16 @@ class PatomicEntity
      * @return $this
      * @throws PatomicException
      */
-    public function unique($unique) {
+    public function unique($unique = null) {
+        if(!isset($unique) || !is_string($unique)) {
+            throw new PatomicException(__METHOD__ . " expects a non-empty string argument");
+        }
+
         $unique = strtolower($unique);
 
-        if(array_search($unique, $this->schemaDef['db']['unique']) < 0) {
+        if(array_search($unique, $this->schemaDef['db']['unique']) === false) {
             $debugInfo = implode(", ", $this->schemaDef['db']['unique']);
-            throw new PatomicException("unique must be one of the following [" . $debugInfo . "]");
+            throw new PatomicException(__METHOD__ . " string argument must be one of the following [" . $debugInfo . "]");
         } else {
             $this->schema[$this->_keyword("db/unique")] = $this->_keyword("db.unique/" . $unique);
 

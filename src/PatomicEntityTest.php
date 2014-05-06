@@ -192,10 +192,45 @@ class PatomicEntityTest extends PHPUnit_Framework_TestCase
      */
     public function testUnique() {
         /* valid unique() input is a string that is one of the valid unique types */
-        $uniqueTypes = array("value", "identity");
+        $pe = new PatomicEntity();
+        $pe->unique("value");
+        $expectedString = "{:db/id #db/id [:db.part/db] :db/unique :db.unique/value}";
+        $this->assertEquals($expectedString, sprintf($pe));
+        $pe->unique("identity");
+        $expectedString = "{:db/id #db/id [:db.part/db] :db/unique :db.unique/identity}";
+        $this->assertEquals($expectedString, sprintf($pe));
+
+        /* unique attribute should be case-insensitive */
+        $pe->unique("Identity");
+        $expectedString = "{:db/id #db/id [:db.part/db] :db/unique :db.unique/identity}";
+        $this->assertEquals($expectedString, sprintf($pe));
 
         /* non string argument should throw an exception */
+        try {
+            $pe->unique();
+        } catch(PatomicException $e) {
+            $expectedString = "PatomicEntity::unique expects a non-empty string argument";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
+        try {
+            $pe->unique(414);
+        } catch(PatomicException $e) {
+            $expectedString = "PatomicEntity::unique expects a non-empty string argument";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
+        try {
+            $pe->unique(array());
+        } catch(PatomicException $e) {
+            $expectedString = "PatomicEntity::unique expects a non-empty string argument";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
 
-        /* PatomicEntity should only have a single unique attribute */
+        /* string argument */
+        try {
+            $pe->unique("limit");
+        } catch(PatomicException $e) {
+            $expectedString = "PatomicEntity::unique string argument must be one of the following [value, identity]";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
     }
 }
