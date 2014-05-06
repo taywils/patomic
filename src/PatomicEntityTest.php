@@ -233,4 +233,32 @@ class PatomicEntityTest extends PHPUnit_Framework_TestCase
             $this->assertEquals($expectedString, $e->getMessage());
         }
     }
+
+    /**
+     * @covers PatomicEntity::index
+     */
+    public function testIndex() {
+        /* index only accepts a boolean value */
+        $pe = new PatomicEntity();
+        $pe->index(true);
+        $expectedString = "{:db/id #db/id [:db.part/db] :db/index true}";
+        $this->assertEquals($expectedString, sprintf($pe));
+
+        /* non-boolean values should default index to false */
+        $pe2 = new PatomicEntity();
+        $pe2->index();
+        $expectedString = "{:db/id #db/id [:db.part/db] :db/index false}";
+        $this->assertEquals($expectedString, sprintf($pe2));
+        $pe2->index(1);
+        $this->assertEquals($expectedString, sprintf($pe2));
+        $pe2->index("true");
+        $this->assertEquals($expectedString, sprintf($pe2));
+        $pe2->index(array("foo" => "bar"));
+        $this->assertEquals($expectedString, sprintf($pe2));
+
+        /* PatomicEntity can only have one index attribute */
+        $pe->index(false);
+        $expectedString = "{:db/id #db/id [:db.part/db] :db/index false}";
+        $this->assertEquals($expectedString, sprintf($pe));
+    }
 }

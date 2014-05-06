@@ -205,7 +205,7 @@ class PatomicEntity
      * @param boolean $index
      * @return $this
      */
-    public function index($index) {
+    public function index($index = false) {
         $index = !is_bool($index) ? false : $index;
         $this->schema[$this->_keyword("db/index")] = $index;
         return $this;
@@ -217,7 +217,7 @@ class PatomicEntity
      * @param boolean $fullText
      * @return $this
      */
-    public function fullText($fullText) {
+    public function fullText($fullText = false) {
         $fullText = !is_bool($fullText) ? false : $fullText;
         $this->schema[$this->_keyword("db/fulltext")] = $fullText;
         return $this;
