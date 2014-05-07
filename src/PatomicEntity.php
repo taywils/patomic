@@ -10,7 +10,6 @@ require_once __DIR__ . "/../vendor/autoload.php";
 class PatomicEntity
 {
     private $name;
-    private $namespace;
     private $identity;
     private $valueType;
     private $schema;
@@ -43,6 +42,11 @@ class PatomicEntity
             "install" => array("attribute", "partition")
         )
     );
+
+    private static $ATTRIBUTE_NAME_NOHISTORY    = "noHistory";
+    private static $ATTRIBUTE_NAME_INDEX        = "index";
+    private static $ATTRIBUTE_NAME_FULLTEXT     = "fulltext";
+    private static $ATTRIBUTE_NAME_ISCOMPONENT  = "isComponent";
 
     use TraitEdn;
 
@@ -91,11 +95,11 @@ class PatomicEntity
      */
     public function ident($name, $identity, $namespace = null) {
         if(!isset($name) || !is_string($name)) {
-            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__ . " \$name argument should be a non-empty string");
+            throw new PatomicException(__METHOD__ . " \$name argument should be a non-empty string");
         }
 
         if(!isset($identity) || !is_string($identity)) {
-            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__ . " \$identity argument should be a non-empty string");
+            throw new PatomicException(__METHOD__ . " \$identity argument should be a non-empty string");
         }
 
         $this->name         = $name;
@@ -206,9 +210,7 @@ class PatomicEntity
      * @return $this
      */
     public function index($index = false) {
-        $index = !is_bool($index) ? false : $index;
-        $this->schema[$this->_keyword("db/index")] = $index;
-        return $this;
+        return $this->setBooleanAttribute($index, self::$ATTRIBUTE_NAME_INDEX);
     }
 
     /**
@@ -218,9 +220,7 @@ class PatomicEntity
      * @return $this
      */
     public function fullText($fullText = false) {
-        $fullText = !is_bool($fullText) ? false : $fullText;
-        $this->schema[$this->_keyword("db/fulltext")] = $fullText;
-        return $this;
+        return $this->setBooleanAttribute($fullText, self::$ATTRIBUTE_NAME_FULLTEXT);
     }
 
     /**
@@ -229,10 +229,8 @@ class PatomicEntity
      * @param boolean $component
      * @return $this
      */
-    public function isComponent($component) {
-        $component = !is_bool($component) ? false : $component;
-        $this->schema[$this->_keyword("db/isComponent")] = $component;
-        return $this;
+    public function isComponent($component = false) {
+        return $this->setBooleanAttribute($component, self::$ATTRIBUTE_NAME_ISCOMPONENT);
     }
 
     /**
@@ -240,27 +238,27 @@ class PatomicEntity
      * @param boolean $history
      * @return $this
      */
-    public function noHistory($history) {
-        $history = !is_bool($history) ? false : $history;
-        $this->schema[$this->_keyword("db/noHistory")] = $history;
-        return $this;
+    public function noHistory($history = false) {
+        return $this->setBooleanAttribute($history, self::$ATTRIBUTE_NAME_NOHISTORY);
+
     }
 
     /**
+     * Sets the value of the install attribute using the "reverse reference" syntax
      * @param string $installType
      * @return $this
      * @throws PatomicException
      */
     public function install($installType = null) {
         if(!isset($installType) || !is_string($installType)) {
-            throw new PatomicException("\$installType must be string");
+            throw new PatomicException(__METHOD__ . " installType must be a non-empty string");
         }
 
         $installType = strtolower($installType);
 
         if(!in_array($installType, $this->schemaDef["db"]["install"])) {
             $debugInfo = "[" . implode(", ", $this->schemaDef['db']['install']) . "]";
-            throw new PatomicException("Invalid installType assigned try one of the following instead " . $debugInfo);
+            throw new PatomicException(__METHOD__ . " installType must be one of the following " . $debugInfo);
         } else {
             $this->schema[$this->_keyword("db.install/_" . $installType)] = $this->_keyword("db.part/db");
         }
@@ -334,5 +332,11 @@ class PatomicEntity
                 return " :" . $vals[1]->value;
         }
         return $output;
+    }
+
+    private function setBooleanAttribute($attributeValue = false, $attributeName) {
+        $attributeValue = !is_bool($attributeValue) ? false : $attributeValue;
+        $this->schema[$this->_keyword("db/" . $attributeName)] = $attributeValue;
+        return $this;
     }
 }

@@ -42,7 +42,7 @@ class PatomicQuery
         $this->rawQueryBody = "";
 
         if(!isset($datalogString) || !is_string($datalogString)) {
-            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__  . " expects a non-empty string input");
+            throw new PatomicException(__METHOD__ . " expects a non-empty string input");
         }
 
         foreach($this->_parse($datalogString) as $queryPart) {
@@ -84,13 +84,13 @@ class PatomicQuery
         $numargs = func_num_args();
 
         if($numargs < 1) {
-            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__  . " expects at least one \"string\" as an argument");
+            throw new PatomicException(__METHOD__ . " expects at least one \"string\" as an argument");
         }
 
         $argsArray = func_get_args();
 
         if(false == $this->validateFindArgs($argsArray)) {
-            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__  . " encountered a non string argument");
+            throw new PatomicException(__METHOD__ . " encountered a non string argument");
         }
 
         foreach($argsArray as $arg) {
@@ -104,21 +104,21 @@ class PatomicQuery
         $numargs = func_num_args();
 
         if($numargs > 2 || $numargs < 1) {
-            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__  . " expects at least one \"string\" and an optional \"array\" as arguments");
+            throw new PatomicException(__METHOD__ . " expects at least one \"string\" and an optional \"array\" as arguments");
         }
 
         $argsArray = func_get_args();
 
         if(1 == $numargs && !is_string($argsArray[0])) {
-            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__  . " first argument was not a string");
+            throw new PatomicException(__METHOD__ . " first argument was not a string");
         }
 
         if(2 == $numargs && !is_array($argsArray[1])) {
-            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__  . " second argument was not an array");
+            throw new PatomicException(__METHOD__ . " second argument was not an array");
         }
 
         if(is_string($this->validateInArgs($numargs, $argsArray))) {
-            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__  . $this->validateInArgs($numargs, $argsArray));
+            throw new PatomicException(__METHOD__ . $this->validateInArgs($numargs, $argsArray));
         }
 
         $parts = preg_split("/[\s,]+/", $argsArray[0]);
@@ -151,7 +151,7 @@ class PatomicQuery
      */
     public function where($argArray) {
         if(!isset($argArray) || !is_array($argArray)) {
-            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__  . " expects an array as an argument");
+            throw new PatomicException(__METHOD__ . " expects an array as an argument");
         }
 
         $this->whereEdn[] = $argArray;
@@ -161,7 +161,7 @@ class PatomicQuery
 
     public function arg($argArray) {
         if(!isset($argArray) || !is_array($argArray)) {
-            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__  . " expects an array as an argument");
+            throw new PatomicException(__METHOD__ . " expects an array as an argument");
         }
 
         $this->argsEdn[] = $argArray;
@@ -228,7 +228,7 @@ class PatomicQuery
 
     private function limitOrOffset($value, $useLimit) {
         if(!isset($value) || !is_int($value) || ($value < 1)) {
-            throw new PatomicException(__CLASS__ . "::" . __FUNCTION__  . " expects a positive integer as an argument");
+            throw new PatomicException(__METHOD__ . " expects a positive integer as an argument");
         }
 
         if($useLimit) {

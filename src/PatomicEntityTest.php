@@ -261,4 +261,144 @@ class PatomicEntityTest extends PHPUnit_Framework_TestCase
         $expectedString = "{:db/id #db/id [:db.part/db] :db/index false}";
         $this->assertEquals($expectedString, sprintf($pe));
     }
+
+    /**
+     * @covers PatomicEntity::fullText
+     */
+    public function testFullText() {
+        /* fullText only accepts a boolean value */
+        $pe = new PatomicEntity();
+        $pe->fullText(true);
+        $expectedString = "{:db/id #db/id [:db.part/db] :db/fulltext true}";
+        $this->assertEquals($expectedString, sprintf($pe));
+
+        /* non-boolean values should default fulltext to false */
+        $pe2 = new PatomicEntity();
+        $pe2->fullText();
+        $expectedString = "{:db/id #db/id [:db.part/db] :db/fulltext false}";
+        $this->assertEquals($expectedString, sprintf($pe2));
+        $pe2->fullText(1);
+        $this->assertEquals($expectedString, sprintf($pe2));
+        $pe2->fullText("true");
+        $this->assertEquals($expectedString, sprintf($pe2));
+        $pe2->fullText(array("foo" => "bar"));
+        $this->assertEquals($expectedString, sprintf($pe2));
+
+        /* PatomicEntity can only have one fulltext attribute */
+        $pe->fullText(false);
+        $expectedString = "{:db/id #db/id [:db.part/db] :db/fulltext false}";
+        $this->assertEquals($expectedString, sprintf($pe));
+    }
+
+    /**
+     * @covers PatomicEntity::isComponent
+     */
+    public function testIsComponent() {
+        /* isComponent only accepts a boolean value */
+        $pe = new PatomicEntity();
+        $pe->isComponent(true);
+        $expectedString = "{:db/id #db/id [:db.part/db] :db/isComponent true}";
+        $this->assertEquals($expectedString, sprintf($pe));
+
+        /* non-boolean values should default isComponent to false */
+        $pe2 = new PatomicEntity();
+        $pe2->isComponent();
+        $expectedString = "{:db/id #db/id [:db.part/db] :db/isComponent false}";
+        $this->assertEquals($expectedString, sprintf($pe2));
+        $pe2->isComponent(1);
+        $this->assertEquals($expectedString, sprintf($pe2));
+        $pe2->isComponent("true");
+        $this->assertEquals($expectedString, sprintf($pe2));
+        $pe2->isComponent(array("foo" => "bar"));
+        $this->assertEquals($expectedString, sprintf($pe2));
+
+        /* PatomicEntity can only have one isComponent attribute */
+        $pe->isComponent(false);
+        $expectedString = "{:db/id #db/id [:db.part/db] :db/isComponent false}";
+        $this->assertEquals($expectedString, sprintf($pe));    
+    }
+
+    /**
+     * @covers PatomicEntity::noHistory
+     */
+    public function testNoHistory() {
+        /* noHistory only accepts a boolean value */
+        $pe = new PatomicEntity();
+        $pe->noHistory(true);
+        $expectedString = "{:db/id #db/id [:db.part/db] :db/noHistory true}";
+        $this->assertEquals($expectedString, sprintf($pe));
+
+        /* non-boolean values should default noHistory to false */
+        $pe2 = new PatomicEntity();
+        $pe2->noHistory();
+        $expectedString = "{:db/id #db/id [:db.part/db] :db/noHistory false}";
+        $this->assertEquals($expectedString, sprintf($pe2));
+        $pe2->noHistory(1);
+        $this->assertEquals($expectedString, sprintf($pe2));
+        $pe2->noHistory("true");
+        $this->assertEquals($expectedString, sprintf($pe2));
+        $pe2->noHistory(array("foo" => "bar"));
+        $this->assertEquals($expectedString, sprintf($pe2));
+
+        /* PatomicEntity can only have one noHistory attribute */
+        $pe->noHistory(false);
+        $expectedString = "{:db/id #db/id [:db.part/db] :db/noHistory false}";
+        $this->assertEquals($expectedString, sprintf($pe));
+    }
+
+    /**
+     * @covers PatomicEntity::install
+     */
+    public function testInstall() {
+        /* valid install attributes values must be one of the defined set */
+        $pe = new PatomicEntity();
+        $pe->install("attribute");
+        $expectedString = "{:db/id #db/id [:db.part/db] :db.install/_attribute :db.part/db}";
+        $this->assertEquals($expectedString, sprintf($pe));
+        $pe2 = new PatomicEntity();
+        $pe2->install("partition");
+        $expectedString = "{:db/id #db/id [:db.part/db] :db.install/_partition :db.part/db}";
+        $this->assertEquals($expectedString, sprintf($pe2));
+
+        /* valid install attributes should handle non lower cased string input */
+        $pe = new PatomicEntity();
+        $pe->install("AttrIbuTe");
+        $expectedString = "{:db/id #db/id [:db.part/db] :db.install/_attribute :db.part/db}";
+        $this->assertEquals($expectedString, sprintf($pe));
+
+        /* non string input should throw an exception */
+        try {
+            $pe->install();
+        } catch(PatomicException $e) {
+            $expectedString = "PatomicEntity::install installType must be a non-empty string";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
+        try {
+            $pe->install(123123);
+        } catch(PatomicException $e) {
+            $expectedString = "PatomicEntity::install installType must be a non-empty string";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
+        try {
+            $pe->install(array("hi", 78));
+        } catch(PatomicException $e) {
+            $expectedString = "PatomicEntity::install installType must be a non-empty string";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
+
+        /* string input that is not a valid install attribute type should throw an exception */
+        try {
+            $pe->install("database");
+        } catch(PatomicException $e) {
+            $expectedString = "PatomicEntity::install installType must be one of the following [attribute, partition]";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
+    }
+
+    /**
+     * @covers PatomicEntity::prettyPrint
+     */
+    public function testPrettyPrint() {
+        /* prettyPrint should match the datalog style shown on http://docs.datomic.com */
+    }
 }
