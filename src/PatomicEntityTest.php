@@ -400,5 +400,36 @@ class PatomicEntityTest extends PHPUnit_Framework_TestCase
      */
     public function testPrettyPrint() {
         /* prettyPrint should match the datalog style shown on http://docs.datomic.com */
+        /*
+            {:db/id #db/id[:db.part/db]
+             :db/ident :community/name
+             :db/valueType :db.type/string
+             :db/cardinality :db.cardinality/one
+             :db/fulltext true
+             :db/doc "A community's name"
+             :db.install/_attribute :db.part/db}
+        */
+        $pe = new PatomicEntity();
+        $pe->ident("community", "name")
+            ->valueType("string")
+            ->cardinality("one")
+            ->fullText(true)
+            ->doc("A community's name")
+            ->install("attribute");
+        $expectedStrings =  array(
+            '{:db/id #db/id[:db.part/db]',
+            ':db/ident :community/name',
+            ':db/valueType :db.type/string',
+            ':db/cardinality :db.cardinality/one',
+            ':db/fulltext true',
+            ':db/doc "A community\'s name"',
+            ':db.install/_attribute :db.part/db}'
+        );
+        $expectedString = implode("\n ", $expectedStrings);
+        ob_start();
+        $pe->prettyPrint();
+        $prettyPrintOutput = ob_get_contents();
+        ob_end_clean();
+        $this->assertEquals($expectedString, $prettyPrintOutput);
     }
 }
