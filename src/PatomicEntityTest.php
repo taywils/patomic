@@ -51,12 +51,14 @@ class PatomicEntityTest extends PHPUnit_Framework_TestCase
         try {
             $pe3 = new PatomicEntity("db");
             $pe3->ident("community", 1234);
+            $this->fail("PatomicException was not thrown");
         } catch(PatomicException $e) {
             $this->assertEquals("PatomicEntity::ident \$identity argument should be a non-empty string", $e->getMessage());
         }
         try {
             $pe4 = new PatomicEntity("db");
             $pe4->ident(array(), "location");
+            $this->fail("PatomicException was not thrown");
         } catch(PatomicException $e) {
             $this->assertEquals("PatomicEntity::ident \$name argument should be a non-empty string", $e->getMessage());
         }
@@ -86,11 +88,13 @@ class PatomicEntityTest extends PHPUnit_Framework_TestCase
         /* non string input should throw an exception */
         try {
             $pe->cardinality();
+            $this->fail("PatomicException was not thrown");
         } catch(PatomicException $e) {
             $this->assertEquals("argument must be a non-empty string", $e->getMessage());
         }
         try {
             $pe->cardinality(array(1 => "a"));
+            $this->fail("PatomicException was not thrown");
         } catch(PatomicException $e) {
             $this->assertEquals("argument must be a non-empty string", $e->getMessage());
         }
@@ -98,6 +102,7 @@ class PatomicEntityTest extends PHPUnit_Framework_TestCase
         /* If the argument is a string it must be a valid cardinality */
         try {
             $pe->cardinality("single");
+            $this->fail("PatomicException was not thrown");
         } catch(PatomicException $e) {
             $this->assertEquals("Cardinality must be \"one\" or \"many\"", $e->getMessage());
         }
@@ -142,12 +147,14 @@ class PatomicEntityTest extends PHPUnit_Framework_TestCase
         try {
             $pe = new PatomicEntity();
             $pe->valueType(132);
+            $this->fail("PatomicException was not thrown");
         } catch(PatomicException $e) {
             $this->assertEquals("PatomicEntity::valueType expects a non-empty string argument", $e->getMessage());
         }
         try {
             $pe = new PatomicEntity();
             $pe->valueType();
+            $this->fail("PatomicException was not thrown");
         } catch(PatomicException $e) {
             $this->assertEquals("PatomicEntity::valueType expects a non-empty string argument", $e->getMessage());
         }
@@ -156,6 +163,7 @@ class PatomicEntityTest extends PHPUnit_Framework_TestCase
         try {
             $pe = new PatomicEntity();
             $pe->valueType("datetime");
+            $this->fail("PatomicException was not thrown");
         } catch(PatomicException $e) {
             $debugInfo = PHP_EOL . "[" . implode(", ", $validValueTypes) . "]";
             $this->assertEquals("PatomicEntity::valueType invalid ValueType assigned try one of the following instead" . $debugInfo, $e->getMessage());
@@ -176,6 +184,7 @@ class PatomicEntityTest extends PHPUnit_Framework_TestCase
         try {
             $pe = new PatomicEntity();
             $pe->doc();
+            $this->fail("PatomicException was not thrown");
         } catch(PatomicException $e) {
             $expectedString = "PatomicEntity::doc argument must be a string";
             $this->assertEquals($expectedString, $e->getMessage());
@@ -208,18 +217,21 @@ class PatomicEntityTest extends PHPUnit_Framework_TestCase
         /* non string argument should throw an exception */
         try {
             $pe->unique();
+            $this->fail("PatomicException was not thrown");
         } catch(PatomicException $e) {
             $expectedString = "PatomicEntity::unique expects a non-empty string argument";
             $this->assertEquals($expectedString, $e->getMessage());
         }
         try {
             $pe->unique(414);
+            $this->fail("PatomicException was not thrown");
         } catch(PatomicException $e) {
             $expectedString = "PatomicEntity::unique expects a non-empty string argument";
             $this->assertEquals($expectedString, $e->getMessage());
         }
         try {
             $pe->unique(array());
+            $this->fail("PatomicException was not thrown");
         } catch(PatomicException $e) {
             $expectedString = "PatomicEntity::unique expects a non-empty string argument";
             $this->assertEquals($expectedString, $e->getMessage());
@@ -228,6 +240,7 @@ class PatomicEntityTest extends PHPUnit_Framework_TestCase
         /* string argument */
         try {
             $pe->unique("limit");
+            $this->fail("PatomicException was not thrown");
         } catch(PatomicException $e) {
             $expectedString = "PatomicEntity::unique string argument must be one of the following [value, identity]";
             $this->assertEquals($expectedString, $e->getMessage());
@@ -369,18 +382,21 @@ class PatomicEntityTest extends PHPUnit_Framework_TestCase
         /* non string input should throw an exception */
         try {
             $pe->install();
+            $this->fail("PatomicException was not thrown");
         } catch(PatomicException $e) {
             $expectedString = "PatomicEntity::install installType must be a non-empty string";
             $this->assertEquals($expectedString, $e->getMessage());
         }
         try {
             $pe->install(123123);
+            $this->fail("PatomicException was not thrown");
         } catch(PatomicException $e) {
             $expectedString = "PatomicEntity::install installType must be a non-empty string";
             $this->assertEquals($expectedString, $e->getMessage());
         }
         try {
             $pe->install(array("hi", 78));
+            $this->fail("PatomicException was not thrown");
         } catch(PatomicException $e) {
             $expectedString = "PatomicEntity::install installType must be a non-empty string";
             $this->assertEquals($expectedString, $e->getMessage());
@@ -389,6 +405,7 @@ class PatomicEntityTest extends PHPUnit_Framework_TestCase
         /* string input that is not a valid install attribute type should throw an exception */
         try {
             $pe->install("database");
+            $this->fail("PatomicException was not thrown");
         } catch(PatomicException $e) {
             $expectedString = "PatomicEntity::install installType must be one of the following [attribute, partition]";
             $this->assertEquals($expectedString, $e->getMessage());

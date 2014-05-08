@@ -10,8 +10,10 @@ require_once __DIR__ . "/../vendor/autoload.php";
 class PatomicTransaction 
 {
     private $body;
-    private static $addKeyword      = "add";
-    private static $retractKeyword  = "retract";
+    private static $KEYWORD_ADD      = "add";
+    private static $KEYWORD_RETRACT  = "retract";
+    private static $ENTITY_CLASSNAME = "PatomicEntity";
+    private static $VECTOR_CLASSNAME = "igorw\edn\Vector";
 
     use TraitEdn;
 
@@ -24,11 +26,14 @@ class PatomicTransaction
 
     /**
      * Inserts an entity to the current body of the Transaction
-     * @param object $key
      * @param object $elem
+     * @param object $key
      * @return $this
      */
     public function append($elem, $key = null) {
+        if(!isset($elem) || !is_object($elem) || get_class($elem) != self::$ENTITY_CLASSNAME) {
+            throw new PatomicException(__METHOD__ . " argument must be a valid ". self::$ENTITY_CLASSNAME ." object");
+        }
         if(is_null($key)) {
             $this->body->data[] = $elem;
         } else {
@@ -39,11 +44,11 @@ class PatomicTransaction
     }
 
     public function add($entityName, $attributeName, $value, $tempIdNum = null) {
-        return $this->addOrRetract($entityName, $attributeName, $value, $tempIdNum = null, self::$addKeyword);
+        return $this->addOrRetract($entityName, $attributeName, $value, $tempIdNum = null, self::$KEYWORD_ADD);
     }
 
     public function retract($entityName, $attributeName, $value, $tempIdNum = null) {
-        return $this->addOrRetract($entityName, $attributeName, $value, $tempIdNum = null, self::$retractKeyword);
+        return $this->addOrRetract($entityName, $attributeName, $value, $tempIdNum = null, self::$KEYWORD_RETRACT);
     }
 
     /**
@@ -62,11 +67,11 @@ class PatomicTransaction
 
         foreach($this->body->data as $elem) {
             switch(get_class($elem)) {
-                case "PatomicEntity":
+                case self::$ENTITY_CLASSNAME:
                     echo PHP_EOL . $elem->prettyPrint();
                     break;
 
-                case 'igorw\edn\Vector':
+                case self::$VECTOR_CLASSNAME:
                     echo PHP_EOL . $this->_encode($elem);
                     break;
 
@@ -90,11 +95,11 @@ class PatomicTransaction
 
         foreach($this->body->data as $elem) {
             switch(get_class($elem)) {
-                case "PatomicEntity":
+                case self::$ENTITY_CLASSNAME:
                     $out .= $elem;
                     break;
 
-                case 'igorw\edn\Vector':
+                case self::$VECTOR_CLASSNAME:
                     $out .= $this->_encode($elem);
                     break;
 
