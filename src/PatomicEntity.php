@@ -48,6 +48,9 @@ class PatomicEntity
     private static $ATTRIBUTE_NAME_FULLTEXT     = "fulltext";
     private static $ATTRIBUTE_NAME_ISCOMPONENT  = "isComponent";
 
+    private static $TAGGED_CLASSNAME = 'igorw\edn\Tagged';
+    private static $VECTOR_CLASSNAME = 'igorw\edn\Vector';
+
     use TraitEdn;
 
     /**
@@ -316,10 +319,10 @@ class PatomicEntity
 
         // Print handlers for each EDN type may be placed here
         switch(get_class($vals[1])) {
-            case 'igorw\edn\Tagged':
+            case self::$TAGGED_CLASSNAME:
                 $output .= "#" . $vals[1]->tag->name . "[";
 
-                if(get_class($vals[1]->value) == 'igorw\edn\Vector') {
+                if(get_class($vals[1]->value) == self::$VECTOR_CLASSNAME) {
                     foreach($vals[1]->value->data as $vectorElem) {
                         $output .= ":" . $vectorElem->value;
                     }

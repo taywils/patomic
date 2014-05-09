@@ -177,8 +177,46 @@ class PatomicTransactionTest extends PHPUnit_Framework_TestCase
     /**
      * @covers PatomicTransaction::prettyPrint
      */
-    public function prettyPrint() {
+    public function testPrettyPrint() {
+        /* prettyPrint should match the style shown on http://www.docs.datomic.com */
+        /*
+         [
 
+            {:db/id #db/id[:db.part/db]
+             :db/ident :community/name
+             :db/valueType :db.type/string
+             :db/cardinality :db.cardinality/one
+             :db/fulltext true
+             :db/doc "A community's name"
+             :db.install/_attribute :db.part/db}
+
+         ]
+         */
+        $pt = new PatomicTransaction();
+        $pe = new PatomicEntity();
+        $pe->ident("community", "name")
+            ->valueType("string")
+            ->cardinality("one")
+            ->fullText(true)
+            ->doc("A community's name")
+            ->install("attribute");
+        $pt->append($pe);
+        $expectedString = "[" . PHP_EOL . PHP_EOL;
+        $expectedStringArray = array(
+            '{:db/id #db/id[:db.part/db]',
+             ':db/ident :community/name',
+             ':db/valueType :db.type/string',
+             ':db/cardinality :db.cardinality/one',
+             ':db/fulltext true',
+             ':db/doc "A community\'s name"',
+             ':db.install/_attribute :db.part/db}'
+        );
+        $expectedString .= implode("\n ", $expectedStringArray) . PHP_EOL . PHP_EOL . ']' . PHP_EOL;
+        ob_start();
+        $pt->prettyPrint();
+        $prettyPrintString = ob_get_contents();
+        ob_end_clean();
+        $this->assertEquals($expectedString, $prettyPrintString);
     }
 
     /**
