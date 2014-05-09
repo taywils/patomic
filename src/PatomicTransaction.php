@@ -2,6 +2,8 @@
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
+//TODO: Adding entity references @see http://docs.datomic.com/transactions.html
+
 /**
  * PHP object representation of a Datomic transaction
  *
@@ -13,7 +15,7 @@ class PatomicTransaction
     private static $KEYWORD_ADD      = "add";
     private static $KEYWORD_RETRACT  = "retract";
     private static $ENTITY_CLASSNAME = "PatomicEntity";
-    private static $VECTOR_CLASSNAME = "igorw\edn\Vector";
+    private static $VECTOR_CLASSNAME = 'igorw\edn\Vector';
 
     use TraitEdn;
 
@@ -29,6 +31,7 @@ class PatomicTransaction
      * @param object $elem
      * @param object $key
      * @return $this
+     * @throws PatomicException
      */
     public function append($elem, $key = null) {
         if(!isset($elem) || !is_object($elem) || get_class($elem) != self::$ENTITY_CLASSNAME) {
@@ -43,12 +46,12 @@ class PatomicTransaction
         return $this;
     }
 
-    public function add($entityName, $attributeName, $value, $tempIdNum = null) {
-        return $this->addOrRetract($entityName, $attributeName, $value, $tempIdNum = null, self::$KEYWORD_ADD);
+    public function add($entityName, $attributeName, $value = null, $tempIdNum = null) {
+        return $this->addOrRetract($entityName, $attributeName, $value, $tempIdNum, self::$KEYWORD_ADD);
     }
 
-    public function retract($entityName, $attributeName, $value, $tempIdNum = null) {
-        return $this->addOrRetract($entityName, $attributeName, $value, $tempIdNum = null, self::$KEYWORD_RETRACT);
+    public function retract($entityName, $attributeName, $value = null, $tempIdNum = null) {
+        return $this->addOrRetract($entityName, $attributeName, $value, $tempIdNum, self::$KEYWORD_RETRACT);
     }
 
     /**
@@ -132,19 +135,19 @@ class PatomicTransaction
      */
     private function addOrRetract($entityName, $attributeName, $value, $tempIdNum = null, $methodKeyword) {
         if(is_null($entityName) || !is_string($entityName)) {
-            throw new PatomicException("entityName must be a string");
+            throw new PatomicException(__METHOD__ . " entityName must be a string");
         }
 
         if(is_null($attributeName) || !is_string($attributeName)) {
-            throw new PatomicException("attributeName must be a string");
+            throw new PatomicException(__METHOD__ . " attributeName must be a string");
         }
 
         if(is_null($value)) {
-            throw new PatomicException("value cannot be null");
+            throw new PatomicException(__METHOD__ . " value argument cannot be null");
         }
 
         if(!is_null($tempIdNum) && !is_int($tempIdNum)) {
-            throw new PatomicException("tempIdNum must be an int");
+            throw new PatomicException(__METHOD__ . " tempId argument must be an integer");
         }
 
         $vec = $this->_vector(array());
