@@ -2,6 +2,8 @@
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
+//TODO Add RegEx to query input validators such as using letters only such as [:alpha:]
+
 /**
  * Class designed to assist building Datomic Queries
  * Supports both the writing of raw Datalog style queries and more PHP friendly style queries
@@ -41,7 +43,7 @@ class PatomicQuery
     public function newRawQuery($datalogString) {
         $this->rawQueryBody = "";
 
-        if(!isset($datalogString) || !is_string($datalogString)) {
+        if(!isset($datalogString) || !is_string($datalogString) || empty($datalogString)) {
             throw new PatomicException(__METHOD__ . " expects a non-empty string input");
         }
 
@@ -63,7 +65,11 @@ class PatomicQuery
         $this->rawQueryArgs = "";
 
         if(!isset($this->rawQueryBody) || empty($this->rawQueryBody)) {
-            throw new PatomicException("Create a newRawQuery before adding raw query arguments");
+            throw new PatomicException(__METHOD__ . " create a newRawQuery before adding raw query arguments");
+        }
+
+        if(!is_string($datalogString) || empty($datalogString)) {
+            throw new PatomicException(__METHOD__ . " expects a non-empty string argument");
         }
 
         foreach($this->_parse($datalogString) as $argumentPart) {

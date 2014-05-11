@@ -10,10 +10,13 @@ class PatomicEntityTest extends PHPUnit_Framework_TestCase
      */
     public function testConstructor() {
         /* Default constructor */
-        $pe = new PatomicEntity();
-        $expectedString = "{:db/id #db/id [:db.part/db]}";
-
-        $this->assertEquals($expectedString, sprintf($pe));
+        try {
+            $pe = new PatomicEntity();
+            $expectedString = "{:db/id #db/id [:db.part/db]}";
+            $this->assertEquals($expectedString, sprintf($pe));
+        } catch(PatomicException $e) {
+            $this->fail("PatomicEntity::__construct should not throw an exception");
+        }
     }
 
     /**

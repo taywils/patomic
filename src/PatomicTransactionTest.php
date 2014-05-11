@@ -10,8 +10,12 @@ class PatomicTransactionTest extends PHPUnit_Framework_TestCase
      */
     public function testConstructor() {
         /* A new PatomicTransaction object should be an empty Datalog vector */
-        $pt = new PatomicTransaction();
-        $this->assertEquals("[]", sprintf($pt));
+        try {
+            $pt = new PatomicTransaction();
+            $this->assertEquals("[]", sprintf($pt));
+        } catch(PatomicException $e) {
+            $this->fail("PatomicTransaction::__construct should not throw an exception");
+        }
     }
 
     /**
