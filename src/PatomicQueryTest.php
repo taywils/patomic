@@ -282,6 +282,75 @@ class PatomicQueryTest extends PHPUnit_Framework_TestCase
      * @covers PatomicQuery::getQueryArgs
      */
     public function testArg() {
+        /* Re-create sample query with arguments from http://docs.datomic.com/tutorial.html */
+        /*
+            [:find ?n ?t ?ot
+             :in $ [[?t ?ot]]
+             :where
+             [?c :community/name ?n]
+             [?c :community/type ?t]
+             [?c :community/orgtype ?ot]]
 
+            [[:community.type/email-list :community.orgtype/community]
+             [:community.type/website :community.orgtype/commercial]]
+        */
+        try {
+            $pq = new PatomicQuery();
+            $pq->find("n", "t", "ot")
+                ->in("", array("t", "ot"))
+                ->where(array("c" => "community/name", "n"))
+                ->where(array("c" => "community/type", "t"))
+                ->where(array("c" => "community/orgtype", "ot"))
+                ->arg(array("community.type/email-list", "community.orgtype/community"))
+                ->arg(array("community.type/website", "community.orgtype/commercial"));
+            $expectedString = "[[:community.type/email-list :community.orgtype/community][:community.type/website :community.orgtype/commercial]]";
+            $this->assertEquals($expectedString, $pq->getQueryArgs());
+        } 
+        catch(PatomicException $e) {
+           $this->fail("PatomicException should not be thrown");
+        }
+
+        /* Non-array arguments should throw exception */
+        try {
+            $pq = new PatomicQuery();
+            $pq->arg("string");
+            $this->fail("PatomicException should have been thrown");
+        } catch(PatomicException $e) {
+            $expectedString = "PatomicQuery::arg expects an array as an argument";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
+    }
+
+    /**
+     * @covers PatomicQuery::limit
+     * @covers PatomicQuery::getLimit
+     * @covers PatomicQuery::clear
+     * @covers PatomicQuery::limitOrOffset
+     */
+    public function testLimit() {
+        /* valid integer input for set limit */
+        $pq = new PatomicQuery();
+        $pq->limit(2);
+        $this->assertEquals(2, $pq->getLimit());
+
+        /* invalid integer input for set limit should throw exception */
+        try {
+            $pq = new PatomicQuery();
+            $pq->limit(-2);
+            $this->fail("PatomicException should have been thrown");
+        } catch(PatomicException $e) {
+           $expectedString = "PatomicQuery::limitOrOffset expects a positive integer as an argument";
+           $this->assertEquals($expectedString, $e->getMessage());
+        }
+
+        /* non-integer input for set limit should throw exception */
+        try {
+            $pq = new PatomicQuery();
+            $pq->limit("2");
+            $this->fail("PatomicException should have been thrown");
+        } catch(PatomicException $e) {
+           $expectedString = "PatomicQuery::limitOrOffset expects a positive integer as an argument";
+           $this->assertEquals($expectedString, $e->getMessage());
+        }
     }
 }

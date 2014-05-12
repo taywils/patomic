@@ -361,13 +361,20 @@ class PatomicQuery
         $argDatalog = "[";
 
         foreach($this->argsEdn as $argArray) {
-            $argDatalog .= "{";
+            $argDatalog .= "[";
 
+            $argArrayIdx    = 0;
+            $argArraySize   = count($argArray);
             foreach($argArray as $key => $value) {
-                $argDatalog .= ":" . $key . " \"" . $value . "\"";
+                $whitespace = ($argArraySize - 1 == $argArrayIdx++) ? "" : " ";
+                if(is_int($key)) {
+                    $argDatalog .= ":" . $value . $whitespace;
+                } else {
+                    $argDatalog .= ":" . $key . " \"" . $value . "\"" . $whitespace;
+                }
             }
 
-            $argDatalog .= "}";
+            $argDatalog .= "]";
         }
 
         $argDatalog .= "]";
@@ -375,10 +382,3 @@ class PatomicQuery
         $this->queryArgs = $argDatalog;
     }
 }
-/*
-$pq = new PatomicQuery();
-$pq->find("e")
-    ->in("fname")
-    ->where(array("e" => "user/firstName", "fname"));
-echo $pq->getQuery();
-*/
