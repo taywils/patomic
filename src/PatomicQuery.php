@@ -2,16 +2,9 @@
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
-//TODO Add RegEx to query input validators such as using letters only such as [:alpha:]
-
 /**
  * Class designed to assist building Datomic Queries
  * Supports both the writing of raw Datalog style queries and more PHP friendly style queries
- *
- * Many thanks to the authors of Diametric the Datomic Active Record wrapper for the Ruby programming language for
- * additional documentation on how to design a Query wrapper for Datomic's REST API
- *
- * @see https://github.com/relevance/diametric
  */
 class PatomicQuery
 {
@@ -352,9 +345,14 @@ class PatomicQuery
     }
 
     private function createQueryBody() {
-        $this->createFindEdn();
-        $this->createInEdn();
-        $this->createWhereEdn();
+        //HACK: If findEdn, inEdn and whereEdn are all empty arrays
+        if(empty($this->findEdn) && empty($this->inEdn) && empty($this->whereEdn)) {
+            $this->queryBody = "[]";
+        } else {
+            $this->createFindEdn();
+            $this->createInEdn();
+            $this->createWhereEdn();
+        }
     }
 
     private function createQueryArgs() {

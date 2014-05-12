@@ -20,7 +20,7 @@ class PatomicEntityTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers PatomicEntity::toString()
+     * @covers PatomicEntity::__toString()
      */
     public function testToString() {
         $pe = new PatomicEntity("db");
@@ -68,7 +68,7 @@ class PatomicEntityTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Patomic::cardinality
+     * @covers PatomicEntity::cardinality
      */
     public function testCardinality() {
         /* Set cardinality to "one" */

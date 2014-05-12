@@ -324,7 +324,6 @@ class PatomicQueryTest extends PHPUnit_Framework_TestCase
     /**
      * @covers PatomicQuery::limit
      * @covers PatomicQuery::getLimit
-     * @covers PatomicQuery::clear
      * @covers PatomicQuery::limitOrOffset
      */
     public function testLimit() {
@@ -352,5 +351,64 @@ class PatomicQueryTest extends PHPUnit_Framework_TestCase
            $expectedString = "PatomicQuery::limitOrOffset expects a positive integer as an argument";
            $this->assertEquals($expectedString, $e->getMessage());
         }
+    }
+
+    /**
+     * @covers PatomicQuery::offset
+     * @covers PatomicQuery::getOffset
+     * @covers PatomicQuery::limitOrOffset
+     */
+    public function testOffset() {
+        /* valid integer input for set offset */
+        $pq = new PatomicQuery();
+        $pq->offset(2);
+        $this->assertEquals(2, $pq->getOffset());
+
+        /* invalid integer input for set offset should throw exception */
+        try {
+            $pq = new PatomicQuery();
+            $pq->offset(-2);
+            $this->fail("PatomicException should have been thrown");
+        } catch(PatomicException $e) {
+           $expectedString = "PatomicQuery::limitOrOffset expects a positive integer as an argument";
+           $this->assertEquals($expectedString, $e->getMessage());
+        }
+
+        /* non-integer input for set limit should throw exception */
+        try {
+            $pq = new PatomicQuery();
+            $pq->offset("2");
+            $this->fail("PatomicException should have been thrown");
+        } catch(PatomicException $e) {
+           $expectedString = "PatomicQuery::limitOrOffset expects a positive integer as an argument";
+           $this->assertEquals($expectedString, $e->getMessage());
+        }
+    }
+
+    /**
+     * @covers PatomicQuery::clear
+     */
+    public function testClear() {
+        $pq = new PatomicQuery();
+        $pq->find("n", "t", "ot")
+            ->in("", array("t", "ot"))
+            ->where(array("c" => "community/name", "n"))
+            ->where(array("c" => "community/type", "t"))
+            ->where(array("c" => "community/orgtype", "ot"))
+            ->arg(array("community.type/email-list", "community.orgtype/community"))
+            ->arg(array("community.type/website", "community.orgtype/commercial"));
+        $pq->limit(5);
+        $pq->offset(2);
+        $pq->clear();
+        
+        $expectedQuery = "[]";
+        $expectedArgs = "[]";
+        $expectedOffset = 0;
+        $expectedLimit = 0;
+
+        $this->assertEquals($expectedArgs, $pq->getQueryArgs());
+        $this->assertEquals($expectedLimit, $pq->getLimit());
+        $this->assertEquals($expectedOffset, $pq->getOffset());
+        $this->assertEquals($expectedQuery, $pq->getQuery());
     }
 }

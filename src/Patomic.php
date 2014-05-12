@@ -4,7 +4,6 @@ require_once __DIR__ . "/../vendor/autoload.php";
 
 /**
  * Main class for Patomic
- * Every instance of this class represents a connection to the Datomic REST service
  */
 class Patomic
 {
@@ -364,39 +363,3 @@ class Patomic
         }
     }
 }
-
-/*try {
-    $p = new Patomic("http://localhost", 9998, "mem", "taywils");
-    $p->createDatabase("energy");
-    $p->setDatabase("energy");
-
-    $pe = new PatomicEntity("db");
-    $pe->ident("country", "population")
-        ->valueType("string")
-        ->cardinality("one")
-        ->unique("value")
-        ->doc("The population of the country")
-        ->install("attribute");
-
-    $pt = new PatomicTransaction();
-    $pt->append($pe);
-    //$p->commitTransaction($pt);
-} catch(PatomicException $e) {
-    echo $e;
-}*/
-
-/*
-try {
-    $p = new Patomic("http://localhost", 9998, "mem", "taywils");
-    $p->createDatabase("energy");
-    $p->setDatabase("energy");
-
-    $pq = new PatomicQuery();
-    $pq->newRawQuery("[:find ?e ?v :in $ :where [?e :db/doc ?v]]")
-        ->addRawQueryArgs("[{:db/alias taywils/energy}]");
-
-    $test = $p->commitRawQuery($pq);
-    print_r($test);
-} catch(Exception $e) {
-    echo $e . PHP_EOL;
-}*/
