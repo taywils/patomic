@@ -48,6 +48,7 @@ class PatomicTransactionTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers PatomicTransaction::add
+     * @covers PatomicTransaction::addOrRetract
      */
     public function testAdd() {
         /* Add valid data to a PatomicTransaction without a tempId */
@@ -105,6 +106,7 @@ class PatomicTransactionTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers PatomicTransaction::retract
+     * @covers PatomicTransaction::addOrRetract
      */
     public function testRetract() {
         /* retract valid data to a PatomicTransaction without a tempId */

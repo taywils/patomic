@@ -252,6 +252,7 @@ class PatomicEntityTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers PatomicEntity::index
+     * @covers PatomicEntity::setBooleanAttribute
      */
     public function testIndex() {
         /* index only accepts a boolean value */
@@ -280,6 +281,7 @@ class PatomicEntityTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers PatomicEntity::fullText
+     * @covers PatomicEntity::setBooleanAttribute
      */
     public function testFullText() {
         /* fullText only accepts a boolean value */
@@ -308,6 +310,7 @@ class PatomicEntityTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers PatomicEntity::isComponent
+     * @covers PatomicEntity::setBooleanAttribute
      */
     public function testIsComponent() {
         /* isComponent only accepts a boolean value */
@@ -336,6 +339,7 @@ class PatomicEntityTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers PatomicEntity::noHistory
+     * @covers PatomicEntity::setBooleanAttribute
      */
     public function testNoHistory() {
         /* noHistory only accepts a boolean value */
@@ -417,6 +421,7 @@ class PatomicEntityTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers PatomicEntity::prettyPrint
+     * @covers PatomicEntity::printHandler
      */
     public function testPrettyPrint() {
         /* prettyPrint should match the datalog style shown on http://docs.datomic.com */

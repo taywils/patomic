@@ -105,6 +105,8 @@ class PatomicQueryTest extends PHPUnit_Framework_TestCase
     /**
      * @covers PatomicQuery::find
      * @covers PatomicQuery::getQuery
+     * @covers PatomicQuery::createFindEdn
+     * @covers PatomicQuery::validateFindArgs
      */
     public function testFind() {
         /* Create a simple find query with multiple variables */
@@ -138,6 +140,8 @@ class PatomicQueryTest extends PHPUnit_Framework_TestCase
     /**
      * @covers PatomicQuery::in
      * @covers PatomicQuery::getQuery
+     * @covers PatomicQuery::createInEdn
+     * @covers PatomicQuery::validateInArgs
      */
     public function testIn() {
         /* Create a simple query using PatomicQuery::in */
@@ -200,6 +204,7 @@ class PatomicQueryTest extends PHPUnit_Framework_TestCase
     /**
      * @covers PatomicQuery::where
      * @covers PatomicQuery::getQuery
+     * @covers PatomicQuery::createWhereEdn
      */
     public function testWhere() {
         /* Valid where query should resemble the following */
@@ -280,6 +285,7 @@ class PatomicQueryTest extends PHPUnit_Framework_TestCase
     /**
      * @covers PatomicQuery::arg
      * @covers PatomicQuery::getQueryArgs
+     * @covers PatomicQuery::createQueryArgs
      */
     public function testArg() {
         /* Re-create sample query with arguments from http://docs.datomic.com/tutorial.html */
@@ -387,6 +393,7 @@ class PatomicQueryTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers PatomicQuery::clear
+     * @covers PatomicQuery::createQueryBody
      */
     public function testClear() {
         $pq = new PatomicQuery();

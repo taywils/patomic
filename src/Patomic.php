@@ -49,41 +49,41 @@ class Patomic
     public function __construct($serverUrl = null, $port = null, $storage = "mem", $alias = null) {
         try {
             if(!isset($serverUrl)) {
-                throw new PatomicException("\$serverUrl argument must be set");
+                throw new PatomicException(__METHOD__ . " \$serverUrl argument must be set");
             }
             if(!is_string($serverUrl)) {
-                throw new PatomicException("\$serverUrl must be a string");
+                throw new PatomicException(__METHOD__ . " \$serverUrl must be a string");
             }
             if(!filter_var($serverUrl, FILTER_VALIDATE_URL)) {
-                throw new PatomicException("\$serverUrl must be a valid URL");
+                throw new PatomicException(__METHOD__ . " \$serverUrl must be a valid URL");
             }
 
             if(!isset($port)) {
-                throw new PatomicException("\$port argument must be set");
+                throw new PatomicException(__METHOD__ . " \$port argument must be set");
             }
             if(!is_int($port)) {
-                throw new PatomicException("\$port must be an integer");
+                throw new PatomicException(__METHOD__ . " \$port must be an integer");
             }
 
             if(!is_string($storage)) {
-                throw new PatomicException("\$storage must be a string");
+                throw new PatomicException(__METHOD__ . " \$storage must be a string");
             }
             if(!in_array($storage, $this->storageTypes)) {
-                throw new PatomicException("\$storage must be one of the following ["
+                throw new PatomicException(__METHOD__ . " \$storage must be one of the following ["
                     . implode(", ", $this->storageTypes) . "]");
             }
 
             if(!isset($alias)) {
-                throw new PatomicException("\$alias argument must be set");
+                throw new PatomicException(__METHOD__ . " \$alias argument must be set");
             }
             if(!is_string($alias)) {
-                throw new PatomicException("\$alias must be a string");
+                throw new PatomicException(__METHOD__ . " \$alias must be a string");
             }
 
             if(!in_array($storage, $this->storageTypes)) {
-                $msg = "\$storage argument must be the correct string".PHP_EOL;
+                $msg = " \$storage argument must be the correct string".PHP_EOL;
                 $msg .= "Valid storage strings are \"" . implode($this->storageTypes, " ") . "\"";
-                throw new PatomicException($msg);
+                throw new PatomicException(__METHOD__ . $msg);
             }
 
             $this->config["serverUrl"]  = $serverUrl . ":";
@@ -192,7 +192,7 @@ class Patomic
      */
     public function setDatabase($dbName = null) {
         if(!isset($dbName) || !is_string($dbName)) {
-            throw new PatomicException("No \$dbName was given cannot assign Database");
+            throw new PatomicException(__METHOD__ . " No \$dbName was given cannot assign Database");
         }
 
         $dbName = strtolower($dbName);
@@ -200,7 +200,7 @@ class Patomic
         $dbNames = $this->getDatabaseNames();
 
         if(empty($dbNames)) {
-            throw new PatomicException("Cannot assign Database because none have been created");
+            throw new PatomicException(__METHOD__ . " Cannot assign Database because none have been created");
         } else {
             // If the user gives an incorrect dbName just assign the first one found
             $this->config["dbName"] = (in_array($dbName, $dbNames)) ? $dbName : array_values($dbNames)[0];
