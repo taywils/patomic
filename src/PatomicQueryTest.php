@@ -142,5 +142,146 @@ class PatomicQueryTest extends PHPUnit_Framework_TestCase
     public function testIn() {
         /* Create a simple query using PatomicQuery::in */
         $pq = new PatomicQuery();
+        $pq->find("e", "x", "s")
+            ->in("fname, lname");
+        $expectedString = '[:find ?e ?x ?s :in $ ?fname ?lname :where]';
+        $this->assertEquals($expectedString, $pq->getQuery());
+
+        /* Zero arguments passed should throw an exception */
+        try {
+            $pq = new PatomicQuery();
+            $pq->find("e", "x")
+                ->in();
+            $this->fail("PatomicException should have been thrown since function expects at least on argument");
+        } catch(PatomicException $e) {
+            $expectedString = "PatomicQuery::in expects at least one \"string\" and an optional \"array\" as arguments";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
+
+        /* A single argument passed must be a string */
+        try {
+            $pq = new PatomicQuery();
+            $pq->find("e", "x")
+                ->in(12345);
+            $this->fail("PatomicException should have been thrown since 1st argument is not a string");
+        } catch(PatomicException $e) {
+            $expectedString = "PatomicQuery::in first argument was not a string";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
+
+        /* Empty string should be a valid argument */
+        try {
+            $pq = new PatomicQuery();
+            $pq->find("e", "x")
+                ->in("");
+        } catch(PatomicException $e) {
+            $this->fail("PatomicException should not have been thrown");
+        }
+
+        /* Second argument must be an array and each array element must be a string */
+        try {
+            $pq = new PatomicQuery();
+            $pq->find("e", "x")
+                ->in("amount", array("one", "two"));
+        } catch(PatomicException $e) {
+            $this->fail("PatomicException should not have been thrown");
+        }
+        try {
+            $pq = new PatomicQuery();
+            $pq->find("e", "x")
+                ->in("amount", array("one", 123));
+            $this->fail("PatomicException should have been thrown since 2nd argument was an integer");
+        } catch(PatomicException $e) {
+            $expectedString = "PatomicQuery::in expects an array containing only string elements";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
+    }
+
+    /**
+     * @covers PatomicQuery::where
+     * @covers PatomicQuery::getQuery
+     */
+    public function testWhere() {
+        /* Valid where query should resemble the following */
+        /*
+         * [:find ?e
+         *  :in $ ?fname
+         *  :where [?e :user/firstName ?fname]
+         * ]
+         */
+        try {
+            $pq = new PatomicQuery();
+            $pq->find("e")
+                ->in("fname lname")
+                ->where(array("e" => "user/firstName", "fname"));
+            $expectedString = "[:find ?e :in $ ?fname ?lname :where [?e :user/firstName ?fname]]";
+            $this->assertEquals($expectedString, $pq->getQuery());
+        } catch(PatomicException $e) {
+            $this->fail("Exception should not have been thrown");
+        }
+
+        /* Zero arguments should throw an exception */
+        try {
+            $pq = new PatomicQuery();
+            $pq->find("e")
+                ->in("fname lname")
+                ->where();
+            $this->fail("PatomicException should have been thrown");
+        } catch(PatomicException $e) {
+            $expectedString = "PatomicQuery::where expects an array as an argument";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
+
+        /* Non-array arguments should throw an exception */
+        try {
+            $pq = new PatomicQuery();
+            $pq->find("e")
+                ->in("fname lname")
+                ->where(1231);
+            $this->fail("PatomicException should have been thrown");
+        } catch(PatomicException $e) {
+            $expectedString = "PatomicQuery::where expects an array as an argument";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
+
+        /* Multiple where invocations should resemble the following */
+        /*
+         * [:find ?e
+         *  :in $ ?fname ?lname
+         *  :where [?e :user/firstName ?fname]
+         *         [?e :user/lastName ?lname]]
+         * ]
+         */
+        try {
+            $pq = new PatomicQuery();
+            $pq->find("e")
+                ->in("fname lname")
+                ->where(array("e" => "user/firstName", "fname"))
+                ->where(array("e" => "user/lastName", "lname"));
+            $expectedString = "[:find ?e :in $ ?fname ?lname :where [?e :user/firstName ?fname] [?e :user/lastName ?lname]]";
+            $this->assertEquals($expectedString, $pq->getQuery());
+        } catch(PatomicException $e) {
+            $this->fail("Exception should not have been thrown");
+        }
+
+        /* Integer should be valid where clauses */
+        /* [:find ?e :in $ :where [?e :age 42]] */
+        try {
+            $pq = new PatomicQuery();
+            $pq->find("e")
+                ->where(array("e" => "age", 42));
+            $expectedString = "[:find ?e :in $ :where [?e :age 42]]";
+            $this->assertEquals($expectedString, $pq->getQuery());
+        } catch(PatomicException $e) {
+            $this->fail("Exception should not have been thrown");
+        }
+    }
+
+    /**
+     * @covers PatomicQuery::arg
+     * @covers PatomicQuery::getQueryArgs
+     */
+    public function testArg() {
+
     }
 }

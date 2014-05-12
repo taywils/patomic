@@ -123,8 +123,9 @@ class PatomicQuery
             throw new PatomicException(__METHOD__ . " second argument was not an array");
         }
 
-        if(is_string($this->validateInArgs($numargs, $argsArray))) {
-            throw new PatomicException(__METHOD__ . $this->validateInArgs($numargs, $argsArray));
+        $validationResult = (2 == $numargs) ? $this->validateInArgs($numargs, $argsArray) : true;
+        if(is_string($validationResult)) {
+            throw new PatomicException(__METHOD__ . $validationResult);
         }
 
         $parts = preg_split("/[\s,]+/", $argsArray[0]);
@@ -155,7 +156,7 @@ class PatomicQuery
      * @throws PatomicException
      * @return $this
      */
-    public function where($argArray) {
+    public function where($argArray = null) {
         if(!isset($argArray) || !is_array($argArray)) {
             throw new PatomicException(__METHOD__ . " expects an array as an argument");
         }
@@ -275,18 +276,6 @@ class PatomicQuery
     }
 
     private function validateInArgs($numArgs, $argsArray) {
-        $validateString = function() use($numArgs, $argsArray) {
-            $stringIsJustWhitespace = (strlen(trim($argsArray[0]))) == 0;
-
-            if(1 == $numArgs && $stringIsJustWhitespace) {
-                return " expects a non-empty string when no array is given";
-            } else if(2 == $numArgs) {
-                return true;
-            } else {
-                return " expects a non-empty string when no array is given";
-            }
-        };
-
         $validateArray = function() use($numArgs, $argsArray) {
             $allElementsAreString = true;
 
@@ -304,18 +293,7 @@ class PatomicQuery
             }
         };
 
-        switch($numArgs) {
-            case 1:
-                return $validateString;
-                break;
-
-            case 2:
-                return $validateString && $validateArray;
-                break;
-
-            default:
-                return false;
-        }
+        return $validateArray();
     }
 
     private function createFindEdn() {
@@ -358,8 +336,9 @@ class PatomicQuery
 
             foreach($whereArray as $key => $value) {
 
-                if(is_int($key) && !is_string($key)) {
-                    $whereDatalog .=  "?" . $value . " ";
+                if(is_int($key)) {
+                    $questionMark = (is_int($value)) ? "" : "?";
+                    $whereDatalog .=  $questionMark . $value . " ";
                 } else {
                     $whereDatalog .= "?" . $key . " :" . $value . " ";
                 }
@@ -396,16 +375,10 @@ class PatomicQuery
         $this->queryArgs = $argDatalog;
     }
 }
-
-//try {
-//    $pq = new PatomicQuery();
-//    $pq->find("e", "v")
-//        ->in("communityName, communityType")
-//        ->where(array("e" => "db/doc", "v"))
-//        ->arg(array("db/alias" => "demo/energy"));
-//
-//    echo $pq->getQuery() . PHP_EOL;
-//    echo $pq->getQueryArgs() . PHP_EOL;
-//} catch (PatomicException $e) {
-//    echo $e . PHP_EOL;
-//}
+/*
+$pq = new PatomicQuery();
+$pq->find("e")
+    ->in("fname")
+    ->where(array("e" => "user/firstName", "fname"));
+echo $pq->getQuery();
+*/
