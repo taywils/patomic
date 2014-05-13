@@ -47,56 +47,52 @@ class Patomic
      * @return Patomic object
      */
     public function __construct($serverUrl = null, $port = null, $storage = "mem", $alias = null) {
-        try {
-            if(!isset($serverUrl)) {
-                throw new PatomicException(__METHOD__ . " \$serverUrl argument must be set");
-            }
-            if(!is_string($serverUrl)) {
-                throw new PatomicException(__METHOD__ . " \$serverUrl must be a string");
-            }
-            if(!filter_var($serverUrl, FILTER_VALIDATE_URL)) {
-                throw new PatomicException(__METHOD__ . " \$serverUrl must be a valid URL");
-            }
-
-            if(!isset($port)) {
-                throw new PatomicException(__METHOD__ . " \$port argument must be set");
-            }
-            if(!is_int($port)) {
-                throw new PatomicException(__METHOD__ . " \$port must be an integer");
-            }
-
-            if(!is_string($storage)) {
-                throw new PatomicException(__METHOD__ . " \$storage must be a string");
-            }
-            if(!in_array($storage, $this->storageTypes)) {
-                throw new PatomicException(__METHOD__ . " \$storage must be one of the following ["
-                    . implode(", ", $this->storageTypes) . "]");
-            }
-
-            if(!isset($alias)) {
-                throw new PatomicException(__METHOD__ . " \$alias argument must be set");
-            }
-            if(!is_string($alias)) {
-                throw new PatomicException(__METHOD__ . " \$alias must be a string");
-            }
-
-            if(!in_array($storage, $this->storageTypes)) {
-                $msg = " \$storage argument must be the correct string".PHP_EOL;
-                $msg .= "Valid storage strings are \"" . implode($this->storageTypes, " ") . "\"";
-                throw new PatomicException(__METHOD__ . $msg);
-            }
-
-            $this->config["serverUrl"]  = $serverUrl . ":";
-            $this->config["port"]       = $port;
-            $this->config["storage"]    = $storage;
-            $this->config["alias"]      = $alias;
-            $this->config["dataUrl"]    = $this->config["serverUrl"] . "$port/data/";
-            $this->config["apiUrl"]     = $this->config["serverUrl"] . "$port/api/query";
-
-            $this->statusQueue = new SplQueue();
-        } catch(Exception $e) {
-            echo $e . PHP_EOL;
+        if(!isset($serverUrl)) {
+            throw new PatomicException(__METHOD__ . " \$serverUrl argument must be set");
         }
+        if(!is_string($serverUrl) || strlen(trim($serverUrl)) == 0) {
+            throw new PatomicException(__METHOD__ . " \$serverUrl must be a non-empty string");
+        }
+        if(!filter_var($serverUrl, FILTER_VALIDATE_URL)) {
+            throw new PatomicException(__METHOD__ . " \$serverUrl must be a valid URL");
+        }
+
+        if(!isset($port)) {
+            throw new PatomicException(__METHOD__ . " \$port argument must be set");
+        }
+        if(!is_int($port)) {
+            throw new PatomicException(__METHOD__ . " \$port must be an integer");
+        }
+
+        if(!is_string($storage)) {
+            throw new PatomicException(__METHOD__ . " \$storage must be a string");
+        }
+        if(!in_array($storage, $this->storageTypes)) {
+            throw new PatomicException(__METHOD__ . " \$storage must be one of the following ["
+                . implode(", ", $this->storageTypes) . "]");
+        }
+
+        if(!in_array($storage, $this->storageTypes)) {
+            $msg = " \$storage argument must be the correct string".PHP_EOL;
+            $msg .= "Valid storage strings are \"" . implode($this->storageTypes, " ") . "\"";
+            throw new PatomicException(__METHOD__ . $msg);
+        }
+
+        if(!isset($alias)) {
+            throw new PatomicException(__METHOD__ . " \$alias argument must be set");
+        }
+        if(!is_string($alias)) {
+            throw new PatomicException(__METHOD__ . " \$alias must be a string");
+        }
+
+        $this->config["serverUrl"]  = $serverUrl . ":";
+        $this->config["port"]       = $port;
+        $this->config["storage"]    = $storage;
+        $this->config["alias"]      = $alias;
+        $this->config["dataUrl"]    = $this->config["serverUrl"] . "$port/data/";
+        $this->config["apiUrl"]     = $this->config["serverUrl"] . "$port/api/query";
+
+        $this->statusQueue = new SplQueue();
     }
 
     /**
@@ -363,3 +359,4 @@ class Patomic
         }
     }
 }
+
