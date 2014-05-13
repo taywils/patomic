@@ -53,9 +53,6 @@ class Patomic
         if(!is_string($serverUrl) || strlen(trim($serverUrl)) == 0) {
             throw new PatomicException(__METHOD__ . " \$serverUrl must be a non-empty string");
         }
-        if(!filter_var($serverUrl, FILTER_VALIDATE_URL)) {
-            throw new PatomicException(__METHOD__ . " \$serverUrl must be a valid URL");
-        }
 
         if(!isset($port)) {
             throw new PatomicException(__METHOD__ . " \$port argument must be set");
@@ -64,8 +61,8 @@ class Patomic
             throw new PatomicException(__METHOD__ . " \$port must be an integer");
         }
 
-        if(!is_string($storage)) {
-            throw new PatomicException(__METHOD__ . " \$storage must be a string");
+        if(!is_string($storage) || strlen(trim($storage)) == 0) {
+            throw new PatomicException(__METHOD__ . " \$storage must be a non-empty string");
         }
         if(!in_array($storage, $this->storageTypes)) {
             throw new PatomicException(__METHOD__ . " \$storage must be one of the following ["
@@ -81,8 +78,8 @@ class Patomic
         if(!isset($alias)) {
             throw new PatomicException(__METHOD__ . " \$alias argument must be set");
         }
-        if(!is_string($alias)) {
-            throw new PatomicException(__METHOD__ . " \$alias must be a string");
+        if(!is_string($alias) || strlen(trim($alias)) == 0) {
+            throw new PatomicException(__METHOD__ . " \$alias must be a non-empty string");
         }
 
         $this->config["serverUrl"]  = $serverUrl . ":";

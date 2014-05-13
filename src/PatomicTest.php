@@ -30,74 +30,92 @@ class PatomicTest extends PHPUnit_Framework_TestCase
 
 		/* non-string serverUrl should throw exception */
 		try {
-
+            $p = new Patomic(12341, 9998, "mem", "taywils");
 			$this->fail("PatomicException should have been thrown");
 		} catch(PatomicException $e) {
-			
-		}
-
-		/* invalid serverUrl string should throw exception */
-		try {
-
-			$this->fail("PatomicException should have been thrown");
-		} catch(PatomicException $e) {
-			
+            $expectedString = "Patomic::__construct \$serverUrl must be a non-empty string";
+            $this->assertEquals($expectedString, $e->getMessage());
 		}
 
 		/* empty serverUrl should throw exception */
-		try {
-
-			$this->fail("PatomicException should have been thrown");
-		} catch(PatomicException $e) {
-			
-		}
+        try {
+            $p = new Patomic("", 9998, "mem", "taywils");
+            $this->fail("PatomicException should have been thrown");
+        } catch(PatomicException $e) {
+            $expectedString = "Patomic::__construct \$serverUrl must be a non-empty string";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
 
 		/* null port should throw exception */
 		try {
-
+            $p = new Patomic("http://localhost", null, "mem", "taywils");
 			$this->fail("PatomicException should have been thrown");
 		} catch(PatomicException $e) {
-			
+            $expectedString = "Patomic::__construct \$port argument must be set";
+            $this->assertEquals($expectedString, $e->getMessage());
 		}
 
 		/* non-integer port should throw exception */
 		try {
-
+            $p = new Patomic("http://localhost", "port", "mem", "taywils");
 			$this->fail("PatomicException should have been thrown");
 		} catch(PatomicException $e) {
-			
+            $expectedString = "Patomic::__construct \$port must be an integer";
+            $this->assertEquals($expectedString, $e->getMessage());
 		}
 
 		/* null storage should throw exception */
 		try {
-
+            $p = new Patomic("http://localhost", 1334, null, "taywils");
 			$this->fail("PatomicException should have been thrown");
 		} catch(PatomicException $e) {
-			
+            $expectedString = "Patomic::__construct \$storage must be a non-empty string";
+            $this->assertEquals($expectedString, $e->getMessage());
 		}
+
+        /* empty storage should throw exception */
+        try {
+            $p = new Patomic("http://localhost", 74681, "", "taywils");
+            $this->fail("PatomicException should have been thrown");
+        } catch(PatomicException $e) {
+            $expectedString = "Patomic::__construct \$storage must be a non-empty string";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
 
 		/* invalid storage should throw exception */
 		try {
-
+            $p = new Patomic("http://localhost", 74681, "squid", "taywils");
 			$this->fail("PatomicException should have been thrown");
 		} catch(PatomicException $e) {
-			
+            $expectedString = "Patomic::__construct \$storage must be one of the following [mem, dev, sql, inf, ddb]";
+            $this->assertEquals($expectedString, $e->getMessage());
 		}
 
 		/* null alias should throw exception */
 		try {
-
+            $p = new Patomic("http://localhost", 74681, "sql", null);
 			$this->fail("PatomicException should have been thrown");
 		} catch(PatomicException $e) {
-			
+			$expectedString = "Patomic::__construct \$alias argument must be set";
+            $this->assertEquals($expectedString, $e->getMessage());
 		}
+
+        /* empty string alias should throw exception */
+        try {
+            $p = new Patomic("http://localhost", 74681, "sql", "   ");
+            $this->fail("PatomicException should have been thrown");
+        } catch(PatomicException $e) {
+            $expectedString = "Patomic::__construct \$alias must be a non-empty string";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
 
 		/* non-string alias should throw exception */
 		try {
-
+            $p = new Patomic("http://localhost", 74681, "sql", array());
 			$this->fail("PatomicException should have been thrown");
 		} catch(PatomicException $e) {
-			
-		}
+            $expectedString = "Patomic::__construct \$alias must be a non-empty string";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
 	}
 }
