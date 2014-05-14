@@ -4,10 +4,11 @@ require_once __DIR__ . "/../vendor/autoload.php";
 
 interface HttpRequest
 {
-    public function setOption($name, $value);
+    public function setOptionArray($optionsArray);
     public function execute();
-    public function getInfo($name);
+    public function getInfo();
     public function close();
+    public function error();
 }
 
 /**
@@ -18,23 +19,27 @@ class PatomicCurl implements HttpRequest
 {
     private $handle = null;
 
-    public function __construct($url) {
-        $this->handle = curl_init($url);
+    public function __construct() {
+        $this->handle = curl_init();
     }
 
-    public function setOption($name, $value) {
-        curl_setopt($this->handle, $name, $value);
+    public function setOptionArray($optionsArray) {
+        return curl_setopt_array($this->handle, $optionsArray);
     }
 
     public function execute() {
         return curl_exec($this->handle);
     }
 
-    public function getInfo($name) {
-        return curl_getinfo($this->handle, $name);
+    public function getInfo() {
+        return curl_getinfo($this->handle);
     }
 
     public function close() {
         curl_close($this->handle);
+    }
+
+    public function error() {
+        return curl_error($this->handle);
     }
 }
