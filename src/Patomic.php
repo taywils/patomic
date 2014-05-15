@@ -22,6 +22,7 @@ class Patomic
     public $queryResult             = array();
     private $queryResponse          = null;
     private $transactionResponse    = null;
+    private $dbNames                = array();
 
     private static $RAW_QUERY       = "rawquery";
     private static $REGULAR_QUERY   = "regularquery";
@@ -170,6 +171,7 @@ class Patomic
         }
 
         $patomicCurl->close();
+        $this->dbNames = $dbNames;
         return $dbNames;
     }
 
@@ -190,9 +192,7 @@ class Patomic
 
         $dbName = strtolower($dbName);
 
-        $dbNames = $this->getDatabaseNames();
-
-        if(empty($dbNames)) {
+        if(empty($this->dbNames)) {
             throw new PatomicException(__METHOD__ . " Cannot assign Database because none have been created");
         } else {
             // If the user gives an incorrect dbName just assign the first one found

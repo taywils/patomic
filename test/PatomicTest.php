@@ -152,5 +152,15 @@ class PatomicTest extends PHPUnit_Framework_TestCase
             $expectedString = "Patomic::setDatabase Cannot assign Database because none have been created";
             $this->assertEquals($expectedString, $e->getMessage());
         }
+
+        /* Assing new database name */        
+        try {
+            // We need to set the private property using Reflection
+            // @see http://www.php.net/manual/en/reflectionproperty.setvalue.php
+            $p = new Patomic("http://localhost", 9998, "mem", "taywils");
+            $this->fail("Finish this test");
+        } catch(PatomicException $e) {
+            $this->fail("PatomicException should not be thrown");
+        }
     }
 }
