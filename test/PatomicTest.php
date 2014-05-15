@@ -187,12 +187,13 @@ class PatomicTest extends PHPUnit_Framework_TestCase
 
             ob_start();
             $p->setDatabase('rhina'); // A common error is dbName miss-spellings
-            $cliOutput = ob_get_contents();
-            ob_end_clean();
-
-            $this->assertEquals("INFO: A Patomic object set database to rhina" . PHP_EOL, $cliOutput);
+            $this->fail("PatomicException should have been thrown");
         } catch(PatomicException $e) {
-            $this->fail("PatomicException should not be thrown");
+            $cliOutput = ob_get_contents();
+            $expectedString = "Patomic::setDatabase database name does not exist";
+            $this->assertEquals("WARN: Failed to set database to rhina, database not found" . PHP_EOL, $cliOutput);
+            $this->assertEquals($expectedString, $e->getMessage());
+            ob_end_clean();
         }
     }
 }
