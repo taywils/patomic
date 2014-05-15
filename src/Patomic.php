@@ -195,8 +195,8 @@ class Patomic
         if(empty($this->dbNames)) {
             throw new PatomicException(__METHOD__ . " Cannot assign Database because none have been created");
         } else {
-            // If the user gives an incorrect dbName just assign the first one found
-            $this->config["dbName"] = (in_array($dbName, $dbNames)) ? $dbName : array_values($dbNames)[0];
+            //TODO if an incorrect dbName is given then throw an exception
+            $this->config["dbName"] = (in_array($dbName, $this->dbNames)) ? $dbName : array_values($this->dbNames)[0];
             $this->addStatus(self::$ST_INFO, "A Patomic object set database to " . $this->config["dbName"]);
         }
 

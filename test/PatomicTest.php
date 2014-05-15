@@ -153,12 +153,44 @@ class PatomicTest extends PHPUnit_Framework_TestCase
             $this->assertEquals($expectedString, $e->getMessage());
         }
 
-        /* Assing new database name */        
+        /* Assign new database name if the name being set has been created */        
         try {
-            // We need to set the private property using Reflection
-            // @see http://www.php.net/manual/en/reflectionproperty.setvalue.php
             $p = new Patomic("http://localhost", 9998, "mem", "taywils");
-            $this->fail("Finish this test");
+            $dbNamesValue = array('rhino', 'testdb');
+
+            // We need to set the private property with valid data using Reflection
+            $reflectionClass = new ReflectionClass('Patomic');
+            $reflectionProperty = $reflectionClass->getProperty('dbNames');
+            $reflectionProperty->setAccessible(true);
+            $reflectionProperty->setValue($p, $dbNamesValue);
+
+            ob_start();
+            $p->setDatabase('testdb');
+            $cliOutput = ob_get_contents();
+            ob_end_clean();
+
+            $this->assertEquals("INFO: A Patomic object set database to testdb" . PHP_EOL, $cliOutput);
+        } catch(PatomicException $e) {
+            $this->fail("PatomicException should not be thrown");
+        }
+
+        /* Throw an exception if the name being set was not found within the list of valid dbNames */
+        try {
+            $p = new Patomic("http://localhost", 9998, "mem", "taywils");
+            $dbNamesValue = array('rhino');
+
+            // We need to set the private property with valid data using Reflection
+            $reflectionClass = new ReflectionClass('Patomic');
+            $reflectionProperty = $reflectionClass->getProperty('dbNames');
+            $reflectionProperty->setAccessible(true);
+            $reflectionProperty->setValue($p, $dbNamesValue);
+
+            ob_start();
+            $p->setDatabase('rhina'); // A common error is dbName miss-spellings
+            $cliOutput = ob_get_contents();
+            ob_end_clean();
+
+            $this->assertEquals("INFO: A Patomic object set database to rhina" . PHP_EOL, $cliOutput);
         } catch(PatomicException $e) {
             $this->fail("PatomicException should not be thrown");
         }
