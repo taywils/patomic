@@ -118,4 +118,39 @@ class PatomicTest extends PHPUnit_Framework_TestCase
             $this->assertEquals($expectedString, $e->getMessage());
         }
 	}
+
+    /**
+     * @covers Patomic::setDatabase
+     */
+    public function testSetDatabase() {
+        /* non-string argument should throw exception */
+        try {
+            $p = new Patomic("http://localhost", 9998, "mem", "taywils");
+            $p->setDatabase(12354);
+            $this->fail("PatomicException should have been thrown");
+        } catch(PatomicException $e) {
+            $expectedString = "Patomic::setDatabase \$dbName must be a non-empty string";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
+
+        /* empty string argument should throw exception */
+        try {
+            $p = new Patomic("http://localhost", 9998, "mem", "taywils");
+            $p->setDatabase("  ");
+            $this->fail("PatomicException should have been thrown");
+        } catch(PatomicException $e) {
+            $expectedString = "Patomic::setDatabase \$dbName must be a non-empty string";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
+
+        /* If no database(s) exist then throw an exception */
+        try {
+            $p = new Patomic("http://localhost", 9998, "mem", "taywils");
+            $p->setDatabase("something");
+            $this->fail("PatomicException should have been thrown");
+        } catch(PatomicException $e) {
+            $expectedString = "Patomic::setDatabase Cannot assign Database because none have been created";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
+    }
 }

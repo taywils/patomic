@@ -184,8 +184,8 @@ class Patomic
      * @throws PatomicException
      */
     public function setDatabase($dbName = null) {
-        if(!isset($dbName) || !is_string($dbName)) {
-            throw new PatomicException(__METHOD__ . " No \$dbName was given cannot assign Database");
+        if(!isset($dbName) || !is_string($dbName) || strlen(trim($dbName)) == 0) {
+            throw new PatomicException(__METHOD__ . " \$dbName must be a non-empty string");
         }
 
         $dbName = strtolower($dbName);
