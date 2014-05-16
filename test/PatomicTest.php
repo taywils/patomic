@@ -190,10 +190,10 @@ class PatomicTest extends PHPUnit_Framework_TestCase
             $this->fail("PatomicException should have been thrown");
         } catch(PatomicException $e) {
             $cliOutput = ob_get_contents();
+            ob_end_clean();
             $expectedString = "Patomic::setDatabase database name does not exist";
             $this->assertEquals("WARN: Failed to set database to rhina, database not found" . PHP_EOL, $cliOutput);
             $this->assertEquals($expectedString, $e->getMessage());
-            ob_end_clean();
         }
     }
 }

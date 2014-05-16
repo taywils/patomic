@@ -194,9 +194,12 @@ class Patomic
 
         if(empty($this->dbNames)) {
             throw new PatomicException(__METHOD__ . " Cannot assign Database because none have been created");
+        } else if(!in_array($dbName, $this->dbNames)) {
+            $this->addStatus(self::$ST_WARN, "Failed to set database to " . $dbName . ", database not found");
+            $this->printStatus();
+            throw new PatomicException(__METHOD__ . " database name does not exist");
         } else {
-            //TODO if an incorrect dbName is given then throw an exception
-            $this->config["dbName"] = (in_array($dbName, $this->dbNames)) ? $dbName : array_values($this->dbNames)[0];
+            $this->config["dbName"] = $dbName;
             $this->addStatus(self::$ST_INFO, "A Patomic object set database to " . $this->config["dbName"]);
         }
 
