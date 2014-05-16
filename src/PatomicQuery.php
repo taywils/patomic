@@ -226,6 +226,14 @@ class PatomicQuery
         $this->queryOffset    = 0;
     }
 
+    /**
+     * Returns the array of pattern variables used within the :find clause
+     * @return array
+     */
+    public function getFindEdn() {
+        return $this->findEdn;
+    }
+
     private function limitOrOffset($value, $useLimit) {
         if(!isset($value) || !is_int($value) || ($value < 1)) {
             throw new PatomicException(__METHOD__ . " expects a positive integer as an argument");

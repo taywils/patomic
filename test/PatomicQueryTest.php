@@ -2,6 +2,8 @@
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
+// TODO: Test uuid values via rhumsaa/uuid
+
 /**
  * PHPUnit Test class for PatomicQuery
  */
@@ -417,5 +419,19 @@ class PatomicQueryTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expectedLimit, $pq->getLimit());
         $this->assertEquals($expectedOffset, $pq->getOffset());
         $this->assertEquals($expectedQuery, $pq->getQuery());
+    }
+
+    /**
+     * @covers PatomicQuery::getFindEdn
+     */
+    public function testGetFindEdn() {
+        /* If no find clause has been set return empty array */
+        $pq = new PatomicQuery();
+        $this->assertEquals(array(), $pq->getFindEdn());
+
+        /* Returned array should match the pattern variables within the find clause */
+        $pq->clear();
+        $pq->find("e", "x", "s");
+        $this->assertEquals(array("e", "x", "s"), $pq->getFindEdn());
     }
 }

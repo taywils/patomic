@@ -307,16 +307,17 @@ class Patomic
         }
 
         // Datomic query results are returned as a EDN vector where each result row is another vector
-        if(self::$FAILURE == $retCode) {
-            //Handle failure
-        } else if(self::$RAW_QUERY == $queryType) {
+        if(self::$FAILURE != $retCode) {
             // Transforms the results Vector of Vectors into a multi-dimensional PHP array
             $this->queryResponse = array_values($this->_parse($this->queryResponse))[0];
+
             foreach($this->queryResponse->data as $rowVector) {
-                $this->queryResult[] = array_values($rowVector->data);
+                if(self::$REGULAR_QUERY == $queryType) {
+                    $this->queryResult[] = array_combine($patomicQuery->getFindEdn(), array_values($rowVector->data));
+                } else {
+                    $this->queryResult[] = array_values($rowVector->data);
+                }
             }
-        } else {
-            // Handle regular query results based on the PatomicQuery object's in() data and such
         }
 
         $this->printStatus();
