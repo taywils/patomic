@@ -1,0 +1,6 @@
+# _config.yml overrides for development mode
+# Use the following command during development on your local machine
+#   bundle exec jekyll serve --watch --config _config.yml,_config-dev.yml
+github: {
+  "base_url": "http://localhost:4000/"
+}
