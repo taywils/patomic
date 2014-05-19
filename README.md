@@ -1,6 +1,8 @@
 Patomic - An Object Oriented PHP interface for the Datomic REST API
 ===================================================================
 
+[![Build Status](https://travis-ci.org/taywils/patomic.svg?branch=master)](https://travis-ci.org/taywils/patomic)
+
 Requirements
 -----------
 1. The full Java dev environment [java.com](http://www.java.com) both JDK and JRE
