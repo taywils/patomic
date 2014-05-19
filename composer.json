@@ -1,11 +1,12 @@
 {
         "name": "taywils/patomic",
-        "description": "Datomic API for PHP",
+        "description": "An Object Oriented PHP interface for the Datomic REST API",
         "keywords": ["datomic", "api"],
         "license": "MIT",
+        "homepage": "https://github.com/taywils/patomic",
         "authors": [
                 {
-                        "name": "Taywils",
+                        "name": "Demetrious Wilson",
                         "homepage": "http://www.taywils.me"
                 }
         ],
@@ -13,7 +14,8 @@
                 "php": ">=5.4.0",
                 "igorw/edn": "1.0.x-dev",
                 "nikic/phlexy": "~1.0-dev",
-                "rhumsaa/uuid": "2.8.x-dev"
+                "rhumsaa/uuid": "2.8.x-dev",
+                "moontoast/math": "*"
         },
         "require-dev": {
                 "phpunit/phpunit": "4.1.*"
