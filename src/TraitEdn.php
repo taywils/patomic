@@ -9,38 +9,38 @@ require_once __DIR__ . "/../vendor/autoload.php";
  */
 trait TraitEdn
 {
-    protected function _keyword($k) {
-        return \igorw\edn\keyword($k);
+    protected function _keyword($keyword) {
+        return \igorw\edn\keyword($keyword);
     }
 
-    protected function _symbol($s) {
-        return \igorw\edn\symbol($s);
+    protected function _symbol($symbol) {
+        return \igorw\edn\symbol($symbol);
     }
 
-    protected function _map($a = null) {
+    protected function _map($array = null) {
         $map = new \igorw\edn\Map();
 
-        if(isset($a) && is_array($a)) {
-            $map->init($a);
+        if(isset($array) && is_array($array)) {
+            $map->init($array);
         }
 
         return $map;
     }
 
-    protected function _vector($a) {
-        return new \igorw\edn\Vector($a);
+    protected function _vector($array) {
+        return new \igorw\edn\Vector($array);
     }
 
-    protected function _list($a) {
-        return new \igorw\edn\LinkedList($a);
+    protected function _list($array) {
+        return new \igorw\edn\LinkedList($array);
     }
 
-    protected function _tag($t) {
-        return new \igorw\edn\tag($t);
+    protected function _tag($tag) {
+        return new \igorw\edn\tag($tag);
     }
 
-    protected function _tagged($t, $v) {
-        return new \igorw\edn\Tagged($t, $v);
+    protected function _tagged($tag, $value) {
+        return new \igorw\edn\Tagged($tag, $value);
     }
 
     protected function _encode($edn) {

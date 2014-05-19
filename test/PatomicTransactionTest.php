@@ -20,6 +20,7 @@ class PatomicTransactionTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers PatomicTransaction::append
+     * @covers PatomicTransaction::clearIfLoadedFromFile
      */
     public function testAppend() {
     	/* Append a PatomicEntity object to the current transaction */
@@ -49,6 +50,7 @@ class PatomicTransactionTest extends PHPUnit_Framework_TestCase
     /**
      * @covers PatomicTransaction::add
      * @covers PatomicTransaction::addOrRetract
+     * @covers PatomicTransaction::clearIfLoadedFromFile
      */
     public function testAdd() {
         /* Add valid data to a PatomicTransaction without a tempId */
@@ -107,6 +109,7 @@ class PatomicTransactionTest extends PHPUnit_Framework_TestCase
     /**
      * @covers PatomicTransaction::retract
      * @covers PatomicTransaction::addOrRetract
+     * @covers PatomicTransaction::clearIfLoadedFromFile
      */
     public function testRetract() {
         /* retract valid data to a PatomicTransaction without a tempId */
@@ -244,5 +247,58 @@ class PatomicTransactionTest extends PHPUnit_Framework_TestCase
         $pt->add("community", "name", "Beacon Hill");
         $expectedString2 = '[{:db/id #db/id [:db.part/db] :db/ident :community/name :db/valueType :db.type/string :db/cardinality :db.cardinality/one :db/fulltext true :db/doc "A community\'s name" :db.install/_attribute :db.part/db}[:db/add #db/id [:db.part/user] :community/name "Beacon Hill"]]';
         $this->assertEquals($expectedString2, sprintf($pt));
+    }
+
+    /**
+     * @covers PatomicTransaction::loadFromFile
+     */
+    public function testLoadFromFile() {
+        /* fileName Argument is not a string */
+        try {
+            $pt = new PatomicTransaction();
+            $pt->loadFromFile(124);
+            $this->fail("PatomicException should have been thrown");
+        } catch(PatomicException $e) {
+            $expectedString = "PatomicTransaction::loadFromFile \$fileName argument must be a non-empty string";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
+
+        /* fileName Argument is an empty string */
+        try {
+            $pt = new PatomicTransaction();
+            $pt->loadFromFile(" ");
+            $this->fail("PatomicException should have been thrown");
+        } catch(PatomicException $e) {
+            $expectedString = "PatomicTransaction::loadFromFile \$fileName argument must be a non-empty string";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
+
+        /* fileName Argument has the incorrect file extension */
+        try {
+            $pt = new PatomicTransaction();
+            $pt->loadFromFile("seattle-schema.txt");
+            $this->fail("PatomicException should have been thrown");
+        } catch(PatomicException $e) {
+            $expectedString = "PatomicTransaction::loadFromFile seattle-schema.txt does not have the extension .edn";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
+
+        /* fileName does not exists or is not readable */
+        try {
+            $pt = new PatomicTransaction();
+            $pt->loadFromFile("seattle-schem.edn");
+            $this->fail("PatomicException should have been thrown");
+        } catch(PatomicException $e) {
+            $expectedString = "PatomicTransaction::loadFromFile seattle-schem.edn was not found or cannot be read, please change file the permissions";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
+
+        /* loadFromFile should not throw an exception for valid edn files */
+        try {
+            $pt = new PatomicTransaction();
+            $pt->loadFromFile(__DIR__ . DIRECTORY_SEPARATOR . "seattle-schema.edn");
+        } catch(Exception $e) {
+            $this->fail("Exception should not have been thrown" . PHP_EOL . $e->getMessage());
+        }
     }
 }
