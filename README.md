@@ -1,5 +1,7 @@
-Patomic - A PHP Datomic Thingy
-==============================
+Patomic - An Object Oriented PHP interface for the Datomic REST API
+===================================================================
+
+[![Build Status](https://travis-ci.org/taywils/patomic.svg?branch=master)](https://travis-ci.org/taywils/patomic)
 
 Requirements
 -----------
