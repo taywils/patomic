@@ -1,8 +1,7 @@
 <?php
-//TODO: Adding entity references @see http://docs.datomic.com/transactions.html
 //TODO: Add namespaces \taywils\Patomic
-//TODO: remove UUID from required into recommended within composer.json
 //TODO: Figure out how to do proper autoloading
+//TODO: Adding entity references @see http://docs.datomic.com/transactions.html
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
@@ -259,8 +258,8 @@ class Patomic
         return $retCode;
     }
 
-    public function getTransactionResponse() {
-        return $this->transactionResponse;
+    public function getTransactionResponse($parseResponse = true) {
+        return ($parseResponse) ? $this->_parse($this->transactionResponse) : $this->transactionResponse;
     }
 
     public function commitRawQuery(PatomicQuery $patomicQuery) {
