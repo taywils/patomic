@@ -2,7 +2,6 @@
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
-//TODO: Adding entity references @see http://docs.datomic.com/transactions.html
 
 /**
  * PHP object representation of a Datomic transaction

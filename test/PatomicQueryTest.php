@@ -2,8 +2,6 @@
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
-// TODO: Test uuid values via rhumsaa/uuid
-
 /**
  * PHPUnit Test class for PatomicQuery
  */

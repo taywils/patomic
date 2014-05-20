@@ -1,4 +1,8 @@
 <?php
+//TODO: Adding entity references @see http://docs.datomic.com/transactions.html
+//TODO: Add namespaces \taywils\Patomic
+//TODO: remove UUID from required into recommended within composer.json
+//TODO: Figure out how to do proper autoloading
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
