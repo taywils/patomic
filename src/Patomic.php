@@ -1,9 +1,8 @@
 <?php
-//TODO: Add namespaces \taywils\Patomic
 //TODO: Figure out how to do proper autoloading
 //TODO: Adding entity references @see http://docs.datomic.com/transactions.html
 
-require_once __DIR__ . "/../vendor/autoload.php";
+namespace taywils\Patomic;
 
 /**
  * Main class for Patomic
@@ -36,6 +35,8 @@ class Patomic
     private static $ST_FATL = "FATAL: ";
     private static $ST_INFO = "INFO: ";
 
+    private $reflection;
+
     use TraitEdn;
 
     /**
@@ -51,39 +52,42 @@ class Patomic
      * @return Patomic object
      */
     public function __construct($serverUrl = null, $port = null, $storage = "mem", $alias = null) {
+        $this->statusQueue = new \SplQueue();
+        $this->reflection = new \ReflectionClass($this);
+
         if(!isset($serverUrl)) {
-            throw new PatomicException(__METHOD__ . " \$serverUrl argument must be set");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " \$serverUrl argument must be set");
         }
         if(!is_string($serverUrl) || strlen(trim($serverUrl)) == 0) {
-            throw new PatomicException(__METHOD__ . " \$serverUrl must be a non-empty string");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " \$serverUrl must be a non-empty string");
         }
 
         if(!isset($port)) {
-            throw new PatomicException(__METHOD__ . " \$port argument must be set");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " \$port argument must be set");
         }
         if(!is_int($port)) {
-            throw new PatomicException(__METHOD__ . " \$port must be an integer");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " \$port must be an integer");
         }
 
         if(!is_string($storage) || strlen(trim($storage)) == 0) {
-            throw new PatomicException(__METHOD__ . " \$storage must be a non-empty string");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " \$storage must be a non-empty string");
         }
         if(!in_array($storage, $this->storageTypes)) {
-            throw new PatomicException(__METHOD__ . " \$storage must be one of the following ["
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " \$storage must be one of the following ["
                 . implode(", ", $this->storageTypes) . "]");
         }
 
         if(!in_array($storage, $this->storageTypes)) {
             $msg = " \$storage argument must be the correct string".PHP_EOL;
             $msg .= "Valid storage strings are \"" . implode($this->storageTypes, " ") . "\"";
-            throw new PatomicException(__METHOD__ . $msg);
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . $msg);
         }
 
         if(!isset($alias)) {
-            throw new PatomicException(__METHOD__ . " \$alias argument must be set");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " \$alias argument must be set");
         }
         if(!is_string($alias) || strlen(trim($alias)) == 0) {
-            throw new PatomicException(__METHOD__ . " \$alias must be a non-empty string");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " \$alias must be a non-empty string");
         }
 
         $this->config["serverUrl"]  = $serverUrl . ":";
@@ -92,8 +96,6 @@ class Patomic
         $this->config["alias"]      = $alias;
         $this->config["dataUrl"]    = $this->config["serverUrl"] . "$port/data/";
         $this->config["apiUrl"]     = $this->config["serverUrl"] . "$port/api/query";
-
-        $this->statusQueue = new SplQueue();
     }
 
     /**
@@ -190,17 +192,17 @@ class Patomic
      */
     public function setDatabase($dbName = null) {
         if(!isset($dbName) || !is_string($dbName) || strlen(trim($dbName)) == 0) {
-            throw new PatomicException(__METHOD__ . " \$dbName must be a non-empty string");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " \$dbName must be a non-empty string");
         }
 
         $dbName = strtolower($dbName);
 
         if(empty($this->dbNames)) {
-            throw new PatomicException(__METHOD__ . " Cannot assign Database because none have been created");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " Cannot assign Database because none have been created");
         } else if(!in_array($dbName, $this->dbNames)) {
             $this->addStatus(self::$ST_WARN, "Failed to set database to " . $dbName . ", database not found");
             $this->printStatus();
-            throw new PatomicException(__METHOD__ . " database name does not exist");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " database name does not exist");
         } else {
             $this->config["dbName"] = $dbName;
             $this->addStatus(self::$ST_INFO, "A Patomic object set database to " . $this->config["dbName"]);

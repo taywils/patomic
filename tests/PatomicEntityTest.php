@@ -1,5 +1,8 @@
 <?php
 
+use \taywils\Patomic\PatomicEntity;
+use \taywils\Patomic\PatomicException;
+
 /**
  * PHPUnit tests for PatomicEntity
  */

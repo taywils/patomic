@@ -1,13 +1,15 @@
 <?php
 
+namespace taywils\Patomic;
+
 /**
  * Exception handler for Patomic
  *
  * @see http://php.net/manual/en/language.exceptions.extending.php
  */
-class PatomicException extends Exception
+class PatomicException extends \Exception
 {
-    public function __construct($message, $code = 0, Exception $previous = null) {
+    public function __construct($message, $code = 0, \Exception $previous = null) {
         parent::__construct($message, $code, $previous);
     }
 

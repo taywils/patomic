@@ -1,7 +1,6 @@
 <?php
 
-require_once __DIR__ . "/../vendor/autoload.php";
-
+namespace taywils\Patomic;
 
 /**
  * PHP object representation of a Datomic transaction
@@ -12,10 +11,11 @@ class PatomicTransaction
 {
     private $body;
     private $loadedFromFile;
+    private $reflection;
 
     private static $KEYWORD_ADD      = "add";
     private static $KEYWORD_RETRACT  = "retract";
-    private static $ENTITY_CLASSNAME = "PatomicEntity";
+    private static $ENTITY_CLASSNAME = 'taywils\Patomic\PatomicEntity';
     private static $VECTOR_CLASSNAME = 'igorw\edn\Vector';
 
     use TraitEdn;
@@ -26,6 +26,7 @@ class PatomicTransaction
     public function __construct() {
         $this->body = $this->_vector(array());
         $this->loadedFromFile = false;
+        $this->reflection = new \ReflectionClass($this);
     }
 
     /**
@@ -37,7 +38,7 @@ class PatomicTransaction
      */
     public function append($elem, $key = null) {
         if(!isset($elem) || !is_object($elem) || get_class($elem) != self::$ENTITY_CLASSNAME) {
-            throw new PatomicException(__METHOD__ . " argument must be a valid ". self::$ENTITY_CLASSNAME ." object");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " argument must be a valid ". self::$ENTITY_CLASSNAME ." object");
         }
 
         $this->clearIfLoadedFromFile();
@@ -140,22 +141,22 @@ class PatomicTransaction
      */
     public function loadFromFile($fileName) {
         if(!isset($fileName) || !is_string($fileName) || strlen(trim($fileName)) == 0) {
-            throw new PatomicException(__METHOD__ . " \$fileName argument must be a non-empty string");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " \$fileName argument must be a non-empty string");
         }
         
-        $ednFileInfo = new SplFileInfo($fileName);
+        $ednFileInfo = new \SplFileInfo($fileName);
         
         if("edn" != $ednFileInfo->getExtension()) {
-            throw new PatomicException(__METHOD__ . " $fileName does not have the extension .edn");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " $fileName does not have the extension .edn");
         }
 
         if(false == $ednFileInfo->isReadable()) {
-            throw new PatomicException(__METHOD__ . " $fileName was not found or cannot be read, please change file the permissions");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " $fileName was not found or cannot be read, please change file the permissions");
         }
 
         $this->clearData();
 
-        $ednFileObject = new SplFileObject($fileName);
+        $ednFileObject = new \SplFileObject($fileName);
         $fileLineArray = array();
 
         while(!$ednFileObject->eof()) {
@@ -186,19 +187,19 @@ class PatomicTransaction
      */
     private function addOrRetract($entityName, $attributeName, $value, $tempIdNum = null, $methodKeyword) {
         if(is_null($entityName) || !is_string($entityName)) {
-            throw new PatomicException(__METHOD__ . " entityName must be a string");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " entityName must be a string");
         }
 
         if(is_null($attributeName) || !is_string($attributeName)) {
-            throw new PatomicException(__METHOD__ . " attributeName must be a string");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " attributeName must be a string");
         }
 
         if(is_null($value)) {
-            throw new PatomicException(__METHOD__ . " value argument cannot be null");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " value argument cannot be null");
         }
 
         if(!is_null($tempIdNum) && !is_int($tempIdNum)) {
-            throw new PatomicException(__METHOD__ . " tempId argument must be an integer");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " tempId argument must be an integer");
         }
 
         $this->clearIfLoadedFromFile();

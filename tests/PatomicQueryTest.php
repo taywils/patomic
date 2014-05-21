@@ -1,6 +1,7 @@
 <?php
 
-require_once __DIR__ . "/../vendor/autoload.php";
+use \taywils\Patomic\PatomicQuery;
+use \taywils\Patomic\PatomicException;
 
 /**
  * PHPUnit Test class for PatomicQuery

@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . "/../vendor/autoload.php";
+namespace taywils\Patomic;
 
 /**
  * PatomicEntity is a PHP object representation of a Datomic schema.
@@ -51,6 +51,8 @@ class PatomicEntity
     private static $TAGGED_CLASSNAME = 'igorw\edn\Tagged';
     private static $VECTOR_CLASSNAME = 'igorw\edn\Vector';
 
+    private $reflection;
+
     use TraitEdn;
 
     /**
@@ -76,6 +78,7 @@ class PatomicEntity
         $idTagged = $this->_tagged($idTag, $dbPart);
 
         $this->schema[$this->_keyword("db/id")] = $idTagged;
+        $this->reflection = new \ReflectionClass($this);
     }
 
     /**
@@ -98,11 +101,11 @@ class PatomicEntity
      */
     public function ident($name, $identity, $namespace = null) {
         if(!isset($name) || !is_string($name)) {
-            throw new PatomicException(__METHOD__ . " \$name argument should be a non-empty string");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " \$name argument should be a non-empty string");
         }
 
         if(!isset($identity) || !is_string($identity)) {
-            throw new PatomicException(__METHOD__ . " \$identity argument should be a non-empty string");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " \$identity argument should be a non-empty string");
         }
 
         $this->name         = $name;
@@ -150,13 +153,13 @@ class PatomicEntity
      */
     public function valueType($valueType = null) {
         if(!isset($valueType) || !is_string($valueType)) {
-            throw new PatomicException(__METHOD__ . " expects a non-empty string argument");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " expects a non-empty string argument");
         }
         $valueType = strtolower($valueType);
 
         if(array_search($valueType, $this->schemaDef['db']['valueType']) === false) {
             $debugInfo = PHP_EOL . "[" . implode(", ", $this->schemaDef['db']['valueType']) . "]";
-            throw new PatomicException(__METHOD__ . " invalid ValueType assigned try one of the following instead" . $debugInfo);
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " invalid ValueType assigned try one of the following instead" . $debugInfo);
         } else {
             $this->valueType = $valueType;
             $this->schema[$this->_keyword("db/valueType")] = $this->_keyword("db.type/" . $valueType);
@@ -174,7 +177,7 @@ class PatomicEntity
      */
     public function doc($doc = null) {
         if(!isset($doc) || !is_string($doc)) {
-            throw new PatomicException(__METHOD__ . " argument must be a string");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " argument must be a string");
         } else {
             $this->schema[$this->_keyword("db/doc")] = $doc;
 
@@ -191,14 +194,14 @@ class PatomicEntity
      */
     public function unique($unique = null) {
         if(!isset($unique) || !is_string($unique)) {
-            throw new PatomicException(__METHOD__ . " expects a non-empty string argument");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " expects a non-empty string argument");
         }
 
         $unique = strtolower($unique);
 
         if(array_search($unique, $this->schemaDef['db']['unique']) === false) {
             $debugInfo = implode(", ", $this->schemaDef['db']['unique']);
-            throw new PatomicException(__METHOD__ . " string argument must be one of the following [" . $debugInfo . "]");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " string argument must be one of the following [" . $debugInfo . "]");
         } else {
             $this->schema[$this->_keyword("db/unique")] = $this->_keyword("db.unique/" . $unique);
 
@@ -254,14 +257,14 @@ class PatomicEntity
      */
     public function install($installType = null) {
         if(!isset($installType) || !is_string($installType)) {
-            throw new PatomicException(__METHOD__ . " installType must be a non-empty string");
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " installType must be a non-empty string");
         }
 
         $installType = strtolower($installType);
 
         if(!in_array($installType, $this->schemaDef["db"]["install"])) {
             $debugInfo = "[" . implode(", ", $this->schemaDef['db']['install']) . "]";
-            throw new PatomicException(__METHOD__ . " installType must be one of the following " . $debugInfo);
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " installType must be one of the following " . $debugInfo);
         } else {
             $this->schema[$this->_keyword("db.install/_" . $installType)] = $this->_keyword("db.part/db");
         }

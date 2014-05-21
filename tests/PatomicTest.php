@@ -1,6 +1,7 @@
 <?php
 
-require_once __DIR__ . "/../vendor/autoload.php";
+use \taywils\Patomic\Patomic;
+use \taywils\Patomic\PatomicException;
 
 /**
  * PHPUnit Test class for Patomic
@@ -159,7 +160,7 @@ class PatomicTest extends PHPUnit_Framework_TestCase
             $dbNamesValue = array('rhino', 'testdb');
 
             // We need to set the private property with valid data using Reflection
-            $reflectionClass = new ReflectionClass('Patomic');
+            $reflectionClass = new ReflectionClass('\taywils\Patomic\Patomic');
             $reflectionProperty = $reflectionClass->getProperty('dbNames');
             $reflectionProperty->setAccessible(true);
             $reflectionProperty->setValue($p, $dbNamesValue);
@@ -180,7 +181,7 @@ class PatomicTest extends PHPUnit_Framework_TestCase
             $dbNamesValue = array('rhino');
 
             // We need to set the private property with valid data using Reflection
-            $reflectionClass = new ReflectionClass('Patomic');
+            $reflectionClass = new ReflectionClass('\taywils\Patomic\Patomic');
             $reflectionProperty = $reflectionClass->getProperty('dbNames');
             $reflectionProperty->setAccessible(true);
             $reflectionProperty->setValue($p, $dbNamesValue);

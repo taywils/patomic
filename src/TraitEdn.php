@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . "/../vendor/autoload.php";
+namespace taywils\Patomic;
 
 /**
  * TraitEdn provides a common interface to EDN functions

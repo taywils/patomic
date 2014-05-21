@@ -1,5 +1,9 @@
 <?php
 
+use \taywils\Patomic\PatomicTransaction;
+use \taywils\Patomic\PatomicEntity;
+use \taywils\Patomic\PatomicException;
+
 /**
  * PHPUnit tests for PatomicTransaction
  */
@@ -42,7 +46,7 @@ class PatomicTransactionTest extends PHPUnit_Framework_TestCase
 	        $pt2->append("string");
 	        $this->fail("PatomicException was not thrown");
     	} catch(PatomicException $e) {
-    		$expectedString = "PatomicTransaction::append argument must be a valid PatomicEntity object";
+    		$expectedString = "PatomicTransaction::append argument must be a valid " . 'taywils\Patomic\PatomicEntity' . " object";
     		$this->assertEquals($expectedString, $e->getMessage());
     	}
     }
