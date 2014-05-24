@@ -4,55 +4,90 @@ title: Patomic - Tutorial
 permalink: /tutorial.html
 ---
 
-<div class="blog-masthead">
-	<div class="container">
-		<nav class="blog-nav">
-		<a class="blog-nav-item" href="{{ site.github.base_url }}">Home</a>
-		<a class="blog-nav-item" href="{{ site.github.base_url }}tutorial.html">Tutorial</a>
-		<a class="blog-nav-item" href="{{ site.github.base_url }}docs.html">Docs</a>
-		<a class="blog-nav-item" href="{{ site.github.repository_url }}">GitHub</a>
-		</nav>
-	</div>
-</div>
+<div class="container tutorial-text">
+	<div class="row">
 
-<div class="center-text">
-	<h3>Prerequisites</h3>
-	<hr />
-	<p>
-		<h4>Installing Java JRE & JDK</h4>
+		<div class="col-md-9" role="main">
+			<div class="page-header">
+				<h1>Prerequisites</h1>
+			</div>
 			<p>
-			Ubuntu 12 users should follow the guide from Digital Ocean<br />
-			<a href="https://www.digitalocean.com/community/articles/how-to-install-java-on-ubuntu-with-apt-get">https://www.digitalocean.com/community/articles/how-to-install-java-on-ubuntu-with-apt-get</a><br />
-			<p />
-			Mac OS X users should have Java already installed.<br />
-			<a href="http://stackoverflow.com/questions/14292698/how-to-check-if-java-jdk-installed-on-mac">http://stackoverflow.com/questions/14292698/how-to-check-if-java-jdk-installed-on-mac</a><br />
-			<p />
-			Windows 8 should have Java 7 pre-installed.
+				<h3>Installing Java JRE & JDK</h3>
+					<p>
+					Ubuntu 12 users should follow the guide from Digital Ocean<br />
+					<a href="https://www.digitalocean.com/community/articles/how-to-install-java-on-ubuntu-with-apt-get">https://www.digitalocean.com/community/articles/how-to-install-java-on-ubuntu-with-apt-get</a><br />
+					<p />
+					Mac OS X users should have Java already installed.<br />
+					<a href="http://stackoverflow.com/questions/14292698/how-to-check-if-java-jdk-installed-on-mac">http://stackoverflow.com/questions/14292698/how-to-check-if-java-jdk-installed-on-mac</a><br />
+					<p />
+					Windows 8 should have Java 7 pre-installed; feel free to updgrade to Java 8.
+					</p>
+				<h3>Downloading Datomic Free Edition</h3>
+					<p>
+					Get the latest version of Datomic Free Edition <a href="https://my.datomic.com/downloads/free">https://my.datomic.com/downloads/free</a><br />
+					Once downloaded create a new directory/folder for it and unzip the file.
+					</p>
+				<h3>PHP >= 5.4</h3>
+					<p>
+					At the very minimum you will need to have PHP version 5.4.* installed on your local machine.<br />
+					</p>
+					<p>
+					Ubuntu users follow this guide<br />
+					<a href="http://askubuntu.com/questions/109404/how-do-i-install-latest-php-in-supported-ubuntu-versions-like-5-4-x-in-ubuntu-1">http://askubuntu.com/questions/109404/how-do-i-install-latest-php-in-supported-ubuntu-versions-like-5-4-x-in-ubuntu-1</a><br />
+					</p>
+					<p>
+					Mac OS X users need to look at the Homebrew support for PHP.<br />
+					<a href="https://github.com/Homebrew/homebrew-php">https://github.com/Homebrew/homebrew-php</a><br />
+					</p>
+					<p>
+					Windows users who are familiar with IIS; which in my opinion is the best way to run PHP on Windows.<br />
+					<a href="http://windows.php.net/download/">http://windows.php.net/download/</a><br />
+					</p>
+				<h3>Get Composer</h3>
+					<p>
+					Composer is needed; the exact steps will be listed later but for now just be familiar with how it works.<br />
+					<a href="https://getcomposer.org/doc/00-intro.md">https://getcomposer.org/doc/00-intro.md</a>
+					</p>
 			</p>
-		<h4>Downloading Datomic Free Edition</h4>
+
+			<div class="page-header">
+				<h1>Short Tutorial</h1>
+			</div>
 			<p>
-			Get the latest version of Datomic Free Edition <a href="https://my.datomic.com/downloads/free">https://my.datomic.com/downloads/free</a><br />
-			Once downloaded create a new directory/folder for it and unzip the file.
+				<h3>Launching The Datomic REST API</h3>
+					<p>
+					The official instructions can be found on the Datomic documentation page <a href="http://docs.datomic.com/rest.html">http://docs.datomic.com/rest.html</a><br />
+					For now open your terminal application and change into the directory where you unzipped Datomic Free and then start the REST service.<br />
+					<pre><code>$ cd {folder_where_you_unzipped_datomic}
+$ ./bin/rest -p 9998 tutorial datomic:mem://</code></pre>
+					</p>
+					<p>
+					Open your favorite text-editor and create a new project folder; name it patomic_tutorial.<br />
+					Create a file called <b>composer.json</b><br />
+					<pre><code>{
+    &quot;require&quot;: {
+        &quot;taywils/patomic&quot;: &quot;dev-master&quot;,
+        &quot;igorw/edn&quot;: &quot;1.0.*@dev&quot;,
+        &quot;nikic/phlexy&quot;: &quot;1.0.*@dev&quot;
+    }
+}
+</code></pre>
+					</p>
+				<h3>Creating A Database</h3>
+				<h3>Adding A Schema</h3>
+				<h3>Loading Sample Data</h3>
+				<h3>Basic Queries</h3>
+				<h3>Advanced Queries</h3>
+				<h3>Transactions</h3>
 			</p>
-		<h4>PHP >= 5.4</h4>
-		<h4>Get Composer</h4>
-		<h4>Launching The Datomic REST API</h4>
-	</p>
 
-	<h3>Short Tutorial</h3>
-	<hr />
-	<p>
-		<h4>Creating A Database</h4>
-		<h4>Adding A Schema</h4>
-		<h4>Loading Sample Data</h4>
-		<h4>Basic Queries</h4>
-		<h4>Advanced Queries</h4>
-		<h4>Transactions</h4>
-	</p>
+			<div class="page-header">
+				<h1>Building Applications With Patomic</h1>
+			</div>
+			<p>
+				Comming soon.
+			</p>
+		</div>
 
-	<h3>Building Applications With Patomic</h3>
-	<hr />
-	<p>
-		Comming soon.
-	</p>
+	</div> <!-- row -->
 </div>

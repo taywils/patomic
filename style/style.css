@@ -35,24 +35,6 @@ body {
     box-shadow: inset 0 0 100px rgba(0,0,0,.5);
 }
 
-.center-text {
-	text-align: left;
-}
-.center-text > h4 {
-	border-bottom: 1px solid rgba(255,255,255,.25);
-}
-
-/* Gists */
-.gist .line-numbers {
-	display:none;
-}
-.gist .line {
-	font-size: 11px; !important
-}
-.gist .gist-file {
-	border-bottom: 0px
-}
-
 /* Extra markup and styles for table-esque vertical and horizontal centering */
 .site-wrapper {
     display: table;
