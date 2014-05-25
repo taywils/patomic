@@ -122,14 +122,22 @@ class Patomic
             $retCode = self::$FAILURE;
         } else {
             $info = $patomicCurl->getInfo();
+            $lambdaAddToDbNames = function($dbName) {
+                if(!in_array($dbName, $this->dbNames)) {
+                    $this->dbNames[] = $dbName;
+                }
+            };
+
             switch($info["http_code"]) {
                 case "200":
                     $this->addStatus(self::$ST_WARN, "Database \"$dbName\" already exists");
+                    $lambdaAddToDbNames($dbName);
                     $retCode = self::$FAILURE;
                     break;
 
                 case "201":
                     $this->addStatus(self::$ST_INFO, "Database \"$dbName\" created");
+                    $lambdaAddToDbNames($dbName);
                     $retCode = self::$SUCCESS;
                     break;
 
