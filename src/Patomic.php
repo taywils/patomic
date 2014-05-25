@@ -23,7 +23,7 @@ class Patomic
 
     public $queryResult             = array();
     private $queryResponse          = null;
-    private $transactionResponse    = null;
+    private $transactionResponse    = "";
     private $dbNames                = array();
 
     private static $RAW_QUERY       = "rawquery";
@@ -268,8 +268,8 @@ class Patomic
         return $retCode;
     }
 
-    public function getTransactionResponse($parseResponse = true) {
-        return ($parseResponse) ? $this->_parse($this->transactionResponse) : $this->transactionResponse;
+    public function getTransactionResponse() {
+        return $this->transactionResponse;
     }
 
     public function commitRawQuery(PatomicQuery $patomicQuery) {
