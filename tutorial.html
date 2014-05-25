@@ -212,7 +212,27 @@ try {
  [:db/add #db/id[:db.part/user] :db/ident :region/nw]
  ]</code></pre>
 				Open <b>main.php</b> and create a new PatomicTransaction object, the transaction object has a method for loading .edn files.<br />
-				<pre><code>
+				For demonstration purposes we will be printing the transaction response from the REST API to the console.<br />
+				<pre><code>&lt;?php
+
+require_once __DIR__ . &quot;/vendor/autoload.php&quot;;
+
+use \taywils\Patomic\Patomic;
+use \taywils\Patomic\PatomicTransaction;
+
+try {
+  $patomic = new Patomic(&quot;http://localhost&quot;, 9998, &quot;mem&quot;, &quot;tutorial&quot;);
+  $patomic-&gt;createDatabase(&quot;seattle&quot;);
+  $patomic-&gt;setDatabase(&quot;seattle&quot;);
+
+  $patomicTransaction = new patomicTransaction();
+  $patomicTransaction-&gt;loadFromFile(__DIR__ . DIRECTORY_SEPARATOR . &quot;seattle-schema.edn&quot;);
+
+  $patomic-&gt;commitTransaction($patomicTransaction);
+  echo $patomic-&gt;getTransactionResponse();
+} catch(PatomicException $patomicException) {
+  echo $patomicException-&gt;getMessage();
+}
 				</code></pre>
 				</p>
 				<h3>Loading Sample Data</h3>
