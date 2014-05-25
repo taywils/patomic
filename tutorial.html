@@ -63,7 +63,7 @@ $ ./bin/rest -p 9998 tutorial datomic:mem://</code></pre>
 					</p>
 					<p>
 					Open your favorite text-editor and create a new project folder; name it patomic_tutorial.<br />
-					Create a file called <b>composer.json</b><br />
+					Create a file within the patomic_tutorial directory called <b>composer.json</b><br />
 					<pre><code>{
     &quot;require&quot;: {
         &quot;taywils/patomic&quot;: &quot;dev-master&quot;,
@@ -74,7 +74,147 @@ $ ./bin/rest -p 9998 tutorial datomic:mem://</code></pre>
 </code></pre>
 					</p>
 				<h3>Creating A Database</h3>
+				<p>
+				Double check that you have the Datomic REST service running by visiting <a href="http://localhost:9998/">http://localhost:9998/</a><br />
+				If everything is fine and well you should be greeted with the basic page which includes a description and two links.<br />
+				Now click or copy paste the data url into your browser <a href="http://localhost:9998/data/">http://localhost:9998/data/</a><br />
+				The Data page is where our storages are located; remember the &quot;tutorial&quot; storage we created when we launched the REST service?<br />
+				To use the &quot;tutorial&quot; storage click the link or copy paste the url into your browser <a href="http://localhost:9998/data/tutorial/">http://localhost:9998/data/tutorial/</a><br/>
+				The REST API provides some useful tools and a decent interface but for the purposes of demonstrating Patomic lets get back to PHP.<br />
+				For more information on using the REST API provided by Datomic <a href="http://docs.datomic.com/rest.html">http://docs.datomic.com/rest.html</a><br />
+				Reopen your terminal application and run composer.phar to install the dependencies for our tutorial.<br />
+				<pre><code>$ cd {folder_where_you_unzipped_datomic}
+$ curl -sS https://getcomposer.org/installer | php
+$ sudo php composer.phar install
+$ sudo php composer.phar update
+</code></pre>
+				If successful you will see confirmation that the composer packages were correctly installed; now create a new file called <b>main.php</b>.<br />
+				<pre><code>&lt;?php
+
+require_once __DIR__ . &quot;/vendor/autoload.php&quot;;
+
+use \taywils\Patomic\Patomic;
+
+try {
+    $patomic = new Patomic(&quot;http://localhost&quot;, 9998, &quot;mem&quot;, &quot;tutorial&quot;);
+    $patomic-&gt;createDatabase(&quot;seattle&quot;);
+} catch(PatomicException $patomicException) {
+    echo $patomicException-&gt;getMessage();
+}
+</code></pre>
+				Verify that the database was in fact created by visiting <a href="http://localhost:9998/data/tutorial/seattle/-/">http://localhost:9998/data/tutorial/seattle/-/</a>
+				</p>
 				<h3>Adding A Schema</h3>
+				<p>
+				Next we're going to demonstrate how to load a schema from an existing .edn file. EDN is short for Extensible Data Notation and is the default format for Datomic schemas. Create a new file called <b>seattle-schema.edn</b> and copy paste the EDN provided.<br />
+				<pre><code>[
+ ;; community
+ {:db/id #db/id[:db.part/db]
+  :db/ident :community/name
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/fulltext true
+  :db/doc &quot;A community's name&quot;
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :community/url
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc &quot;A community's url&quot;
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :community/neighborhood
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one
+  :db/doc &quot;A community's neighborhood&quot;
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :community/category
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/many
+  :db/fulltext true
+  :db/doc &quot;All community categories&quot;
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :community/orgtype
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one
+  :db/doc &quot;A community orgtype enum value&quot;
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :community/type
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one
+  :db/doc &quot;A community type enum value&quot;
+  :db.install/_attribute :db.part/db}
+
+ ;; community/org-type enum values
+ [:db/add #db/id[:db.part/user] :db/ident :community.orgtype/community]
+ [:db/add #db/id[:db.part/user] :db/ident :community.orgtype/commercial]
+ [:db/add #db/id[:db.part/user] :db/ident :community.orgtype/nonprofit]
+ [:db/add #db/id[:db.part/user] :db/ident :community.orgtype/personal]
+
+ ;; community/type enum values
+ [:db/add #db/id[:db.part/user] :db/ident :community.type/email-list]
+ [:db/add #db/id[:db.part/user] :db/ident :community.type/twitter]
+ [:db/add #db/id[:db.part/user] :db/ident :community.type/facebook-page]
+ [:db/add #db/id[:db.part/user] :db/ident :community.type/blog]
+ [:db/add #db/id[:db.part/user] :db/ident :community.type/website]
+ [:db/add #db/id[:db.part/user] :db/ident :community.type/wiki]
+ [:db/add #db/id[:db.part/user] :db/ident :community.type/myspace]
+ [:db/add #db/id[:db.part/user] :db/ident :community.type/ning]
+
+ ;; neighborhood
+ {:db/id #db/id[:db.part/db]
+  :db/ident :neighborhood/name
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/unique :db.unique/identity
+  :db/doc &quot;A unique neighborhood name (upsertable)&quot;
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :neighborhood/district
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one
+  :db/doc &quot;A neighborhood's district&quot;
+  :db.install/_attribute :db.part/db}
+
+ ;; district
+ {:db/id #db/id[:db.part/db]
+  :db/ident :district/name
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/unique :db.unique/identity
+  :db/doc &quot;A unique district name (upsertable)&quot;
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :district/region
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one
+  :db/doc &quot;A district region enum value&quot;
+  :db.install/_attribute :db.part/db}
+
+ ;; district/region enum values
+ [:db/add #db/id[:db.part/user] :db/ident :region/n]
+ [:db/add #db/id[:db.part/user] :db/ident :region/ne]
+ [:db/add #db/id[:db.part/user] :db/ident :region/e]
+ [:db/add #db/id[:db.part/user] :db/ident :region/se]
+ [:db/add #db/id[:db.part/user] :db/ident :region/s]
+ [:db/add #db/id[:db.part/user] :db/ident :region/sw]
+ [:db/add #db/id[:db.part/user] :db/ident :region/w]
+ [:db/add #db/id[:db.part/user] :db/ident :region/nw]
+ ]</code></pre>
+				Open <b>main.php</b> and create a new PatomicTransaction object, the transaction object has a method for loading .edn files.<br />
+				<pre><code>
+				</code></pre>
+				</p>
 				<h3>Loading Sample Data</h3>
 				<h3>Basic Queries</h3>
 				<h3>Advanced Queries</h3>
