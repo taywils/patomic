@@ -225,7 +225,7 @@ try {
   $patomic-&gt;createDatabase(&quot;seattle&quot;);
   $patomic-&gt;setDatabase(&quot;seattle&quot;);
 
-  $patomicTransaction = new patomicTransaction();
+  $patomicTransaction = new PatomicTransaction();
   $patomicTransaction-&gt;loadFromFile(__DIR__ . DIRECTORY_SEPARATOR . &quot;seattle-schema.edn&quot;);
 
   $patomic-&gt;commitTransaction($patomicTransaction);
