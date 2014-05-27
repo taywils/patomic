@@ -111,7 +111,7 @@ class Patomic
         $patomicCurl->setOptionArray(array(
             CURLOPT_URL => $this->config["dataUrl"] . $this->config["alias"] . "/",
             CURLOPT_POST => 1,
-            CURLOPT_POSTFIELDS => "db-name=" . strtolower($dbName),
+            CURLOPT_POSTFIELDS => "db-name=" . urlencode(strtolower($dbName)),
             CURLOPT_RETURNTRANSFER => 1
         ));
 
@@ -236,9 +236,8 @@ class Patomic
 
         $patomicCurl->setOptionArray(array(
             CURLOPT_URL => $this->config["dataUrl"] . $this->config["alias"] . "/" . $this->config["dbName"] . "/",
-            CURLOPT_HTTPHEADER => array('Accept: application/edn'),
             CURLOPT_POST => 1,
-            CURLOPT_POSTFIELDS => "tx-data=" . $transaction,
+            CURLOPT_POSTFIELDS => "tx-data=" . urlencode($transaction),
             CURLOPT_RETURNTRANSFER => 1
         ));
 

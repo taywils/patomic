@@ -301,6 +301,7 @@ class PatomicTransactionTest extends PHPUnit_Framework_TestCase
         try {
             $pt = new PatomicTransaction();
             $pt->loadFromFile(__DIR__ . DIRECTORY_SEPARATOR . "seattle-schema.edn");
+            $pt->loadFromFile(__DIR__ . DIRECTORY_SEPARATOR . "seattle-data0.edn");
         } catch(Exception $e) {
             $this->fail("Exception should not have been thrown" . PHP_EOL . $e->getMessage());
         }
