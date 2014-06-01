@@ -43,10 +43,20 @@ trait TraitEdn
         return new \igorw\edn\Tagged($tag, $value);
     }
 
+    /**
+     * Transforms an EDN data structure into its string representation
+     * @param Object $edn A EDN data structure such as a Vector, Map, List etc.
+     * @return string
+     */
     protected function _encode($edn) {
         return \igorw\edn\encode($edn);
     }
 
+    /**
+     * Transforms a string into a array of new EDN data structure(s)
+     * @param string $edn A valid string consisting of EDN
+     * @return array
+     */
     protected function _parse($edn) {
         return \igorw\edn\parse($edn);
     }

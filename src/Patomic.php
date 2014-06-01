@@ -1,6 +1,4 @@
 <?php
-//TODO: Figure out how to do proper autoloading
-//TODO: Adding entity references @see http://docs.datomic.com/transactions.html
 
 namespace taywils\Patomic;
 
@@ -285,11 +283,16 @@ class Patomic
             $queryArgStr    = urlencode($patomicQuery->getRawQueryArgs());
         } else {
             $queryStr       = urlencode($patomicQuery->getQuery());
-            $queryArgStr    = urlencode($patomicQuery->getQueryArgs());
+
+            // Append the {:db/alias "storageName/dbName"} to the front of the current query arguments string
+            $parsedEdnArray                 = $this->_parse("{:db/alias \"" . $this->config["alias"] . "/" . $this->config["dbName"] . "\"}");
+            $nonUrlEncodedQueryArgString    = substr_replace($patomicQuery->getQueryArgs(), $this->_encode($parsedEdnArray[0]) . " ", 1, 0);
+
+            $queryArgStr = urlencode($nonUrlEncodedQueryArgString);
         }
 
-        $patomicCurl = new PatomicCurl();
-        $this->queryResult = array();
+        $patomicCurl        = new PatomicCurl();
+        $this->queryResult  = array();
 
         $patomicCurl->setOptionArray(array(
             CURLOPT_URL => $this->config["apiUrl"] . "?q=" . $queryStr . "&args=" . $queryArgStr,
