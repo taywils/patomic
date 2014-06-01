@@ -279,7 +279,7 @@ class Patomic
         $this->commitQuery($patomicQuery, self::$REGULAR_QUERY);
     }
 
-    private function commitQuery(PatomicQuery $patomicQuery, $queryType) {
+    protected function commitQuery(PatomicQuery $patomicQuery, $queryType) {
         if(self::$RAW_QUERY == $queryType) {
             $queryStr       = urlencode($patomicQuery->getRawQuery());
             $queryArgStr    = urlencode($patomicQuery->getRawQueryArgs());
@@ -341,17 +341,13 @@ class Patomic
         return $this->queryResult;
     }
 
-    public function getQueryResponse() {
-        return $this->queryResponse;
-    }
-
     /**
      * Adds a message to the status queue
      *
      * @param $statusCode
      * @param $msg
      */
-    private function addStatus($statusCode, $msg) {
+    protected function addStatus($statusCode, $msg) {
         $this->statusQueue->enqueue($statusCode.$msg);
     }
 
@@ -360,7 +356,7 @@ class Patomic
      *
      * @param bool $printAll When true will dump the status queue
      */
-    private function printStatus($printAll = false) {
+    protected function printStatus($printAll = false) {
         if(!$this->statusQueue->isEmpty()) {
             if($printAll) {
                 while(!$this->statusQueue->isEmpty()) {
