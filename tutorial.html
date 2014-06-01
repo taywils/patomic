@@ -236,7 +236,62 @@ try {
 				</code></pre>
 				</p>
 				<h3>Loading Sample Data</h3>
+				<p>
+				Similar to how we loaded the schema file lets demonstrate how to load an existing .edn file consisting of data. Create a new file called <b>seattle-data0.edn</b> and copy paste the following edn data into it from the file given in the link <a href="https://github.com/taywils/patomic/blob/master/tests/seattle-data0.edn">https://github.com/taywils/patomic/blob/master/tests/seattle-data0.edn</a>.
+				</p>
+				Open the <b>main.php</b> file and add the code to load the data for our schema.
+				<pre><code>&lt;?php
+
+require_once __DIR__ . &quot;/vendor/autoload.php&quot;;
+
+use \taywils\Patomic\Patomic;
+use \taywils\Patomic\PatomicTransaction;
+
+try {
+	$patomic = new Patomic(&quot;http://localhost&quot;, 9998, &quot;mem&quot;, &quot;tutorial&quot;);
+	$patomic-&gt;createDatabase(&quot;se&quot;);
+	$patomic-&gt;setDatabase(&quot;se&quot;);
+
+	$patomicTransaction = new PatomicTransaction();
+	$patomicTransaction-&gt;loadFromFile(__DIR__ . DIRECTORY_SEPARATOR . &quot;seattle-schema.edn&quot;);
+
+	$patomic-&gt;commitTransaction($patomicTransaction);
+	echo $patomic-&gt;getTransactionResponse();
+
+	$patomicTransaction2 = new PatomicTransaction();
+	$patomicTransaction2-&gt;loadFromFile(__DIR__ . DIRECTORY_SEPARATOR . &quot;seattle-data0.edn&quot;);
+
+	$patomic-&gt;commitTransaction($patomicTransaction2);
+	echo $patomic-&gt;getTransactionResponse();
+} catch(PatomicException $patomicException) {
+	echo $patomicException-&gt;getMessage();
+}
+</code></pre>
+				<p>
+				Once again we're echoing out the PatomicTransaction response to the console just to show that the transaction sent was accepted by Datomic. In the next section we'll build some simple queries using the PatomicQuery class.
+				</p>
 				<h3>Basic Queries</h3>
+				<p>
+				The first type of basic query(basic in that no special Datomic knowledge is needed) we'll use is the ability to write raw Datomic queries interpreted from strings. If you already know how to construct Datomic queries then this is the by far the best approach; to do so see the below function as an example.
+				</p>
+				<pre><code>function rawQueryExample($patomic) {
+  $patomicQuery = new PatomicQuery();
+  $patomicQuery-&gt;newRawQuery(
+    &quot;[:find ?neighborhood :in $ :where [?entityId :neighborhood/name ?neighborhood]]&quot;
+  )-&gt;addRawQueryArgs(&quot;[{:db/alias tutorial/seattledb}]&quot;);
+
+  $patomic-&gt;commitRawQuery($patomicQuery);
+
+  $neighborhoodNames = $patomic-&gt;getQueryResult();
+
+  foreach($neighborhoodNames as $row) {
+    echo $row[0] . PHP_EOL;
+  }
+}
+</code></pre>
+				<p>
+				Raw queries benefit the programmer already familiar with Datomic query syntax however, for the PHP programmer new to Datomic there is a more user-friendly yet less powerful way to generate queries. In this next example we'll re-create the Seattle neighborhood query from a different approach.
+				</p>
 				<h3>Advanced Queries</h3>
 				<h3>Transactions</h3>
 			</p>
