@@ -290,14 +290,64 @@ try {
 }
 </code></pre>
 				<p>
-				Raw queries benefit the programmer already familiar with Datomic query syntax however, for the PHP programmer new to Datomic there is a more user-friendly yet less powerful way to generate queries. In this next example we'll re-create the Seattle neighborhood query from a different approach.
+				Raw queries benefit the programmer already familiar with Datomic query syntax however, for the PHP programmer new to Datomic there is a more user-friendly yet less powerful way to generate queries. In this next example we'll re-create the Seattle neighborhood query from a different approach using the PatomicQuery methods. The PatomicQuery class was designed to have methods similar to the symbols used within a Datomic raw query such as :find and :where.
 				</p>
-				<h3>Advanced Queries</h3>
-				<h3>Transactions</h3>
-			</p>
+				<pre><code>function regularQueryExample($patomic) {
+  $patomicQuery = new PatomicQuery();
+  $patomicQuery-&gt;find(&quot;neighborhood&quot;)
+    -&gt;where(array(&quot;entityId&quot; =&gt; &quot;neighborhood/name&quot;, &quot;neighborhood&quot;));
 
+  $patomic-&gt;commitRegularQuery($patomicQuery);
+
+  $neighborhoodNames = $patomic-&gt;getQueryResult();
+
+  foreach($neighborhoodNames as $row) {
+    echo $row[&quot;neighborhood&quot;] . PHP_EOL;
+  }
+}</pre></code>
+				<h3>Transactions</h3>
+				<p>
+				Transactions are created using the PatomicTransaction class and allow us to create parts of an EDN schema or add new enities to our existing schema definitions. For example if we wanted to create the following attribute for our community schema which will allow us to define a nickname.
+				</p>
+				<pre><code>[
+ {:db/id #db/id[:db.part/db]
+  :db/ident :community/nickname
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/fulltext true
+  :db/doc &quot;A community's nickname&quot;
+  :db.install/_attribute :db.part/db}
+]
+</code></pre>
+			<p>
+			The first thing we would need is to create a new entity representing the community nickname and then add the entity as a new attribute by sending it to our database within a transaction. As part of the design of Patomic the methods available to the PatomicEntity class resemble the schema attributes defined by Datomic. In fact we could have created the entire seattle-schema.edn file using Patomic but for demonstration purposes it was much easier to showcase the ability to load existing .edn files so programmers who are currently using Datomic can import their schemas into a PHP application.
+			</p>
+			<pre><code>function createNickNameEntity($patomic) {
+  $pe = new PatomicEntity();
+  $pe-&gt;ident(&quot;community&quot;, &quot;nickname&quot;)
+    -&gt;valueType(&quot;string&quot;)
+    -&gt;cardinality(&quot;one&quot;)
+    -&gt;fullText(true)
+    -&gt;doc(&quot;A community's nickname&quot;)
+    -&gt;install(&quot;attribute&quot;);
+
+  $pe-&gt;prettyPrint();
+
+  echo PHP_EOL;
+
+  $pt = new PatomicTransaction();
+  $pt-&gt;append($pe);
+
+  $patomic-&gt;commitTransaction($pt);
+
+  echo $patomic-&gt;getTransactionResponse();
+}
+</code></pre>
+			<p>
+			So far we've given a brief outline of Patomic's functionality but how do we go about creating a small application from the ground up showing how we can use Datomic as a backend for a API written in PHP?
+			</p>
 			<div class="page-header">
-				<h1>Building Applications With Patomic</h1>
+				<h1>Building An Application With Patomic</h1>
 			</div>
 			<p>
 				Comming soon.
