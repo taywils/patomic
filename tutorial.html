@@ -9,7 +9,7 @@ permalink: /tutorial.html
 
 		<div class="col-md-9" role="main">
 			<div class="page-header">
-				<h1>Prerequisites</h1>
+				<h1 id="prerequisites">Prerequisites</h1>
 			</div>
 			<p>
 				<h3>Installing Java JRE & JDK</h3>
@@ -51,19 +51,19 @@ permalink: /tutorial.html
 			</p>
 
 			<div class="page-header">
-				<h1>Short Tutorial</h1>
+				<h1 id="short_tutorial">Short Tutorial</h1>
 			</div>
 			<p>
 				<h3>Launching The Datomic REST API</h3>
 					<p>
-					The official instructions can be found on the Datomic documentation page <a href="http://docs.datomic.com/rest.html">http://docs.datomic.com/rest.html</a><br />
+					The official instructions can be found on the Datomic documentation page <a href="http://docs.datomic.com/rest.html">http://docs.datomic.com/rest.html</a>.
 					For now open your terminal application and change into the directory where you unzipped Datomic Free and then start the REST service.<br />
 					<pre><code>$ cd {folder_where_you_unzipped_datomic}
 $ ./bin/rest -p 9998 tutorial datomic:mem://</code></pre>
 					</p>
 					<p>
-					Open your favorite text-editor and create a new project folder; name it patomic_tutorial.<br />
-					Create a file within the patomic_tutorial directory called <b>composer.json</b><br />
+					Open your favorite text-editor and create a new project folder; name it <b>patomic_tutorial</b>.
+					Create a file within the <b>patomic_tutorial</b> directory called <b>composer.json</b>.
 					<pre><code>{
     &quot;require&quot;: {
         &quot;taywils/patomic&quot;: &quot;dev-master&quot;,
@@ -75,20 +75,22 @@ $ ./bin/rest -p 9998 tutorial datomic:mem://</code></pre>
 					</p>
 				<h3>Creating A Database</h3>
 				<p>
-				Double check that you have the Datomic REST service running by visiting <a href="http://localhost:9998/">http://localhost:9998/</a><br />
-				If everything is fine and well you should be greeted with the basic page which includes a description and two links.<br />
-				Now click or copy paste the data url into your browser <a href="http://localhost:9998/data/">http://localhost:9998/data/</a><br />
-				The Data page is where our storages are located; remember the &quot;tutorial&quot; storage we created when we launched the REST service?<br />
-				To use the &quot;tutorial&quot; storage click the link or copy paste the url into your browser <a href="http://localhost:9998/data/tutorial/">http://localhost:9998/data/tutorial/</a><br/>
-				The REST API provides some useful tools and a decent interface but for the purposes of demonstrating Patomic lets get back to PHP.<br />
-				For more information on using the REST API provided by Datomic <a href="http://docs.datomic.com/rest.html">http://docs.datomic.com/rest.html</a><br />
-				Reopen your terminal application and run composer.phar to install the dependencies for our tutorial.<br />
+				Double check that you have the Datomic REST service running by visiting <a href="http://localhost:9998/">http://localhost:9998/</a>. 
+				If everything is fine and well you should be greeted with the basic page which includes a description and two links. 
+				Now click or copy paste the data url into your browser <a href="http://localhost:9998/data/">http://localhost:9998/data/</a>. 
+				The Data page is where our storages are located; remember the &quot;tutorial&quot; storage we created when we launched the REST service? 
+				To use the &quot;tutorial&quot; storage click the link or copy paste the url into your browser <a href="http://localhost:9998/data/tutorial/">http://localhost:9998/data/tutorial/</a>. 
+				The REST API provides some useful tools and a decent interface but for the purposes of demonstrating Patomic lets get back to PHP. 
+				For more information on using the REST API provided by Datomic <a href="http://docs.datomic.com/rest.html">http://docs.datomic.com/rest.html</a>. 
+				Reopen your terminal application and run composer.phar to install the dependencies.
 				<pre><code>$ cd {folder_where_you_unzipped_datomic}
 $ curl -sS https://getcomposer.org/installer | php
 $ sudo php composer.phar install
 $ sudo php composer.phar update
 </code></pre>
+				<p>
 				If successful you will see confirmation that the composer packages were correctly installed; now create a new file called <b>main.php</b>.<br />
+				</p>
 				<pre><code>&lt;?php
 
 require_once __DIR__ . &quot;/vendor/autoload.php&quot;;
@@ -248,23 +250,23 @@ use \taywils\Patomic\Patomic;
 use \taywils\Patomic\PatomicTransaction;
 
 try {
-	$patomic = new Patomic(&quot;http://localhost&quot;, 9998, &quot;mem&quot;, &quot;tutorial&quot;);
-	$patomic-&gt;createDatabase(&quot;se&quot;);
-	$patomic-&gt;setDatabase(&quot;se&quot;);
+  $patomic = new Patomic(&quot;http://localhost&quot;, 9998, &quot;mem&quot;, &quot;tutorial&quot;);
+  $patomic-&gt;createDatabase(&quot;se&quot;);
+  $patomic-&gt;setDatabase(&quot;se&quot;);
 
-	$patomicTransaction = new PatomicTransaction();
-	$patomicTransaction-&gt;loadFromFile(__DIR__ . DIRECTORY_SEPARATOR . &quot;seattle-schema.edn&quot;);
+  $patomicTransaction = new PatomicTransaction();
+  $patomicTransaction-&gt;loadFromFile(__DIR__ . DIRECTORY_SEPARATOR . &quot;seattle-schema.edn&quot;);
 
-	$patomic-&gt;commitTransaction($patomicTransaction);
-	echo $patomic-&gt;getTransactionResponse();
+  $patomic-&gt;commitTransaction($patomicTransaction);
+  echo $patomic-&gt;getTransactionResponse();
 
-	$patomicTransaction2 = new PatomicTransaction();
-	$patomicTransaction2-&gt;loadFromFile(__DIR__ . DIRECTORY_SEPARATOR . &quot;seattle-data0.edn&quot;);
+  $patomicTransaction2 = new PatomicTransaction();
+  $patomicTransaction2-&gt;loadFromFile(__DIR__ . DIRECTORY_SEPARATOR . &quot;seattle-data0.edn&quot;);
 
-	$patomic-&gt;commitTransaction($patomicTransaction2);
-	echo $patomic-&gt;getTransactionResponse();
+  $patomic-&gt;commitTransaction($patomicTransaction2);
+  echo $patomic-&gt;getTransactionResponse();
 } catch(PatomicException $patomicException) {
-	echo $patomicException-&gt;getMessage();
+  echo $patomicException-&gt;getMessage();
 }
 </code></pre>
 				<p>
@@ -346,13 +348,109 @@ try {
 			<p>
 			So far we've given a brief outline of Patomic's functionality but how do we go about creating a small application from the ground up showing how we can use Datomic as a backend for a API written in PHP?
 			</p>
+			<p>
+			Collected below is the code used in all the examples shown so far this overview.
+			</p>
+			<pre><code>&lt;?php
+
+require_once __DIR__ . &quot;/vendor/autoload.php&quot;;
+
+use \taywils\Patomic\Patomic;
+use \taywils\Patomic\PatomicTransaction;
+use \taywils\Patomic\PatomicQuery;
+use \taywils\Patomic\PatomicEntity;
+
+function createSchemaLoadData($patomic) {
+  $patomicTransaction = new PatomicTransaction();
+  $patomicTransaction-&gt;loadFromFile(__DIR__ . DIRECTORY_SEPARATOR . &quot;seattle-schema.edn&quot;);
+
+  $patomic-&gt;commitTransaction($patomicTransaction);
+
+  $patomicTransaction2 = new PatomicTransaction();
+  $patomicTransaction2-&gt;loadFromFile(__DIR__ . DIRECTORY_SEPARATOR . &quot;seattle-data0.edn&quot;);
+
+  $patomic-&gt;commitTransaction($patomicTransaction2);
+}
+
+function rawQueryExample($patomic) {
+  $patomicQuery = new PatomicQuery();
+  $patomicQuery-&gt;newRawQuery(
+  &quot;[:find ?neighborhood :in $ :where [?entityId :neighborhood/name ?neighborhood]]&quot;
+  )-&gt;addRawQueryArgs(&quot;[{:db/alias tutorial/seattledb}]&quot;);
+
+  $patomic-&gt;commitRawQuery($patomicQuery);
+
+  $neighborhoodNames = $patomic-&gt;getQueryResult();
+
+  foreach($neighborhoodNames as $row) {
+    echo $row[0] . PHP_EOL;
+  }
+}
+
+function regularQueryExample($patomic) {
+  $patomicQuery = new PatomicQuery();
+  $patomicQuery-&gt;find(&quot;neighborhood&quot;)
+    -&gt;where(array(&quot;entityId&quot; =&gt; &quot;neighborhood/name&quot;, &quot;neighborhood&quot;));
+
+  $patomic-&gt;commitRegularQuery($patomicQuery);
+
+  $neighborhoodNames = $patomic-&gt;getQueryResult();
+
+  foreach($neighborhoodNames as $row) {
+    echo $row[&quot;neighborhood&quot;] . PHP_EOL;
+  }
+}
+
+function createNickNameEntity($patomic) {
+  $pe = new PatomicEntity();
+  $pe-&gt;ident(&quot;community&quot;, &quot;nickname&quot;)
+    -&gt;valueType(&quot;string&quot;)
+    -&gt;cardinality(&quot;one&quot;)
+    -&gt;fullText(true)
+    -&gt;doc(&quot;A community's nickname&quot;)
+    -&gt;install(&quot;attribute&quot;);
+
+  $pe-&gt;prettyPrint();
+
+  echo PHP_EOL;
+
+  $pt = new PatomicTransaction();
+  $pt-&gt;append($pe);
+
+  $patomic-&gt;commitTransaction($pt);
+
+  echo $patomic-&gt;getTransactionResponse();
+}
+
+try {
+  $patomic = new Patomic(&quot;http://localhost&quot;, 9998, &quot;mem&quot;, &quot;tutorial&quot;);
+  $patomic-&gt;createDatabase(&quot;seattledb&quot;);
+  $patomic-&gt;setDatabase(&quot;seattledb&quot;);
+
+  //createSchemaLoadData($patomic);
+  //rawQueryExample($patomic);
+  //regularQueryExample($patomic);
+  //createNickNameEntity($patomic);
+} catch(PatomicException $patomicException) {
+  echo $patomicException-&gt;getMessage();
+}
+
+</code></pre>
 			<div class="page-header">
-				<h1>Building An Application With Patomic</h1>
+				<h1 id="application">Building An Application With Patomic</h1>
 			</div>
 			<p>
 				Comming soon.
 			</p>
 		</div>
 
+		<div id="myScrollspy" class="col-md-3">
+			<ul class="nav nav-pills nav-stacked" data-spy="affix" data-offset-top="60"> 
+				<li><a href="#prerequisites">Prerequisites</a></li>
+				<li><a href="#short_tutorial">Short Tutorial</a></li>
+				<li><a href="#application">Application Dev</a></li>
+			</ul>
+		</div>
 	</div> <!-- row -->
-</div>
+
+</div> <!-- container -->
