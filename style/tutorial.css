@@ -14,3 +14,7 @@ body {
 #myScrollspy {
 	margin-top: 50px;
 }
+
+.subaffix {
+	padding-left: 2em !important;
+}
