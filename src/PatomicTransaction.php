@@ -1,5 +1,8 @@
 <?php
 
+//TODO: Create a new method PatomicTransaction::addMany
+//TODO: Adding complex data i.g https://github.com/jonase/learndatalogtoday/blob/master/resources%2Fdb%2Fdata.edn
+
 namespace taywils\Patomic;
 
 /**
@@ -47,6 +50,37 @@ class PatomicTransaction
             $this->body->data[] = $elem;
         } else {
             $this->body->data[$key] = $elem;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Allows for the addition of multiple attribute-value pairs as a combined entity to create a single datom
+     *
+     * Can be used to datoms such as the following:
+     * {:db/id #db/id [:db.part/user -106]
+     *   :person/name "Richard Smith"
+     *   :person/born #inst "1979-11-12"
+     *   :person/occupation "Salesman"
+     *   :person/ssn "535-18-7230"}
+     *
+     * @return $this
+     * @throws PatomicException
+     */
+    public function addMany() {
+        $numargs = func_num_args();
+
+        if($numargs < 1) {
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " expects at minimum a non-empty array");
+        }
+
+        $argsArray = func_get_args();
+
+        for($i = 0; $i < $numargs; $i++) {
+            if(!is_array($argsArray[$i])) {
+                throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " was given a non-array argument");
+            }
         }
 
         return $this;
