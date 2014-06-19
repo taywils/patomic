@@ -144,26 +144,42 @@ class PatomicTest extends PHPUnit_Framework_TestCase
             $this->assertEquals($expectedString, $e->getMessage());
         }
 
-        /* If no database(s) exist then throw an exception */
+        /* If no database(s) exists then just set the DB name anyways do not throw an exception */
         try {
             $p = new Patomic("http://localhost", 9998, "mem", "taywils");
-            $p->setDatabase("something");
-            $this->fail("PatomicException should have been thrown");
-        } catch(PatomicException $e) {
-            $expectedString = "Patomic::setDatabase Cannot assign Database because none have been created";
-            $this->assertEquals($expectedString, $e->getMessage());
-        }
 
-        /* Assign new database name if the name being set has been created */        
-        try {
-            $p = new Patomic("http://localhost", 9998, "mem", "taywils");
-            $dbNamesValue = array('rhino', 'testdb');
+            ob_start();
+            $p->setDatabase("something");
+            $cliOutput = ob_get_contents();
+            ob_end_clean();
 
             // We need to set the private property with valid data using Reflection
             $reflectionClass = new ReflectionClass('\taywils\Patomic\Patomic');
             $reflectionProperty = $reflectionClass->getProperty('dbNames');
             $reflectionProperty->setAccessible(true);
-            $reflectionProperty->setValue($p, $dbNamesValue);
+            $dbNamesArray = $reflectionProperty->getValue($p);
+
+            $this->assertEquals($dbNamesArray, array('something'));
+            $this->assertEquals("INFO: A Patomic object set database to something" . PHP_EOL, $cliOutput);
+        } catch(PatomicException $e) {
+            $this->fail("PatomicException should not be thrown");
+        }
+
+        /* The config dbName should be updated */
+        try {
+            $p = new Patomic("http://localhost", 9998, "mem", "taywils");
+
+            ob_start();
+            $p->setDatabase('rhino');
+            ob_end_clean();
+
+            // We need to read the private property data using Reflection
+            $reflectionClass = new ReflectionClass('\taywils\Patomic\Patomic');
+            $reflectionProperty = $reflectionClass->getProperty('config');
+            $reflectionProperty->setAccessible(true);
+            $currentConfigDbName = $reflectionProperty->getValue($p);
+
+            $this->assertEquals($currentConfigDbName['dbName'], 'rhino');
 
             ob_start();
             $p->setDatabase('testdb');
@@ -175,7 +191,36 @@ class PatomicTest extends PHPUnit_Framework_TestCase
             $this->fail("PatomicException should not be thrown");
         }
 
-        /* Throw an exception if the name being set was not found within the list of valid dbNames */
+        /* If the argument to setDatabase is a name that already exists within the dbNames array
+            do not throw an exception just print the console message indicating that the db name was properly set
+         */
+        try {
+            $p = new Patomic("http://localhost", 9998, "mem", "taywils");
+            $dbNamesValue = array('rhino', 'cheetah');
+
+            // We need to set the private property with valid data using Reflection
+            $reflectionClass = new ReflectionClass('\taywils\Patomic\Patomic');
+            $reflectionProperty = $reflectionClass->getProperty('dbNames');
+            $reflectionProperty->setAccessible(true);
+            $reflectionProperty->setValue($p, $dbNamesValue);
+
+            ob_start();
+            $p->setDatabase('cheetah');
+            $cliOutput = ob_get_contents();
+            ob_end_clean();
+
+            $this->assertEquals("INFO: A Patomic object set database to cheetah" . PHP_EOL, $cliOutput);
+
+            // The list of database names should not include a duplicate
+            $reflectionDbNames = $reflectionProperty->getValue($p);
+            $this->assertEquals(array(), array_diff($reflectionDbNames, array('rhino', 'cheetah')));
+        } catch(PatomicException $e) {
+            $this->fail("PatomicException should not be thrown");
+        }
+
+        /* If the argument to setDatabase is a name that does not exist within the dbNames array
+            do not throw an exception just print the console message indicating that the db name was properly set
+         */
         try {
             $p = new Patomic("http://localhost", 9998, "mem", "taywils");
             $dbNamesValue = array('rhino');
@@ -187,14 +232,17 @@ class PatomicTest extends PHPUnit_Framework_TestCase
             $reflectionProperty->setValue($p, $dbNamesValue);
 
             ob_start();
-            $p->setDatabase('rhina'); // A common error is dbName miss-spellings
-            $this->fail("PatomicException should have been thrown");
-        } catch(PatomicException $e) {
+            $p->setDatabase('cheetah');
             $cliOutput = ob_get_contents();
             ob_end_clean();
-            $expectedString = "Patomic::setDatabase database name does not exist";
-            $this->assertEquals("WARN: Failed to set database to rhina, database not found" . PHP_EOL, $cliOutput);
-            $this->assertEquals($expectedString, $e->getMessage());
+
+            $this->assertEquals("INFO: A Patomic object set database to cheetah" . PHP_EOL, $cliOutput);
+
+            // The name should be added to the 'dbNames' property
+            $reflectionDbNames = $reflectionProperty->getValue($p);
+            $this->assertEquals(array(), array_diff($reflectionDbNames, array('rhino', 'cheetah')));
+        } catch(PatomicException $e) {
+            $this->fail("PatomicException should not be thrown");
         }
     }
 }
