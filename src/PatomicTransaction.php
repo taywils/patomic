@@ -2,6 +2,8 @@
 
 //TODO: Create a new method PatomicTransaction::addMany
 //TODO: Adding complex data i.g https://github.com/jonase/learndatalogtoday/blob/master/resources%2Fdb%2Fdata.edn
+//TODO: Properly handle valueType/Instant by checking for PHP Date objects
+//TODO: Clean up prettyPrint
 
 namespace taywils\Patomic;
 
@@ -20,6 +22,7 @@ class PatomicTransaction
     private static $KEYWORD_RETRACT  = "retract";
     private static $ENTITY_CLASSNAME = 'taywils\Patomic\PatomicEntity';
     private static $VECTOR_CLASSNAME = 'igorw\edn\Vector';
+    private static $MAP_CLASSNAME    = 'igorw\edn\Map';
 
     use TraitEdn;
 
@@ -58,30 +61,58 @@ class PatomicTransaction
     /**
      * Allows for the addition of multiple attribute-value pairs as a combined entity to create a single datom
      *
-     * Can be used to datoms such as the following:
+     * Example where -106 is the tempId:
+     *
      * {:db/id #db/id [:db.part/user -106]
      *   :person/name "Richard Smith"
      *   :person/born #inst "1979-11-12"
      *   :person/occupation "Salesman"
      *   :person/ssn "535-18-7230"}
      *
+     * @param int $tempId Optional temporary ID for the datom
      * @return $this
      * @throws PatomicException
      */
-    public function addMany() {
+    public function addMany($tempId = null) {
         $numargs = func_num_args();
 
-        if($numargs < 1) {
-            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " expects at minimum a non-empty array");
+        if($numargs <= 1) {
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " expects at minimum two arguments");
+        }
+
+        if(is_null($tempId) || !is_int($tempId)) {
+            throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " tempId argument must be an integer");
         }
 
         $argsArray = func_get_args();
 
-        for($i = 0; $i < $numargs; $i++) {
+        for($i = 1; $i < $numargs; $i++) {
             if(!is_array($argsArray[$i])) {
                 throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " was given a non-array argument");
             }
         }
+
+        $datom = $this->_map();
+
+        $idTag = $this->_tag("db/id");
+        $dbUser = $this->_vector(array($this->_keyword("db.part/user")));
+        if(!is_null($tempId)) {
+            $dbUser->data[] = $tempId;
+        }
+        $idTagged = $this->_tagged($idTag, $dbUser);
+
+        $datom[$this->_keyword("db/id")] = $idTagged;
+
+        // Where array("entity" => "attribute" , value)
+        for($i = 1; $i < $numargs; $i++) {
+            $keys = array_keys($argsArray[$i]);
+            $vals = array_values($argsArray[$i]);
+
+           $datom[$this->_keyword($keys[0] . "/" . $argsArray[$i][$keys[0]])] = $vals[0];
+        }
+
+        //echo PHP_EOL . $this->_encode($datom);
+        $this->body->data[] = $datom;
 
         return $this;
     }
@@ -106,7 +137,7 @@ class PatomicTransaction
      * Displays the transaction according to the style shown throughout the Datomic Documentation
      */
     public function prettyPrint() {
-        $printFormating = ($this->loadedFromFile) ? "" : "[" . PHP_EOL . PHP_EOL;
+        $printFormating = ($this->loadedFromFile) ? "" : "[" . PHP_EOL;
         echo $printFormating;
 
         foreach($this->body->data as $elem) {
@@ -118,6 +149,10 @@ class PatomicTransaction
 
                     case self::$VECTOR_CLASSNAME:
                         echo PHP_EOL . $this->_encode($elem);
+                        break;
+
+                    case self::$MAP_CLASSNAME:
+                        echo PHP_EOL. $this->_encode($elem);
                         break;
 
                     default:

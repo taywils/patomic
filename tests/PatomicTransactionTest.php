@@ -214,7 +214,7 @@ class PatomicTransactionTest extends PHPUnit_Framework_TestCase
             ->doc("A community's name")
             ->install("attribute");
         $pt->append($pe);
-        $expectedString = "[" . PHP_EOL . PHP_EOL;
+        $expectedString = "[" . PHP_EOL;
         $expectedStringArray = array(
             '{:db/id #db/id[:db.part/db]',
              ':db/ident :community/name',
@@ -304,6 +304,22 @@ class PatomicTransactionTest extends PHPUnit_Framework_TestCase
             $pt->loadFromFile(__DIR__ . DIRECTORY_SEPARATOR . "seattle-data0.edn");
         } catch(Exception $e) {
             $this->fail("Exception should not have been thrown" . PHP_EOL . $e->getMessage());
+        }
+    }
+
+    /**
+     * @covers PatomicTransaction::addMany
+     */
+    public function testAddMany() {
+        try {
+            $pt = new PatomicTransaction();
+
+            $pt->addMany(-100,
+                array("post" => "title", "This mad world"),
+                array("post" => "author", "Taywils")
+            );
+        } catch(PatomicException $e) {
+            $this->fail("PatomicTransaction::addMany should not throw an exception");
         }
     }
 }
