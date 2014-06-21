@@ -195,13 +195,13 @@ class PatomicTransactionTest extends PHPUnit_Framework_TestCase
         /*
          [
 
-            {:db/id #db/id[:db.part/db]
-             :db/ident :community/name
-             :db/valueType :db.type/string
-             :db/cardinality :db.cardinality/one
-             :db/fulltext true
-             :db/doc "A community's name"
-             :db.install/_attribute :db.part/db}
+         {:db/id #db/id[:db.part/db]
+          :db/ident :community/name
+          :db/valueType :db.type/string
+          :db/cardinality :db.cardinality/one
+          :db/fulltext true
+          :db/doc "A community's name"
+          :db.install/_attribute :db.part/db}
 
          ]
          */
@@ -214,17 +214,21 @@ class PatomicTransactionTest extends PHPUnit_Framework_TestCase
             ->doc("A community's name")
             ->install("attribute");
         $pt->append($pe);
-        $expectedString = "[" . PHP_EOL;
-        $expectedStringArray = array(
-            '{:db/id #db/id[:db.part/db]',
-             ':db/ident :community/name',
-             ':db/valueType :db.type/string',
-             ':db/cardinality :db.cardinality/one',
-             ':db/fulltext true',
-             ':db/doc "A community\'s name"',
-             ':db.install/_attribute :db.part/db}'
-        );
-        $expectedString .= implode("\n ", $expectedStringArray) . PHP_EOL . PHP_EOL . ']' . PHP_EOL;
+
+        $expectedString = <<<'EOD'
+[
+
+{:db/id #db/id[:db.part/db]
+ :db/ident :community/name
+ :db/valueType :db.type/string
+ :db/cardinality :db.cardinality/one
+ :db/fulltext true
+ :db/doc "A community's name"
+ :db.install/_attribute :db.part/db}
+
+]
+
+EOD;
         ob_start();
         $pt->prettyPrint();
         $prettyPrintString = ob_get_contents();
@@ -309,8 +313,73 @@ class PatomicTransactionTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers PatomicTransaction::addMany
+     * @covers PatomicTransaction::prettyPrint
+     * @covers PatomicTransaction::__toString
+     * @covers PatomicTransaction::loadFromFile
      */
     public function testAddMany() {
+        /* Zero arguments passed will throw an exception */
+        try {
+            $pt = new PatomicTransaction();
+
+            $pt->addMany();
+            $this->fail("PatomicException should have been thrown");
+        } catch(PatomicException $e) {
+            $expectedString = "PatomicTransaction::addMany expects at minimum two arguments";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
+
+        /* A single valid argument will throw an exception */
+        try {
+            $pt = new PatomicTransaction();
+
+            $pt->addMany(-20001, "string");
+            $this->fail("PatomicException should have been thrown");
+        } catch(PatomicException $e) {
+            $expectedString = "PatomicTransaction::addMany was given an empty or non-array argument";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
+
+        /* Valid tempId with empty array will throw exception */
+        try {
+            $pt = new PatomicTransaction();
+
+            $pt->addMany(-20001, array());
+            $this->fail("PatomicException should have been thrown");
+        } catch(PatomicException $e) {
+            $expectedString = "PatomicTransaction::addMany was given an empty or non-array argument";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
+
+        /* Null tempId should not throw an exception */
+        try {
+            $pt = new PatomicTransaction();
+
+            $pt->addMany(null, array("book" => "pageCount", 321));
+        } catch(PatomicException $e) {
+            $this->fail("PatomicException should not have been thrown ");
+        }
+
+        /* Integer tempId and valid basic array should not throw an exception */
+        try {
+            $pt = new PatomicTransaction();
+
+            $pt->addMany(-10007, array("book" => "pageCount", 321));
+        } catch(PatomicException $e) {
+            $this->fail("PatomicException should not have been thrown");
+        }
+
+        /* Non-null non-integer tempId will throw an exception */
+        try {
+            $pt = new PatomicTransaction();
+
+            $pt->addMany("string", array("book" => "pageCount", 321));
+        } catch(PatomicException $e) {
+            $expectedString = "PatomicTransaction::addMany tempId argument must be an integer";
+            $this->assertEquals($expectedString, $e->getMessage());
+        }
+
+        /* Valid tempId with basic eav arrays will match prettyPrint output */
         try {
             $pt = new PatomicTransaction();
 
@@ -318,6 +387,66 @@ class PatomicTransactionTest extends PHPUnit_Framework_TestCase
                 array("post" => "title", "This mad world"),
                 array("post" => "author", "Taywils")
             );
+
+            ob_start();
+            $pt->prettyPrint();
+            $prettyPrintString = ob_get_contents();
+            ob_end_clean();
+
+            $expectedString = <<<'EOD'
+[
+
+{:db/id #db/id [:db.part/user -100] :post/title "This mad world" :post/author "Taywils"}
+
+]
+
+EOD;
+
+            $this->assertEquals($expectedString, $prettyPrintString);
+        } catch(PatomicException $e) {
+            $this->fail("PatomicTransaction::addMany should not throw an exception");
+        }
+
+        /* addMany should not cause __toString to throw an exception */
+        try {
+            $pt = new PatomicTransaction();
+
+            $pt->addMany(-100,
+                array("post" => "title", "This mad world"),
+                array("post" => "author", "Taywils")
+            );
+
+            ob_start();
+            echo $pt;
+            ob_end_clean();
+        } catch(PatomicException $e) {
+            $this->fail("PatomicTransaction::addMany should not throw an exception");
+        }
+
+        /* addMany will clear the transaction body previously loaded from a file */
+        try {
+            $pt = new PatomicTransaction();
+
+            $contents = sprintf($pt);
+            $this->assertEquals(true, "[]" == $contents);
+
+            $pt->loadFromFile(__DIR__ . DIRECTORY_SEPARATOR . "seattle-data0.edn");
+
+            $contents = sprintf($pt);
+            $this->assertEquals(true, "[]" != $contents);
+
+            $pt->addMany(-100,
+                array("post" => "title", "This mad world"),
+                array("post" => "author", "Taywils")
+            );
+
+            ob_start();
+            echo $pt;
+            $echoString = ob_get_contents();
+            ob_end_clean();
+
+            $expectedString = '[{:db/id #db/id [:db.part/user -100] :post/title "This mad world" :post/author "Taywils"}]';
+            $this->assertEquals($echoString, $expectedString);
         } catch(PatomicException $e) {
             $this->fail("PatomicTransaction::addMany should not throw an exception");
         }
