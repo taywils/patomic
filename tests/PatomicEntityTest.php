@@ -454,10 +454,12 @@ class PatomicEntityTest extends PHPUnit_Framework_TestCase
             ':db.install/_attribute :db.part/db}'
         );
         $expectedString = implode("\n ", $expectedStrings);
+
         ob_start();
         $pe->prettyPrint();
         $prettyPrintOutput = ob_get_contents();
         ob_end_clean();
+
         $this->assertEquals($expectedString, $prettyPrintOutput);
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+//TODO: Add #inst tag to addMany
 //TODO: Adding complex data i.g https://github.com/jonase/learndatalogtoday/blob/master/resources%2Fdb%2Fdata.edn
 //TODO: Properly handle valueType/Instant by checking for PHP Date objects
 
@@ -16,11 +17,14 @@ class PatomicTransaction
     private $loadedFromFile;
     private $reflection;
 
-    private static $KEYWORD_ADD      = "add";
-    private static $KEYWORD_RETRACT  = "retract";
-    private static $ENTITY_CLASSNAME = 'taywils\Patomic\PatomicEntity';
-    private static $VECTOR_CLASSNAME = 'igorw\edn\Vector';
-    private static $MAP_CLASSNAME    = 'igorw\edn\Map';
+    private static $KEYWORD_ADD         = "add";
+    private static $KEYWORD_RETRACT     = "retract";
+    private static $INST_TAGNAME        = "inst";
+    private static $ENTITY_CLASSNAME    = 'taywils\Patomic\PatomicEntity';
+    private static $VECTOR_CLASSNAME    = 'igorw\edn\Vector';
+    private static $MAP_CLASSNAME       = 'igorw\edn\Map';
+    private static $DATEFORMAT          = 'Y-m-d';
+    private static $DATETIME_CLASSNAME  = 'DateTime';
 
     use TraitEdn;
 
@@ -287,7 +291,14 @@ class PatomicTransaction
         $vec->data[] = $this->_keyword("db/" . $methodKeyword);
         $vec->data[] = $idTagged;
         $vec->data[] = $this->_keyword($entityName . "/" . $attributeName);
-        $vec->data[] = $value;
+
+        if(is_object($value) && get_class($value) == self::$DATETIME_CLASSNAME) {
+            $instTag    = $this->_tag(self::$INST_TAGNAME);
+            $instTagged = $this->_tagged($instTag, $value->format(self::$DATEFORMAT));
+            $vec->data[] = $instTagged;
+        } else {
+            $vec->data[] = $value;
+        }
 
         $this->body->data[] = $vec;
 

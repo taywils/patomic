@@ -108,6 +108,25 @@ class PatomicTransactionTest extends PHPUnit_Framework_TestCase
             $expectedString = "PatomicTransaction::addOrRetract tempId argument must be an integer";
             $this->assertEquals($expectedString, $e->getMessage());
         }
+
+        /* If the value part of the eav triplet is a DateTime object then use the Datomic #inst tag */
+        try {
+            $pt = new PatomicTransaction();
+
+            $birthday = new DateTime('1988-06-16');
+            $pt->add("employee", "dob", $birthday);
+
+            ob_start();
+            echo $pt;
+            $output = ob_get_contents();
+            ob_end_clean();
+
+            $expectedString = '[[:db/add #db/id [:db.part/user] :employee/dob #inst "1988-06-16"]]';
+
+            $this->assertEquals($expectedString, $output);
+        } catch(PatomicException $e) {
+            $this->fail("PatomicTransaction::add should not throw an exception");
+        }
     }
 
     /**
@@ -440,10 +459,7 @@ EOD;
                 array("post" => "author", "Taywils")
             );
 
-            ob_start();
-            echo $pt;
-            $echoString = ob_get_contents();
-            ob_end_clean();
+            $echoString = sprintf($pt);
 
             $expectedString = '[{:db/id #db/id [:db.part/user -100] :post/title "This mad world" :post/author "Taywils"}]';
             $this->assertEquals($echoString, $expectedString);
