@@ -234,20 +234,23 @@ class PatomicTransactionTest extends PHPUnit_Framework_TestCase
             ->install("attribute");
         $pt->append($pe);
 
-        $expectedString = <<<'EOD'
-[
+        $expectedString = array(
+                '[',
+                "",
+                '{:db/id #db/id[:db.part/db]',
+                ' :db/ident :community/name',
+                ' :db/valueType :db.type/string',
+                ' :db/cardinality :db.cardinality/one',
+                ' :db/fulltext true',
+                ' :db/doc "A community\'s name"',
+                ' :db.install/_attribute :db.part/db}',
+                "",
+                ']',
+                ""
+        );
 
-{:db/id #db/id[:db.part/db]
- :db/ident :community/name
- :db/valueType :db.type/string
- :db/cardinality :db.cardinality/one
- :db/fulltext true
- :db/doc "A community's name"
- :db.install/_attribute :db.part/db}
+        $expectedString = implode(PHP_EOL, $expectedString);
 
-]
-
-EOD;
         ob_start();
         $pt->prettyPrint();
         $prettyPrintString = ob_get_contents();
@@ -412,14 +415,15 @@ EOD;
             $prettyPrintString = ob_get_contents();
             ob_end_clean();
 
-            $expectedString = <<<'EOD'
-[
-
-{:db/id #db/id [:db.part/user -100] :post/title "This mad world" :post/author "Taywils"}
-
-]
-
-EOD;
+            $expectedString = array(
+                "[",
+                "",
+                '{:db/id #db/id [:db.part/user -100] :post/title "This mad world" :post/author "Taywils"}',
+                "",
+                "]",
+                ""
+            );
+            $expectedString = implode(PHP_EOL, $expectedString);
 
             $this->assertEquals($expectedString, $prettyPrintString);
         } catch(PatomicException $e) {
