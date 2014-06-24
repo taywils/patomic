@@ -235,18 +235,18 @@ class PatomicTransactionTest extends PHPUnit_Framework_TestCase
         $pt->append($pe);
 
         $expectedString = array(
-                '[',
-                "",
-                '{:db/id #db/id[:db.part/db]',
-                ' :db/ident :community/name',
-                ' :db/valueType :db.type/string',
-                ' :db/cardinality :db.cardinality/one',
-                ' :db/fulltext true',
-                ' :db/doc "A community\'s name"',
-                ' :db.install/_attribute :db.part/db}',
-                "",
-                ']',
-                ""
+            '[',
+            "",
+            '{:db/id #db/id[:db.part/db]',
+            ' :db/ident :community/name',
+            ' :db/valueType :db.type/string',
+            ' :db/cardinality :db.cardinality/one',
+            ' :db/fulltext true',
+            ' :db/doc "A community\'s name"',
+            ' :db.install/_attribute :db.part/db}',
+            "",
+            ']',
+            ""
         );
 
         $expectedString = implode(PHP_EOL, $expectedString);
@@ -466,6 +466,24 @@ class PatomicTransactionTest extends PHPUnit_Framework_TestCase
             $echoString = sprintf($pt);
 
             $expectedString = '[{:db/id #db/id [:db.part/user -100] :post/title "This mad world" :post/author "Taywils"}]';
+            $this->assertEquals($echoString, $expectedString);
+        } catch(PatomicException $e) {
+            $this->fail("PatomicTransaction::addMany should not throw an exception");
+        }
+
+        /* addMany will successfully convert DateTime objects to Datomic #inst tags */
+        try {
+            $pt = new PatomicTransaction();
+
+            $pt->addMany(null,
+                array("post" => "title",    "This mad world"),
+                array("post" => "author",   "Taywils"),
+                array("post" => "content",  "Listening to Hardcore History its an excellent podcast"),
+                array("post" => "date",     (new DateTime('2014-06-23')))
+            );
+
+            $echoString = sprintf($pt);
+            $expectedString = '[{:db/id #db/id [:db.part/user] :post/title "This mad world" :post/author "Taywils" :post/content "Listening to Hardcore History its an excellent podcast" :post/date #inst "2014-06-23"}]';
             $this->assertEquals($echoString, $expectedString);
         } catch(PatomicException $e) {
             $this->fail("PatomicTransaction::addMany should not throw an exception");

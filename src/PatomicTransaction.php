@@ -1,8 +1,6 @@
 <?php
 
-//TODO: Add #inst tag to addMany
 //TODO: Adding complex data i.g https://github.com/jonase/learndatalogtoday/blob/master/resources%2Fdb%2Fdata.edn
-//TODO: Properly handle valueType/Instant by checking for PHP Date objects
 
 namespace taywils\Patomic;
 
@@ -110,7 +108,11 @@ class PatomicTransaction
             $keys = array_keys($argsArray[$i]);
             $vals = array_values($argsArray[$i]);
 
-            $datom[$this->_keyword($keys[0] . "/" . $argsArray[$i][$keys[0]])] = $vals[1];
+            $entity     = $keys[0];
+            $attribute  = $argsArray[$i][$keys[0]];
+            $value      = $vals[1];
+
+            $datom[$this->_keyword($entity . "/" . $attribute)] = $this->createInstTag($value);
         }
 
         $this->clearIfLoadedFromFile();
@@ -292,13 +294,7 @@ class PatomicTransaction
         $vec->data[] = $idTagged;
         $vec->data[] = $this->_keyword($entityName . "/" . $attributeName);
 
-        if(is_object($value) && get_class($value) == self::$DATETIME_CLASSNAME) {
-            $instTag    = $this->_tag(self::$INST_TAGNAME);
-            $instTagged = $this->_tagged($instTag, $value->format(self::$DATEFORMAT));
-            $vec->data[] = $instTagged;
-        } else {
-            $vec->data[] = $value;
-        }
+        $vec->data[] = $this->createInstTag($value);
 
         $this->body->data[] = $vec;
 
@@ -313,6 +309,17 @@ class PatomicTransaction
         if($this->loadedFromFile) {
             $this->clearData();
             $this->loadedFromFile = false;
+        }
+    }
+
+    private function createInstTag($value) {
+        if(is_object($value) && get_class($value) == self::$DATETIME_CLASSNAME) {
+            $instTag    = $this->_tag(self::$INST_TAGNAME);
+            $instTagged = $this->_tagged($instTag, $value->format(self::$DATEFORMAT));
+
+            return $instTagged;
+        } else {
+            return $value;
         }
     }
 }
