@@ -340,6 +340,14 @@ class PatomicEntity
         return $output;
     }
 
+    /**
+     * Properly assign Datomic boolean attributes
+     *
+     * @param bool $attributeValue defaults to false
+     * @param string $attributeName The name of the Datomic attribute
+     *
+     * @return object $this
+     */
     private function setBooleanAttribute($attributeValue = false, $attributeName) {
         $attributeValue = !is_bool($attributeValue) ? false : $attributeValue;
         $this->schema[$this->_keyword("db/" . $attributeName)] = $attributeValue;

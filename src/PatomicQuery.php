@@ -80,7 +80,7 @@ class PatomicQuery
      * Will represent the "find" part of a the actual EDN [:find ?communityName ... ]
      *
      * @throws PatomicException
-     * @return $this
+     * @return object $this
      */
     public function find() {
         $numargs = func_num_args();
@@ -102,6 +102,27 @@ class PatomicQuery
         return $this;
     }
 
+    /**
+     * Will append the "in" part of the EDN query vector to the current PatomicQuery object.
+     * The main argument type is a whitespace delimited strings each representing entity name(s).
+     *
+     * Example:
+     *  
+     * $pq->find("entity")
+     *   ->in("fname lname")
+     *   ->where(array("entity" => "user/firstName", "fname"))
+     *   ->where(array("entity" => "user/lastName", "lname"));
+     *
+     * The optional second argument can be an array representing a Datomic binding collection
+     *
+     * Example:
+     *  
+     * $pq->find("e", "x")
+     *   ->in("amount", array("one", 123));
+     *
+     * @throws PatomicException
+     * @return object $this
+     */
     public function in() {
         $numargs = func_num_args();
 
@@ -150,7 +171,7 @@ class PatomicQuery
      *
      * @param $argArray
      * @throws PatomicException
-     * @return $this
+     * @return object $this
      */
     public function where($argArray = null) {
         if(!isset($argArray) || !is_array($argArray)) {
@@ -162,6 +183,13 @@ class PatomicQuery
         return $this;
     }
 
+    /**
+     * Appends the argument(s) list to the current PatomicQuery object
+     * 
+     * @param array $argArray Key value pairs representing entityName/attributeName => value
+     * @throws PatomicException
+     * @return object $this
+     */
     public function arg($argArray) {
         if(!isset($argArray) || !is_array($argArray)) {
             throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " expects an array as an argument");
@@ -172,10 +200,20 @@ class PatomicQuery
         return $this;
     }
 
+    /**
+     * Adds a limit value to the current PatomicQuery object's query body
+     *
+     * @param int $limit A positive integer representing the number of results to be returned
+     */
     public function limit($limit) {
         $this->limitOrOffset($limit, true);
     }
 
+    /**
+     * Adds an offset value to the current PatomicQuery object's query body
+     *
+     * @param int $offset A positive integer representing the number of results to ignore mostly used for pagination
+     */
     public function offset($offset) {
         $this->limitOrOffset($offset, false);
     }
@@ -237,6 +275,13 @@ class PatomicQuery
         return $this->findEdn;
     }
 
+    /**
+     * Assigns the value of the limit or offset for the current PatomicQuery
+     *
+     * @param int $value The value of the limit or offset
+     * @param bool $useLimit
+     * @throws PatomicException
+     */
     private function limitOrOffset($value, $useLimit) {
         if(!isset($value) || !is_int($value) || ($value < 1)) {
             throw new PatomicException($this->reflection->getShortName() . "::" . __FUNCTION__ . " expects a positive integer as an argument");
@@ -279,6 +324,13 @@ class PatomicQuery
         return $areAllArgumentsStrings;
     }
 
+    /**
+     * Provides a validation function for the arguments passed to the PatomicQuery::in() method
+     *
+     * @param int $numArgs
+     * @param array $argsArray
+     * @return mixed Boolean true if valid else a string error message
+     */
     private function validateInArgs($numArgs, $argsArray) {
         $validateArray = function() use($numArgs, $argsArray) {
             $allElementsAreString = true;
