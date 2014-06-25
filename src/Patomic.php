@@ -1,5 +1,7 @@
 <?php
 
+//TODO: CommitQuery CURLOPT_URL needs to check for queryOffset and queryLimit and include them if necessary
+
 namespace taywils\Patomic;
 
 /**
@@ -261,18 +263,38 @@ class Patomic
         return $retCode;
     }
 
+    /**
+     * Returns a string representing the most recent transaction
+     *
+     * @return string
+     */
     public function getTransactionResponse() {
         return $this->transactionResponse;
     }
 
+    /**
+     * Accepts a new query object initialized with a raw query and performs a transaction.
+     *
+     * @param PatomicQuery $patomicQuery
+     */
     public function commitRawQuery(PatomicQuery $patomicQuery) {
         $this->commitQuery($patomicQuery, self::$RAW_QUERY);
     }
 
+    /**
+     * Accepts a new query object initialized with a regular query and performs a transaction.
+     *
+     * @param PatomicQuery $patomicQuery
+     */
     public function commitRegularQuery(PatomicQuery $patomicQuery) {
         $this->commitQuery($patomicQuery, self::$REGULAR_QUERY);
     }
 
+    /**
+     * Sends the desired query out to the Datomic REST client and stores the result.
+     * @param PatomicQuery $patomicQuery
+     * @param string $queryType will either be "regular" or "raw"
+     */
     protected function commitQuery(PatomicQuery $patomicQuery, $queryType) {
         if(self::$RAW_QUERY == $queryType) {
             $queryStr       = urlencode($patomicQuery->getRawQuery());
@@ -336,6 +358,9 @@ class Patomic
         return $retCode;
     }
 
+    /**
+     * Returns the most recent query result
+     */
     public function getQueryResult() {
         return $this->queryResult;
     }
