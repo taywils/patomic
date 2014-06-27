@@ -281,6 +281,8 @@ class PatomicQuery
      * @param int $value The value of the limit or offset
      * @param bool $useLimit
      * @throws PatomicException
+     *
+     * @return object $this
      */
     private function limitOrOffset($value, $useLimit) {
         if(!isset($value) || !is_int($value) || ($value < 1)) {

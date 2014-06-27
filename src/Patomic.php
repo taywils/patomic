@@ -1,7 +1,5 @@
 <?php
 
-//TODO: CommitQuery CURLOPT_URL needs to check for queryOffset and queryLimit and include them if necessary
-
 namespace taywils\Patomic;
 
 /**
@@ -294,6 +292,7 @@ class Patomic
      * Sends the desired query out to the Datomic REST client and stores the result.
      * @param PatomicQuery $patomicQuery
      * @param string $queryType will either be "regular" or "raw"
+     * @return boolean true if successful
      */
     protected function commitQuery(PatomicQuery $patomicQuery, $queryType) {
         if(self::$RAW_QUERY == $queryType) {
@@ -313,7 +312,7 @@ class Patomic
         $this->queryResult  = array();
 
         $patomicCurl->setOptionArray(array(
-            CURLOPT_URL => $this->config["apiUrl"] . "?q=" . $queryStr . "&args=" . $queryArgStr,
+            CURLOPT_URL => $this->buildQueryUrl($queryStr, $queryArgStr, $patomicQuery),
             CURLOPT_HTTPHEADER => array('Accept: application/edn'),
             CURLOPT_CONNECTTIMEOUT => 5,
             CURLOPT_RETURNTRANSFER => 1
@@ -390,5 +389,28 @@ class Patomic
                 echo $this->statusQueue->dequeue() . PHP_EOL;
             }
         }
+    }
+
+    /**
+     * Constructs the Datomic REST client query path
+     * GET /api/query?q=<query>&args=<args>[&limit=<limit>][&offset=<offset>]
+     * @see http://docs.datomic.com/rest.html
+     *
+     * @param string $queryStr The current PatomicQuery query body
+     * @param string $queryArgStr The current PatomicQuery argument body
+     * @param PatomicQuery $patomicQuery
+     *
+     * @return string $path
+     */
+    protected function buildQueryUrl($queryStr, $queryArgStr, PatomicQuery $patomicQuery) {
+        $path = $this->config["apiUrl"] . "?q=" . $queryStr . "&args=" . $queryArgStr;
+
+        $limitValue     = $patomicQuery->getLimit();
+        $offsetValue    = $patomicQuery->getOffset();
+
+        $path .= ($limitValue > 0)  ? "&limit="     . $limitValue   : "";
+        $path .= ($offsetValue > 0) ? "&offset="    . $offsetValue  : "";
+
+        return $path;
     }
 }

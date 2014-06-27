@@ -15,7 +15,7 @@ class PatomicTest extends PHPUnit_Framework_TestCase
 	public function testConstructor() {
 		/* Valid constructor inputs should not throw an exception */
 		try {
-		    $p = new Patomic("http://localhost", 9998, "mem", "taywils");
+		    new Patomic("http://localhost", 9998, "mem", "taywils");
 		} catch(PatomicException $e) {
 			$this->fail("Patomic::__construct should not throw an exception for valid input");
 		}
