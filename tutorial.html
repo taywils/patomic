@@ -106,7 +106,7 @@ try {
 </code></pre>
 				Verify that the database was in fact created by visiting <a href="http://localhost:9998/data/tutorial/seattle/-/">http://localhost:9998/data/tutorial/seattle/-/</a>
 				</p>
-				<h3>Adding A Schema</h3>
+				<h3 id="addSchema">Adding A Schema</h3>
 				<p>
 				Next we're going to demonstrate how to load a schema from an existing .edn file. EDN is short for Extensible Data Notation and is the default format for Datomic schemas. Create a new file called <b>seattle-schema.edn</b> and copy paste the EDN provided.<br />
 				<pre><code>[
@@ -436,31 +436,23 @@ try {
 }
 
 </code></pre>
-			<div class="page-header">
-				<h1 id="application">Building An Application With Patomic</h1>
-			</div>
-			<p>
-			We're going to create an application which uses a basic API to communicate with server-side PHP using ajax calls. The goal here is to illustrate how one would go about using Patomic from the ground up. For this application we'll be using <a href="https://getcomposer.org/">https://getcomposer.org/</a>, a well known PHP microframework called <a href="http://www.slimframework.com/">http://www.slimframework.com/</a> and Facebook's React javascript library for building our interface <a href="http://facebook.github.io/react/index.html">http://facebook.github.io/react/index.html</a>.
-			</p>
-			<p>
-			</p>
-		</div>
+  </div>
 
-		<div id="myScrollspy" class="col-md-3">
-			<ul class="nav nav-pills nav-stacked" data-spy="affix"> 
-				<li><a href="#prerequisites">Prerequisites</a></li>
-				<li><a href="#short_tutorial">Short Tutorial</a></li>
-					<ul class="nav nav-stacked">
-						<li><a class="subaffix" href="#launchRest">Launching The Datomic REST API</a></li>
-						<li><a class="subaffix" href="#createDb">Creating A Database</a></li>
-						<li><a class="subaffix" href="#loadSample">Loading Sample Data</a></li>
-						<li><a class="subaffix" href="#basicQueries">Basic Queries</a></li>
-						<li><a class="subaffix" href="#transactions">Transactions</a></li>
-					</ul>
-				<li><a href="#application">Building An Application</a></li>
-				<li><a href="#thetop">Back To The Top</a></li>
-			</ul>
-		</div>
-	</div> <!-- row -->
+    <div id="myScrollspy" class="col-md-3">
+      <ul class="nav nav-pills nav-stacked" data-spy="affix"> 
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#short_tutorial">Short Tutorial</a></li>
+        <ul class="nav nav-stacked">
+          <li><a class="subaffix" href="#launchRest">Launching The Datomic REST API</a></li>
+          <li><a class="subaffix" href="#createDb">Creating A Database</a></li>
+          <li><a class="subaffix" href="#addSchema">Adding A Schema</a></li>
+          <li><a class="subaffix" href="#loadSample">Loading Sample Data</a></li>
+          <li><a class="subaffix" href="#basicQueries">Basic Queries</a></li>
+          <li><a class="subaffix" href="#transactions">Transactions</a></li>
+        </ul>
+        <li><a href="#thetop">Back To The Top</a></li>
+      </ul>
+    </div>
+  </div> <!-- row -->
 
 </div> <!-- container -->
