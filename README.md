@@ -10,37 +10,73 @@ Requirements
 3. [Composer](http://getcomposer.org/)
 4. PHP >= 5.4 (It uses traits)
 
-Quickstart (Incomplete Don't read this its not ready)
------------------------------------------------------
+Quickstart
+----------
 
 ```
-$ cd [datomic_directory]
-$ ./bin/rest -p 9998 [alias_name] datomic:[datomic_storage_type]://
+$ cd [directory_where_datomic_is_installed]
+$ ./bin/rest -p 9998 example datomic:mem://
 ```
-Now create a new project to use Patomic
+
+Now create a new directory somewhere on your hard drive which will hold your new Patomic project files.
 
 ```
-$ cd [project_directory]
+$ cd ~
+$ mkdir [my_patomic_project_name]
+$ cd [my_patomic_project_name]
 $ touch composer.json
 ```
 
-Add Patomic to your composer.json
-Run composer install if a new project or composer update for an existing one
-Now create a new file lets call it app.php
+Add the following to your composer.json in order to have composer install Patomic for your project.
+
+```
+{
+  "require": {
+    "taywils/patomic": "dev-master",
+    "igorw/edn": "1.0.*@dev",
+    "nikic/phlexy": "1.0.*@dev"
+  }
+}
+```
+
+Run composer install and watch for any possible errors.
+This step may vary depending on how/where you installed composer but for a typical Linux machine running the latest version of Ubuntu.
+
+```
+$ sudo php composer.phar install
+```
+
+Within the same directory we now want to create a new file; lets call it app.php
 
 ```
 $ touch app.php
 ```
 
-Use your favorite editor/IDE open app.php and add the following
+Use your favorite editor/IDE and open app.php and add the following.
 
 ```
 <?php
-require __DIR__.'/vendor/autoload.php';
+/* app.php */
 
-$patomic = new Patomic(9998, "mem", "myAliasName");
-$patomic->connect();
-$patomic->createDatabase("squid");
+require __DIR__ . '/vendor/autoload.php';
+
+use \taywils\Patomic\Patomic;
+use \taywils\Patomic\PatomicEntity;
+use \taywils\Patomic\PatomicTransaction;
+use \taywils\Patomic\PatomicQuery;
+use \taywils\Patomic\PatomicException;
+
+function createDb() {
+  $patomic = new Patomic("http://localhost", 9998, "mem", "example");
+  $patomic->createDatabase("blog");
+  $patomic->setDatabase("blog");
+}
+
+try {
+  createDb();
+} catch(PatomicException $pe) {
+  echo $pe->getMessage() . PHP_EOL;
+}
 ```
 
 Run it and you should have a new Datomic database using in memory storage
