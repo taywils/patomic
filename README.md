@@ -226,6 +226,8 @@ function createQuery() {
 Putting all of our functions together the last thing we need to do is create a Patomic object that will send our Transactions and run our Queries.
 
 ```
+<?php
+
 /* Complete app.php */
 
 require __DIR__ . '/vendor/autoload.php';
@@ -304,8 +306,7 @@ function addData() {
 function createQuery() {
     $pq = new PatomicQuery();
 
-    $pq->find("entity")
-        ->in("firstName lastName")
+    $pq->find("firstName", "lastName")
         ->where(array("entity" => "author/firstName", "firstName"))
         ->where(array("entity" => "author/lastName", "lastName"));
 
@@ -326,6 +327,39 @@ try {
     echo $pe->getMessage() . PHP_EOL;
 }
 ```
+
+Lastly run app.php and you should see the following upon success.
+
+```
+INFO: Database "blog" created
+INFO: A Patomic object set database to blog
+INFO: commitTransaction success
+INFO: commitTransaction success
+INFO: commitQuery success
+Array
+(
+    [0] => Array
+        (
+            [firstName] => Danny
+            [lastName] => Ward
+        )
+
+    [1] => Array
+        (
+            [firstName] => Sam
+            [lastName] => Smith
+        )
+
+    [2] => Array
+        (
+            [firstName] => Melissa
+            [lastName] => Grey
+        )
+
+)
+```
+
+For more information visit the Github page for Patomic [http://taywils.github.io/patomic/](http://taywils.github.io/patomic/)
 
 About/Features
 --------------
