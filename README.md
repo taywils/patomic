@@ -200,9 +200,9 @@ function addData() {
 To query our data lets first consider the EDN which is what you can use if you are already familiar with Datomic. Don't forget; for advanced users Patomic can use raw EDN queries written as strings.
 
 ```
-[:find ?entity
- :in $ ?firstName ?lastName
- :where [?entity :author/firstName ?firstName]
+[:find ?firstName ?lastName 
+ :in $ 
+ :where [?entity :author/firstName ?firstName] 
         [?entity :author/lastName ?lastName]]
 ```
 
