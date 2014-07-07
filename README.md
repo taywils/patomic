@@ -214,8 +214,7 @@ Once again those familiar with EDN will be right at home but for PHP devs learni
 function createQuery() {
     $pq = new PatomicQuery();
 
-    $pq->find("entity")
-        ->in("firstName lastName")
+    $pq->find("firstName", "lastName")
         ->where(array("entity" => "author/firstName", "firstName"))
         ->where(array("entity" => "author/lastName", "lastName"));
 
