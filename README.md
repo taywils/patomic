@@ -30,7 +30,7 @@ $ touch composer.json
 
 Add the following to your composer.json in order to have composer install Patomic for your project.
 
-```
+```javascript
 {
   "require": {
     "taywils/patomic": "dev-master",
@@ -55,7 +55,7 @@ $ touch app.php
 
 Use your favorite editor/IDE and open app.php and add the following.
 
-```
+```php
 <?php
 /* app.php */
 
@@ -84,7 +84,7 @@ Run it and you should have a new Datomic instance using in memory storage runnin
 
 Let's create a simple schema to demonstrate how Patomic helps PHP developers take advantage of Datomic. Say you want to create the following schema; (don't forget that Patomic can also import .edn files)
 
-```
+```edn
 {:db/id #db/id[:db.part/db]
  :db/ident :author/firstName
  :db/valueType :db.type/string
@@ -109,7 +109,7 @@ Let's create a simple schema to demonstrate how Patomic helps PHP developers tak
 
  Those familiar with EDN will feel right at home but for a PHP developer the following is the Patomic equivalent.
 
-```
+```php
 /* Add this to your existing app.php */
 
  function createSchema() {
@@ -148,7 +148,7 @@ Let's create a simple schema to demonstrate how Patomic helps PHP developers tak
 
 Now we'll demonstrate how to add data to our schema, for instance consider the following EDN.
 
-```
+```edn
 [
  {:db/id #db/id [:db.part/user]
   :author/firstName "Sam"
@@ -169,7 +169,7 @@ Now we'll demonstrate how to add data to our schema, for instance consider the f
 
 Within Patomic we'll represent the transaction to add data as the following.
 
-```
+```php
 /* Add this to your existing app.php */
 
 function addData() {
@@ -199,7 +199,7 @@ function addData() {
 
 To query our data lets first consider the EDN which is what you can use if you are already familiar with Datomic. Don't forget; for advanced users Patomic can use raw EDN queries written as strings.
 
-```
+```edn
 [:find ?firstName ?lastName 
  :in $ 
  :where [?entity :author/firstName ?firstName] 
@@ -208,7 +208,7 @@ To query our data lets first consider the EDN which is what you can use if you a
 
 Once again those familiar with EDN will be right at home but for PHP devs learning EDN we use PatomicQuery objects.
 
-```
+```php
 /* Add this to your existing app.php */
 
 function createQuery() {
@@ -224,7 +224,7 @@ function createQuery() {
 
 Putting all of our functions together the last thing we need to do is create a Patomic object that will send our Transactions and run our Queries.
 
-```
+```php
 <?php
 
 /* Complete app.php */
